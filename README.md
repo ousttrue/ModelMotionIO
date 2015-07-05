@@ -1,2 +1,3 @@
-# ModelGenerics
-3D model utility for C#
+# ModelMotionIO
+3D model and motion IO library for C#
+
