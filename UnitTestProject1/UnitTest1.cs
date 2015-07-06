@@ -32,6 +32,7 @@ namespace UnitTestProject1
             Assert.AreEqual(12354, model.Vertices.Length);
             Assert.AreEqual(22961 * 3, model.Indices.Length);
             Assert.AreEqual(17, model.Materials.Length);
+            Assert.AreEqual(140, model.Bones.Length);
         }
     }
 }

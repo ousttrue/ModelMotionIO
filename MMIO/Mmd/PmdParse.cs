@@ -34,8 +34,8 @@ namespace MMIO.Mmd
                 Position = position,
                 Normal = normal,
                 UV = uv,
-                BoneIndex0 = boneIndex0,
-                BoneIndex1 = boneIndex1,
+                Bone0 = (boneIndex0!=-1 ? (Int16?)boneIndex0 : null),
+                Bone1 = (boneIndex1!=-1 ? (Int16?)boneIndex1 : null),
                 BoneWeight0 = boneWeight0,
                 Flag = flag,
             };
@@ -61,6 +61,23 @@ namespace MMIO.Mmd
                 TextureFile=textureFile,
             };
 
+        public static BParser<PmdBone> Bone =
+            from name in BParse.String(20, Encoding.GetEncoding(932))
+            from parentBoneIndex in BParse.Int16
+            from tailBoneIndex in BParse.Int16
+            from boneType in BParse.Byte
+            from ikBoneIndex in BParse.Int16
+            from position in BParse.Vector3
+            select new PmdBone
+            {
+                Name=name,
+                Parent=parentBoneIndex!=-1 ? (Int16?)parentBoneIndex : null,
+                Tail=tailBoneIndex!=-1 && tailBoneIndex!=0 ? (Int16?)tailBoneIndex:null,
+                BoneType=(PmdBoneType)boneType,
+                IK=ikBoneIndex,
+                Position=position,
+            };
+
         public static BParser<PmdModel> Parse = 
             from header in Header
             // vertices
@@ -72,13 +89,16 @@ namespace MMIO.Mmd
             // materials
             from materialCount in BParse.Int32
             from materials in Material.Times(materialCount)
-            //
+            // bones
+            from boneCount in BParse.Int16
+            from bones in Bone.Times(boneCount)
             select new PmdModel
             {
                 Header=header,
                 Vertices = vertices,
                 Indices = indices,
                 Materials = materials,
+                Bones = bones,
             };
     }
 }
