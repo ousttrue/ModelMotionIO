@@ -179,6 +179,15 @@ namespace MMIO.Mmd
         public Int32? ParentIndex { get; set; }
         public Int32 Layer { get; set; }
         public PmxBoneFlags BoneFlag { get; set; }
+        public Vector3 TailOffset { get; set; }
+        public Int32? TailIndex { get; set; }
+        public Int32? AddIndex { get; set; }
+        public Single AddRatio { get; set; }
+        public Vector3 FixedAxis { get; set; }
+        public Vector3 LocalAxisX { get; set; }
+        public Vector3 LocalAXisZ { get; set; }
+        public Int32 ExternalKey { get; set; }
+        public PmxIK IK { get; set; }
     }
 
     public enum PmxMorphPanel

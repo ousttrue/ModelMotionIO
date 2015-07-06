@@ -279,6 +279,19 @@ namespace MMIO.Mmd
                     {
                         Name=name,
                         EnglishName=englishName,
+                        Position=position,
+                        ParentIndex=parentIndex,
+                        Layer=layer,
+                        BoneFlag=flag,
+                        TailOffset=tailOffset,
+                        TailIndex=tailBoneIndex,
+                        AddIndex=addParentIndex,
+                        AddRatio=addRatio,
+                        FixedAxis=fixedaxis,
+                        LocalAxisX=localX,
+                        LocalAXisZ=localZ,
+                        ExternalKey=externalKey,
+                        IK=ik,
                     };
             }           
         }

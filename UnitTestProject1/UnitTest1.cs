@@ -51,10 +51,10 @@ namespace UnitTestProject1
             Assert.AreEqual(22961 * 3, model.Indices.Length);
             Assert.AreEqual(17, model.Materials.Length);
             Assert.AreEqual(140, model.Bones.Length);
-            //Assert.AreEqual(7, model.IKList.Length);
+            Assert.AreEqual(7, model.Bones.Where(x => x.BoneFlag.HasFlag(MMIO.Mmd.PmxBoneFlags.IKEffector)).Count());
             Assert.AreEqual(30, model.Morphs.Length);
-            //Assert.AreEqual(45, model.Rigidbodies.Length);
-            //Assert.AreEqual(27, model.Joints.Length);
+            Assert.AreEqual(45, model.Rigidbodies.Length);
+            Assert.AreEqual(27, model.Joints.Length);
         }
     }
 }
