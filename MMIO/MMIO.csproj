@@ -44,7 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BParser.cs" />
+    <Compile Include="BParse.cs" />
     <Compile Include="Bullet\Joint.cs" />
     <Compile Include="Bullet\Rigidbody.cs" />
     <Compile Include="Bvh\BvhParser.cs" />
