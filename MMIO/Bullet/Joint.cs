@@ -6,12 +6,19 @@ using System.Threading.Tasks;
 
 namespace MMIO.Bullet
 {
+    public enum JointType
+    {
+        Spring6DOF,
+    }
+
     public class Joint
     {
         public String Name { get; set; }
+        public String EnglishName { get; set; }
+        public JointType JointType { get; set; }
 
-        public Int32 RigidBodyIndexA { get; set; }
-        public Int32 RigidBodyIndexB { get; set; }
+        public Int32? RigidBodyIndexA { get; set; }
+        public Int32? RigidBodyIndexB { get; set; }
 
         public Vector3 Position { get; set; }
         public Vector3 EulerAngleRadians { get; set; }

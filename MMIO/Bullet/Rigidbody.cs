@@ -23,7 +23,8 @@ namespace MMIO.Bullet
     public class Rigidbody
     {
         public String Name { get; set; }
-        public Int16? BoneIndex { get; set; }
+        public String EnglishName { get; set; }
+        public Int32? BoneIndex { get; set; }
 
         /// <summary>
         /// 衝突グループ
@@ -33,7 +34,7 @@ namespace MMIO.Bullet
         /// <summary>
         /// 衝突無視グループ
         /// </summary>
-        public UInt16 IgnoreGroup { get; set; }
+        public UInt16 CollisionIgnoreGroup { get; set; }
 
         /// <summary>
         /// 衝突形状タイプ

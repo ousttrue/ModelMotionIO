@@ -13,6 +13,10 @@ namespace MMIO
         bool WasSuccess { get; }
     }
 
+    public class ParseException: System.ArgumentException
+    {
+    }        
+
     public class Result<T> : IResult<T>
     {
         public T Value { get; set; }
@@ -24,7 +28,8 @@ namespace MMIO
         }
         public static IResult<T> Fail(ArraySegment<Byte> rem)
         {
-            return new Result<T>() { Value = default(T), Reminder = rem, WasSuccess = false };
+            throw new ParseException();
+            //return new Result<T>() { Value = default(T), Reminder = rem, WasSuccess = false };
         }
     }
 
@@ -81,6 +86,13 @@ namespace MMIO
                     reminder = resultOne.Reminder;
                 }
                 return Result<T[]>.Success(resultAll, reminder);
+            };
+        }
+
+        public static BParser<T> Return<T>(T value)
+        {
+            return i => {
+                return Result<T>.Success(value, i);
             };
         }
 

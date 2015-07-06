@@ -164,7 +164,7 @@ namespace MMIO.Mmd
                 Name=name,
                 BoneIndex=boneIndex,
                 CollisionGroup=collisionGroup,
-                IgnoreGroup=ignoreGroup,
+                CollisionIgnoreGroup=ignoreGroup,
                 ShapeType=shapeType,
                 ShapeSize=shapeSize,
                 Position=position,
