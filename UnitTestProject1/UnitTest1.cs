@@ -23,12 +23,13 @@ namespace UnitTestProject1
         [TestMethod]
         public void TestPmdParser()
         {
-            var path = "../../../samples/miku_v2.pmd";
+            var path = "../../../samples/初音ミクVer2.pmd";
             var bytes = File.ReadAllBytes(path);
 
             var model = MMIO.Mmd.PmdParser.Parser(new ArraySegment<byte>(bytes)).Value;
 
             Assert.AreEqual("初音ミク", model.Name);
+            Assert.AreEqual(12354, model.Vertices.Length);
         }
     }
 }
