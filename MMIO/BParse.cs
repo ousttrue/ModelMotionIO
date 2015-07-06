@@ -200,7 +200,7 @@ namespace MMIO
             };
         }
 
-        public static BParser<String> StringOf(String target, Encoding encoding)
+        public static BParser<String> StringOf(String target, Encoding encoding, int advanceCount=0)
         {
             return i =>
             {
@@ -209,7 +209,7 @@ namespace MMIO
                 var textBytes = i.Take(byteCount).TakeWhile(x => x != 0).Count();
                 var text = encoding.GetString(i.Array, i.Offset, textBytes);
                 if (text != target) return Result<String>.Fail(i);
-                return Result<String>.Success(text, i.Advance(byteCount));
+                return Result<String>.Success(text, i.Advance(Math.Max(advanceCount, byteCount)));
             };
         }
     }

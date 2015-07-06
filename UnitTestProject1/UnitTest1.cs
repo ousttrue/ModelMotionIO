@@ -9,10 +9,12 @@ namespace UnitTestProject1
     [TestClass]
     public class UnitTest1
     {
+        static string SAMPLE_DIRECTORY = "../../../samples/";
+
         [TestMethod]
         public void TestBvhParser()
         {
-            var path = "../../../samples/simple.bvh";
+            var path = SAMPLE_DIRECTORY+"simple.bvh";
             var text = File.ReadAllText(path);
 
             var root = MMIO.Bvh.BvhParse.Parser.Parse(text);
@@ -23,7 +25,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void TestPmdParser()
         {
-            var path = "../../../samples/初音ミクVer2.pmd";
+            var path = SAMPLE_DIRECTORY+"初音ミクVer2.pmd";
             var bytes = File.ReadAllBytes(path);
 
             var model = MMIO.Mmd.PmdParse.Parse(bytes);
@@ -42,7 +44,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void TestPmxParser()
         {
-            var path = "../../../samples/初音ミクVer2.pmx";
+            var path = SAMPLE_DIRECTORY+"初音ミクVer2.pmx";
             var bytes = File.ReadAllBytes(path);
 
             var model = MMIO.Mmd.PmxParse.Parse(bytes);
@@ -55,6 +57,17 @@ namespace UnitTestProject1
             Assert.AreEqual(30, model.Morphs.Length);
             Assert.AreEqual(45, model.Rigidbodies.Length);
             Assert.AreEqual(27, model.Joints.Length);
+        }
+
+        [TestMethod]
+        public void TestVmdParser()
+        {
+            var path = SAMPLE_DIRECTORY + "sample.vmd";
+            var bytes = File.ReadAllBytes(path);
+
+            var vmd = MMIO.Mmd.VmdParse.Parse(bytes);
+
+            int a = 0;
         }
     }
 }
