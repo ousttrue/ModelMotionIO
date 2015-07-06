@@ -46,7 +46,7 @@ namespace MMIO.Bvh
         }
     }
 
-    public static class BvhParser
+    public static class BvhParse
     {
         public static Parser<String> Exponent = from _ in Parse.Char('E')
                                                 from sign in Parse.Chars("+-")

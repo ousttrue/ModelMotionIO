@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MMIO.Mmd
 {
-    static public class PmdParser
+    static public class PmdParse
     {
         public static BParser<PmdVertex> Vertex = from position in BParse.Vector3
                                                   from normal in BParse.Vector3
@@ -26,7 +26,7 @@ namespace MMIO.Mmd
                                                       Flag=flag,
                                                   };
 
-        public static BParser<PmdModel> Parser = from pmd in BParse.StringOf("Pmd", Encoding.ASCII)
+        public static BParser<PmdModel> Model = from pmd in BParse.StringOf("Pmd", Encoding.ASCII)
                                                  from version in BParse.SingleOf(1.0f)
                                                  from name in BParse.String(20, Encoding.GetEncoding(932))
                                                  from comment in BParse.String(256, Encoding.GetEncoding(932))
