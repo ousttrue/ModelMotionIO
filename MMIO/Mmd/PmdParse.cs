@@ -74,11 +74,27 @@ namespace MMIO.Mmd
                 Parent=parentBoneIndex!=-1 ? (Int16?)parentBoneIndex : null,
                 Tail=tailBoneIndex!=-1 && tailBoneIndex!=0 ? (Int16?)tailBoneIndex:null,
                 BoneType=(PmdBoneType)boneType,
-                IK=ikBoneIndex,
+                IK=ikBoneIndex!=-1 && ikBoneIndex!=0 ? (Int16?)ikBoneIndex:null,
                 Position=position,
             };
 
-        public static BParser<PmdModel> Parse = 
+        public static BParser<PmdIK> IK =
+            from targetBoneIndex in BParse.Int16
+            from chainBoneIndex in BParse.Int16
+            from chainLength in BParse.Byte
+            from iterations in BParse.Int16
+            from limit in BParse.Single
+            from chain in BParse.Int16.Times(chainLength)
+            select new PmdIK
+            {
+                Effector=targetBoneIndex!=-1 ? (Int16?)targetBoneIndex:null,
+                Target=chainBoneIndex!=-1 ?(Int16?)chainBoneIndex:null,
+                Iterations=iterations,
+                Limit=limit,
+                Chain=chain.Select(x => x!=-1 ? (Int16?)x:null).ToArray(),
+            };
+
+        public static BParser<PmdModel> Model = 
             from header in Header
             // vertices
             from vertexCount in BParse.Int32
@@ -92,6 +108,9 @@ namespace MMIO.Mmd
             // bones
             from boneCount in BParse.Int16
             from bones in Bone.Times(boneCount)
+            // ik
+            from ikCount in BParse.Int16
+            from ikList in IK.Times(ikCount)
             select new PmdModel
             {
                 Header=header,
@@ -99,6 +118,12 @@ namespace MMIO.Mmd
                 Indices = indices,
                 Materials = materials,
                 Bones = bones,
+                IKList=ikList,
             };
+
+        public static PmdModel Parse(Byte[] bytes)
+        {
+            return Model(new ArraySegment<byte>(bytes)).Value;
+        }
     }
 }

@@ -60,6 +60,15 @@ namespace MMIO.Mmd
         public Vector3 Position { get; set; }
     }
 
+    public class PmdIK
+    {
+        public Int16? Effector { get; set; }
+        public Int16? Target { get; set; }
+        public Int16 Iterations { get; set; }
+        public Single Limit { get; set; }
+        public Int16?[] Chain { get; set; }
+    }
+
     public class PmdModel
     {
         public PmdHeader Header { get; set; }
@@ -67,5 +76,6 @@ namespace MMIO.Mmd
         public UInt16[] Indices { get; set; }
         public PmdMaterial[] Materials { get; set; }
         public PmdBone[] Bones { get; set; }
+        public PmdIK[] IKList { get; set; }
     }
 }
