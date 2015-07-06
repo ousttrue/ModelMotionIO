@@ -69,6 +69,34 @@ namespace MMIO.Mmd
         public Int16?[] Chain { get; set; }
     }
 
+    public enum PmdMorphType
+    {
+        Base,
+        Eyebrow,
+        Eyes,
+        Lip,
+        Other,
+    }
+
+    public struct PmdVertexMorphOffset
+    {
+        public Int32 VertexIndex;
+        public Vector3 Offset;
+    }
+
+    public class PmdMorph
+    {
+        public String Name { get; set; }
+        public PmdMorphType MorphType { get; set; }
+        public PmdVertexMorphOffset[] Offsets { get; set; }
+    }
+
+    public class PmdBoneGroup
+    {
+        public Int16? BoneIndex { get; set; }
+        public Byte BoneGroupNameIndex { get; set; }
+    }
+
     public class PmdModel
     {
         public PmdHeader Header { get; set; }
@@ -77,5 +105,12 @@ namespace MMIO.Mmd
         public PmdMaterial[] Materials { get; set; }
         public PmdBone[] Bones { get; set; }
         public PmdIK[] IKList { get; set; }
+        public PmdMorph[] Morphs { get; set; }
+        public Int16[] MorphGroups { get; set; }
+        public String[] BoneGroupNames { get; set; }
+        public PmdBoneGroup[] BoneGroups { get; set; }
+        public String[] ToonTextures { get; set; }
+        public Bullet.Rigidbody[] Rigidbodies { get; set; }
+        public Bullet.Joint[] Joints { get; set; }
     }
 }

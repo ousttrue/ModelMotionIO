@@ -79,7 +79,6 @@ namespace MMIO
                         return Result<T[]>.Fail(reminder);
                     resultAll[i]=resultOne.Value;
                     reminder = resultOne.Reminder;
-                    resultOne = parser(reminder);
                 }
                 return Result<T[]>.Success(resultAll, reminder);
             };
@@ -91,12 +90,14 @@ namespace MMIO
             return Result<Byte>.Success(i.First(), i.Advance(1));
         };
 
-        public static BParser<byte> ByteOf(Predicate<byte> predict)
+        public static BParser<byte> ByteOf(Byte target)
         {
             return i =>
             {
                 if (i.Count < 1) return Result<byte>.Fail(i);
-                return Result<byte>.Success(i.First(), i.Advance(1));
+                var value = i.First();
+                if (value != target) return Result<byte>.Fail(i);
+                return Result<byte>.Success(value, i.Advance(1));
             };
         }
 
