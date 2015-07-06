@@ -17,10 +17,22 @@ namespace UnitTestProject1
             var path = SAMPLE_DIRECTORY+"simple.bvh";
             var text = File.ReadAllText(path);
 
-            var root = MMIO.Bvh.BvhParse.Parser.Parse(text);
+            var root = MMIO.Bvh.BvhParse.Parse(text);
 
             Assert.AreEqual("Hips", root.Name);
         }
+
+        [TestMethod]
+        public void TestVpdParser()
+        {
+            var path = SAMPLE_DIRECTORY + "右手グー.vpd";
+            var text = File.ReadAllText(path);
+
+            var root = MMIO.Mmd.VpdParse.Parse(text);
+
+            //Assert.AreEqual("Hips", root.Name);
+        }
+
 
         [TestMethod]
         public void TestPmdParser()
@@ -69,5 +81,6 @@ namespace UnitTestProject1
 
             int a = 0;
         }
+
     }
 }

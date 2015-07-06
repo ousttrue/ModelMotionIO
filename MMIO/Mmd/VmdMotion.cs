@@ -22,10 +22,28 @@ namespace MMIO.Mmd
         public Single Value;
     }
 
+    public struct VmdCameraFrame
+    {
+
+    }
+
+    public struct VmdLightFrame
+    {
+
+    }
+
+    public struct VmdSelfShadowFrame
+    {
+
+    }
+
     public class VmdMotion
     {
         public String TargetModelName { get; set; }
         public VmdBoneFrame[] BoneFrames { get; set; }
         public VmdMorphFrame[] MorphFrames { get; set; }
+        public VmdCameraFrame[] CameraFrames { get; set; }
+        public VmdLightFrame[] LightFrames { get; set; }
+        public VmdSelfShadowFrame[] SelfShadowFrames { get; set; }
     }
 }
