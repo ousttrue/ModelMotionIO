@@ -6,6 +6,13 @@ using System.Threading.Tasks;
 
 namespace MMIO.Mmd
 {
+    public class PmdHeader
+    {
+        public Single Version { get; set; }
+        public String Name { get; set; }
+        public String Comment { get; set; }
+    }
+
     public struct PmdVertex
     {
         public Vector3 Position;
@@ -17,10 +24,23 @@ namespace MMIO.Mmd
         public Byte Flag;
     }
 
+    public struct PmdMaterial
+    {
+        public Vector4 DiffuseRGBA;
+        public Single Specularity;
+        public Vector3 SpecularRGB;
+        public Vector3 AmbientRGB;
+        public Byte ToonIndex;
+        public Byte Flag;
+        public Int32 FaceIndexCount;
+        public String TextureFile;
+    }
+
     public class PmdModel
     {
-        public String Name { get; set; }
-        public String Comment { get; set; }
+        public PmdHeader Header { get; set; }
         public PmdVertex[] Vertices { get; set; }
+        public UInt16[] Indices { get; set; }
+        public PmdMaterial[] Materials { get; set; }
     }
 }

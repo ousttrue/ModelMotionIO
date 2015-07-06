@@ -31,4 +31,21 @@ namespace MMIO
             Z = z;
         }
     }
+
+    public struct Vector4
+    {
+        public Single X;
+        public Single Y;
+        public Single Z;
+        public Single W;
+
+        public Vector4(float x, float y, float z, float w)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+            W = w;
+        }
+    }
+
 }

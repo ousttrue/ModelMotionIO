@@ -100,14 +100,12 @@ namespace MMIO
             };
         }
 
-        public static BParser<IEnumerable<Byte>> Bytes(int byteCount)
+        public static BParser<UInt16> UInt16 = i =>
         {
-            return i =>
-            {
-                if (i.Count < byteCount) return Result<IEnumerable<Byte>>.Fail(i);
-                return Result<IEnumerable<Byte>>.Success(i.Take(byteCount), i.Advance(byteCount));
-            };
-        }
+            if (i.Count < 2) return Result<UInt16>.Fail(i);
+            var value = BitConverter.ToUInt16(i.Array, i.Offset);
+            return Result<UInt16>.Success(value, i.Advance(2));
+        };
 
         public static BParser<Int16> Int16 = i =>
         {
@@ -121,6 +119,13 @@ namespace MMIO
             if (i.Count < 4) return Result<Int32>.Fail(i);
             var value = BitConverter.ToInt32(i.Array, i.Offset);
             return Result<Int32>.Success(value, i.Advance(4));
+        };
+
+        public static BParser<Single> Single = i=>
+        {
+            if (i.Count < 4) return Result<Single>.Fail(i);
+            var value = BitConverter.ToSingle(i.Array, i.Offset);
+            return Result<Single>.Success(value, i.Advance(4));
         };
 
         public static BParser<Single> SingleOf(float target)
@@ -150,6 +155,25 @@ namespace MMIO
             var z = BitConverter.ToSingle(i.Array, i.Offset+8);
             return Result<Vector3>.Success(new Vector3(x, y, z), i.Advance(12));
         };
+
+        public static BParser<Vector4> Vector4 = i =>
+        {
+            if (i.Count < 16) return Result<Vector4>.Fail(i);
+            var x = BitConverter.ToSingle(i.Array, i.Offset);
+            var y = BitConverter.ToSingle(i.Array, i.Offset + 4);
+            var z = BitConverter.ToSingle(i.Array, i.Offset + 8);
+            var w = BitConverter.ToSingle(i.Array, i.Offset + 12);
+            return Result<Vector4>.Success(new Vector4(x, y, z, w), i.Advance(16));
+        };
+
+        public static BParser<IEnumerable<Byte>> Bytes(int byteCount)
+        {
+            return i =>
+            {
+                if (i.Count < byteCount) return Result<IEnumerable<Byte>>.Fail(i);
+                return Result<IEnumerable<Byte>>.Success(i.Take(byteCount), i.Advance(byteCount));
+            };
+        }
 
         public static BParser<String> String(int byteCount, Encoding encoding)
         {
