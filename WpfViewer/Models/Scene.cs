@@ -2,13 +2,36 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace WpfViewer.Models
 {
-    class Scene
+    public class Scene
     {
+        public Scene()
+        {
+            Observable.Interval(TimeSpan.FromMilliseconds(33))
+                .Subscribe(x => {
+
+                    m_updateSubject.OnNext(x);
+                    
+                })
+                ;
+        }
+
+        Subject<Int64> m_updateSubject = new Subject<Int64>();
+        public IObservable<Int64> UpdateObservable
+        {
+            get
+            {
+                return m_updateSubject;
+            }
+        }
+
         public Node LoadPmd(Uri uri)
         {
             var root = new Node

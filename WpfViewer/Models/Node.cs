@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace WpfViewer.Models
 {
-    class Node : Livet.NotificationObject
+    public class Node : Livet.NotificationObject
     {
         String m_name;
         public String Name

@@ -90,7 +90,7 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
                         <!-- ドキュメント -->
                         <avalonDock:LayoutDocumentPane>
                             <avalonDock:LayoutDocument Title="Scene" CanClose="False" CanFloat="False" ContentId="Document">
-                                <win32:D3DHost />
+                                <win32:D3DHost Scene="{Binding Scene}" />
                             </avalonDock:LayoutDocument>
                         </avalonDock:LayoutDocumentPane>
                         <!-- Animation -->

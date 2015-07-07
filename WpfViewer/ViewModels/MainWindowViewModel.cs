@@ -137,6 +137,10 @@ namespace WpfViewer.ViewModels
 
         #region Scene
         Models.Scene m_scene = new Models.Scene();
+        public Models.Scene Scene
+        {
+            get { return m_scene; }
+        }
 
         ObservableCollection<Models.Node> m_nodes;
         public ObservableCollection<Models.Node> Nodes

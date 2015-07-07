@@ -1,10 +1,40 @@
 ﻿using System;
-
+using System.Windows;
+using WpfViewer.Models;
 
 namespace Win32
 {
     class D3DHost: EmptyHwnd
     {
+        #region Scene
+        public Scene Scene
+        {
+            get { return (Scene)GetValue(SceneProperty); }
+            set { SetValue(SceneProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for Scene.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty SceneProperty =
+            DependencyProperty.Register("Scene", typeof(Scene), typeof(D3DHost)
+                , new PropertyMetadata(null, new PropertyChangedCallback(SceneChanged)));
+
+        static void SceneChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
+        {
+            (o as D3DHost).SceneChanged(e.NewValue as Scene);
+        }
+
+        void SceneChanged(Scene scene)
+        {
+            scene.UpdateObservable
+                .Subscribe(x =>
+                {
+                    Draw();
+                });
+
+        }
+        #endregion
+
+        #region Device
         SharpDX.Direct3D11.Device1 D3DDevice;
         SharpDX.DXGI.Device2 DXGIDevice;
         SharpDX.DXGI.SwapChain1 SwapChain;
@@ -118,8 +148,7 @@ namespace Win32
             //flags|=SharpDX.DXGI.PresentFlags.DoNotWait;
             SwapChain.Present(0, flags, new SharpDX.DXGI.PresentParameters());
         }
-
-        IDisposable m_interval;
+        #endregion
 
         protected override IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
@@ -147,7 +176,6 @@ namespace Win32
 
                 case WM.WM_DESTROY:
                     {
-                        m_interval.Dispose();
                         DestroySwapChain();
                         DestroyDevice();
                     }
