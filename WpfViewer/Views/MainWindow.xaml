@@ -10,6 +10,7 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
         xmlns:vm="clr-namespace:WpfViewer.ViewModels"
         xmlns:v="clr-namespace:WpfViewer.Views"
         xmlns:local="clr-namespace:WpfViewer"
+        xmlns:win32="clr-namespace:Win32"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="800">
     <Window.Resources>
@@ -23,22 +24,35 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
     <i:Interaction.Behaviors>
         <v:FileDropBehavior Command="{Binding AddItemsCommand}" />
     </i:Interaction.Behaviors>
+    <i:Interaction.Triggers>
+        <l:InteractionMessageTrigger MessageKey="Info" Messenger="{Binding Messenger}" >
+            <l:InformationDialogInteractionMessageAction />
+        </l:InteractionMessageTrigger>
+
+        <l:InteractionMessageTrigger MessageKey="Confirm" Messenger="{Binding Messenger}" >
+            <l:ConfirmationDialogInteractionMessageAction/>
+        </l:InteractionMessageTrigger>
+
+        <l:InteractionMessageTrigger MessageKey="Open" Messenger="{Binding Messenger}" >
+            <l:OpenFileDialogInteractionMessageAction/>
+        </l:InteractionMessageTrigger>
+
+        <l:InteractionMessageTrigger MessageKey="Save" Messenger="{Binding Messenger}" >
+            <l:SaveFileDialogInteractionMessageAction/>
+        </l:InteractionMessageTrigger>
+    </i:Interaction.Triggers>    
     
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="ファイル">
                 <MenuItem
-                    Header="開く">
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="Click">
-                            <l:OpenFileDialogInteractionMessageAction>
-                                <l:DirectInteractionMessage CallbackCommand="{Binding OpenFileDialogCallbackCommand}">
-                                    <l:OpeningFileSelectionMessage Filter="モデル・モーション(*.PMD;*.PMX;*.VMD;*.VPD;*.BVH)|*.PMD;*.PMX;*.VMD;*.VPD;*.BVH|すべてのファイル(*.*)|*.*" Title="ファイルを開く" MultiSelect="True"/>
-                                </l:DirectInteractionMessage>
-                            </l:OpenFileDialogInteractionMessageAction>
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                </MenuItem>
+                    Header="新規"
+                    Command="{Binding ClearCommand}"
+                    />
+                <MenuItem
+                    Header="開く"
+                    Command="{Binding OpenFileDialogCommand}"
+                    />
             </MenuItem>
             <MenuItem Header="表示">
                 <MenuItem 
@@ -62,17 +76,21 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
                         <!-- NodeTree -->
                         <avalonDock:LayoutAnchorablePane DockWidth="150">
                             <avalonDock:LayoutAnchorable Title="NodeTree" ContentId="NodeTree" x:Name="NodeTree">
-                                <StackPanel>
-                                </StackPanel>
+                                <TreeView ItemsSource="{Binding Nodes}">
+                                    <TreeView.ItemTemplate>
+                                        <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                                            <DockPanel>
+                                                <Label Content="{Binding Name}"/>
+                                            </DockPanel>
+                                        </HierarchicalDataTemplate>
+                                    </TreeView.ItemTemplate>
+                                </TreeView>
                             </avalonDock:LayoutAnchorable>
                         </avalonDock:LayoutAnchorablePane>
                         <!-- ドキュメント -->
                         <avalonDock:LayoutDocumentPane>
-                            <avalonDock:LayoutDocument Title="Document1" CanClose="False" CanFloat="False" ContentId="Document">
-                                <ListBox ItemsSource="{Binding Items}"
-                                 SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-                                 >
-                                </ListBox>
+                            <avalonDock:LayoutDocument Title="Scene" CanClose="False" CanFloat="False" ContentId="Document">
+                                <win32:D3DHost />
                             </avalonDock:LayoutDocument>
                         </avalonDock:LayoutDocumentPane>
                         <!-- Animation -->

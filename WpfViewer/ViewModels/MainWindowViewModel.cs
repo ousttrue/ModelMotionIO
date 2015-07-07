@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Reactive.Linq;
+using System.Windows.Input;
 
 namespace WpfViewer.ViewModels
 {
@@ -20,10 +21,96 @@ namespace WpfViewer.ViewModels
         static Logger Logger
         {
             get { return LogManager.GetCurrentClassLogger(); }
-        }       
+        }
         #endregion
 
+        #region InformationMessage
+        protected void InfoDialog(String message)
+        {
+            Messenger.Raise(new InformationMessage(message, "Info", MessageBoxImage.Information, "Info"));
+        }
+
+        protected void ErrorDialog(Exception ex)
+        {
+            Messenger.Raise(new InformationMessage(ex.Message, "Error", MessageBoxImage.Error, "Info"));
+        }
+        #endregion
+
+        #region ConfirmationMessage
+        protected bool ConfirmDialog(String text, String title)
+        {
+            var message = new ConfirmationMessage(text, title
+                        , MessageBoxImage.Question, MessageBoxButton.YesNo, "Confirm");
+            Messenger.Raise(message);
+            return message.Response.HasValue && message.Response.Value;
+        }
+        #endregion
+
+        #region OpeningFileSelectionMessage
+        protected String[] OpenDialog(String title, bool multiSelect = false)
+        {
+            return OpenDialog(title, "すべてのファイル(*.*)|*.*", multiSelect);
+        }
+        protected String[] OpenDialog(String title, String filter= "すべてのファイル(*.*)|*.*", bool multiSelect=false)
+        {
+            var message = new OpeningFileSelectionMessage("Open")
+            {
+                Title = title,
+                Filter = filter,
+                MultiSelect = multiSelect,
+            };
+            Messenger.Raise(message);
+            return message.Response;
+        }
+        #endregion
+
+        #region SavingFileSelectionMessage
+        protected String SaveDialog(String title, string filename)
+        {
+            var message = new SavingFileSelectionMessage("Save")
+            {
+                Title = title,
+                FileName = String.IsNullOrEmpty(filename) ? "list.txt" : filename,
+            };
+            Messenger.Raise(message);
+            return message.Response != null ? message.Response[0] : null;
+        }
+        #endregion
+
+        Livet.Commands.ViewModelCommand m_clearCommand;
+        public ICommand ClearCommand
+        {
+            get
+            {
+                if(m_clearCommand==null)
+                {
+                    m_clearCommand = new ViewModelCommand(() =>
+                      {
+                          ClearItems();
+                      });
+                }
+                return m_clearCommand;
+            }
+        }
+
         #region OpenFileDialog
+        Livet.Commands.ViewModelCommand m_openFileDialogCommand;
+        public ICommand OpenFileDialogCommand
+        {
+            get {
+                if (m_openFileDialogCommand == null)
+                {
+                    m_openFileDialogCommand = new ViewModelCommand(() => {
+                        var openfiles = OpenDialog("Select model or motion file"
+                            , "モデル・モーション(*.PMD;*.PMX;*.VMD;*.VPD;*.BVH)|*.PMD;*.PMX;*.VMD;*.VPD;*.BVH|すべてのファイル(*.*)|*.*"
+                            , true);
+                        AddItems(openfiles.Select(x => new Uri(x)));
+                    });
+                }
+                return m_openFileDialogCommand;
+            }
+        }
+
         ListenerCommand<OpeningFileSelectionMessage> m_openFileDialogCallbackCommand;
         public ListenerCommand<OpeningFileSelectionMessage> OpenFileDialogCallbackCommand
         {
@@ -49,6 +136,8 @@ namespace WpfViewer.ViewModels
         #endregion
 
         #region Scene
+        Models.Scene m_scene = new Models.Scene();
+
         ObservableCollection<Models.Node> m_nodes;
         public ObservableCollection<Models.Node> Nodes
         {
@@ -74,7 +163,11 @@ namespace WpfViewer.ViewModels
             switch (Path.GetExtension(item.LocalPath).ToUpper())
             {
                 case ".PMD":
-                    Logger.Info("AddItem: {0}", item);
+                    Nodes.Add(m_scene.LoadPmd(item));
+                    break;
+
+                case ".PMX":
+                    Nodes.Add(m_scene.LoadPmx(item));
                     break;
 
                 default:
@@ -85,6 +178,7 @@ namespace WpfViewer.ViewModels
 
         void ClearItems()
         {
+            Nodes.Clear();
         }
         #endregion
 

@@ -71,9 +71,17 @@
       <HintPath>..\packages\SharpDX.DXGI.3.0.0-alpha02\lib\net45\SharpDX.DXGI.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="SharpDX.Mathematics, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpDX.Mathematics.3.0.0-alpha02\lib\net45\SharpDX.Mathematics.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Interactive, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ix-Main.1.2.3\lib\net45\System.Interactive.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Reactive.Core, Version=2.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Rx-Core.2.3.0-beta2\lib\net45\System.Reactive.Core.dll</HintPath>
       <Private>True</Private>
@@ -138,8 +146,12 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Models\Node.cs" />
+    <Compile Include="Models\Scene.cs" />
     <Compile Include="ViewModels\LogLevelToColorConverter.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="Win32\D3DHost.cs" />
+    <Compile Include="Win32\EmptyHwnd.cs" />
+    <Compile Include="Win32\Win32Import.cs" />
     <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -183,6 +195,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MMIO\MMIO.csproj">
+      <Project>{90580417-379d-4b97-ab4e-b180b8997b34}</Project>
+      <Name>MMIO</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
