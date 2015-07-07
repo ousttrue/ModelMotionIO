@@ -99,6 +99,9 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
                                         </DockPanel>
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
+                                <i:Interaction.Behaviors>
+                                    <v:AutoScrollBehavior />
+                                </i:Interaction.Behaviors>
                             </ListBox>
                         </avalonDock:LayoutAnchorable>
                     </avalonDock:LayoutAnchorablePane>

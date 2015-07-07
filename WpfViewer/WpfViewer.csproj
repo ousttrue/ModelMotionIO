@@ -149,6 +149,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ViewModels\ObservableMemoryTarget.cs" />
+    <Compile Include="Views\AutoScrollBehavior.cs" />
     <Compile Include="Views\FileDropBehavior.cs" />
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
