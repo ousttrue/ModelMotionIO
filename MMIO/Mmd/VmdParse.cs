@@ -19,7 +19,7 @@ namespace MMIO.Mmd
             from boneName in VmdString(15)
             from frame in BParse.Int32
             from position in BParse.Vector3
-            from rotation in BParse.Vector4
+            from rotation in BParse.Quaternion
             from interpolationParams in BParse.Bytes(64).Select(x => x.ToArray())
             select new VmdBoneFrame
             {

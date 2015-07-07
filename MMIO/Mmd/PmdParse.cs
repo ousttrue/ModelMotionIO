@@ -273,11 +273,6 @@ namespace MMIO.Mmd
                 Joints=joints,
             };
 
-        public static PmdModel Parse(Byte[] bytes)
-        {
-            var modelResult=Model(new ArraySegment<byte>(bytes));
-
-            return modelResult.Value;
-        }
+        public static readonly BParser<PmdModel> Parser = Model;
     }
 }

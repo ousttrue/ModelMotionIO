@@ -15,6 +15,9 @@ namespace MMIO
 
     public class ParseException: System.ArgumentException
     {
+        public ParseException(String message): base(message)
+        {
+        }
     }        
 
     public class Result<T> : IResult<T>
@@ -28,8 +31,7 @@ namespace MMIO
         }
         public static IResult<T> Fail(ArraySegment<Byte> rem)
         {
-            throw new ParseException();
-            //return new Result<T>() { Value = default(T), Reminder = rem, WasSuccess = false };
+            return new Result<T>() { Value = default(T), Reminder = rem, WasSuccess = false };
         }
     }
 
@@ -179,6 +181,16 @@ namespace MMIO
             return Result<Vector4>.Success(new Vector4(x, y, z, w), i.Advance(16));
         };
 
+        public static BParser<Quaternion> Quaternion = i =>
+        {
+            if (i.Count < 16) return Result<Quaternion>.Fail(i);
+            var x = BitConverter.ToSingle(i.Array, i.Offset);
+            var y = BitConverter.ToSingle(i.Array, i.Offset + 4);
+            var z = BitConverter.ToSingle(i.Array, i.Offset + 8);
+            var w = BitConverter.ToSingle(i.Array, i.Offset + 12);
+            return Result<Quaternion>.Success(new Quaternion(x, y, z, w), i.Advance(16));
+        };
+
         public static BParser<IEnumerable<Byte>> Bytes(int byteCount)
         {
             return i =>
@@ -211,6 +223,30 @@ namespace MMIO
                 if (text != target) return Result<String>.Fail(i);
                 return Result<String>.Success(text, i.Advance(Math.Max(advanceCount, byteCount)));
             };
+        }
+    }
+
+    public static class BParserExtensions
+    {
+        /// <summary>
+        /// Parses the specified input string.
+        /// </summary>
+        /// <typeparam name="T">The type of the result.</typeparam>
+        /// <param name="parser">The parser.</param>
+        /// <param name="input">The input.</param>
+        /// <returns>The result of the parser.</returns>
+        /// <exception cref="Sprache.ParseException">It contains the details of the parsing error.</exception>
+        public static T Parse<T>(this BParser<T> parser, Byte[] input)
+        {
+            if (parser == null) throw new ArgumentNullException("parser");
+            if (input == null) throw new ArgumentNullException("input");
+
+            var result = parser(new ArraySegment<byte>(input));
+
+            if (result.WasSuccess)
+                return result.Value;
+
+            throw new ParseException(result.ToString());
         }
     }
 }

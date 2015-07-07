@@ -9,17 +9,17 @@ namespace MMIO.Mmd
     public class PmxParse
     {
         #region static
-        public static BParser<String> PmxStringUtf16 =
-                from byteLengh in BParse.Int32
-                from bytes in BParse.Bytes(byteLengh).Select(x => x.ToArray())
-                select Encoding.Unicode.GetString(bytes);
+        public readonly static BParser<String> PmxStringUtf16 =
+            from byteLengh in BParse.Int32
+            from bytes in BParse.Bytes(byteLengh).Select(x => x.ToArray())
+            select Encoding.Unicode.GetString(bytes);
 
-        public static BParser<String> PmxStringUtf8 =
-                from byteLengh in BParse.Int32
-                from bytes in BParse.Bytes(byteLengh).Select(x => x.ToArray())
-                select Encoding.UTF8.GetString(bytes);
+        public readonly static BParser<String> PmxStringUtf8 =
+            from byteLengh in BParse.Int32
+            from bytes in BParse.Bytes(byteLengh).Select(x => x.ToArray())
+            select Encoding.UTF8.GetString(bytes);
 
-        static BParser<Tuple<PmxHeader, BParser<String>>> _Header =
+        static readonly BParser<Tuple<PmxHeader, BParser<String>>> _Header =
             from pmx in BParse.StringOf("PMX ", Encoding.ASCII)
             from version in BParse.Single
             from flagCount in BParse.ByteOf(8)
@@ -32,27 +32,18 @@ namespace MMIO.Mmd
             }
             , flags[0] == 0 ? PmxStringUtf16 : PmxStringUtf8);
 
-        public static BParser<PmxHeader> Header =
+        public static readonly BParser<PmxHeader> Header =
             from headerWithPmxString in _Header
             from name in headerWithPmxString.Item2
             from englishName in headerWithPmxString.Item2
             from comment in headerWithPmxString.Item2
             from englishComment in headerWithPmxString.Item2
-            select headerWithPmxString.Item1.SetNames(name, englishName, comment, englishComment)
-            ;
+            select headerWithPmxString.Item1.SetNames(name, englishName, comment, englishComment);
 
-        public static PmxModel Parse(Byte[] bytes)
-        {
-            var headerResult = Header(new ArraySegment<byte>(bytes));
-            if (!headerResult.WasSuccess) return null;
-
-            var parser = new PmxParse(headerResult.Value);
-            var modelResult = parser.Model(headerResult.Reminder);
-            if (!modelResult.WasSuccess) return null;
-            var model = modelResult.Value;
-            model.Header = headerResult.Value;
-            return model;
-        }
+        public static readonly BParser<PmxModel> Parser =
+            from parser in Header.Select(x => new PmxParse(x))
+            from model in parser.Model
+            select model;
         #endregion
 
         /// <summary>
@@ -94,8 +85,8 @@ namespace MMIO.Mmd
         {
             switch (byteSize)
             {
-                case 1: return BParse.Byte.Select(x => x!=0xFF ? (Int32?)x : null);
-                case 2: return BParse.UInt16.Select(x => x!=0xFFFF ? (Int32?)x : null);
+                case 1: return BParse.Byte.Select(x => x != 0xFF ? (Int32?)x : null);
+                case 2: return BParse.UInt16.Select(x => x != 0xFFFF ? (Int32?)x : null);
                 case 4: return BParse.Int32.Select(x => x).Select(x => x != -1 ? (Int32?)x : null);
             }
             throw new ArgumentException();
@@ -183,27 +174,27 @@ namespace MMIO.Mmd
                     from mainTextureIndex in TextureIndex
                     from secondaryTextureIndex in TextureIndex
                     from secondaryTextureType in BParse.Byte.Select(x => (PmxMaterialSecondaryTextureType)x)
-                    from useSystemToonTexure in BParse.Byte.Select(x => x!=0)
+                    from useSystemToonTexure in BParse.Byte.Select(x => x != 0)
                     from toonTextureIndex in (useSystemToonTexure ? BParse.Byte.Select(x => (Int32)x) : TextureIndex)
                     from comment in PmxString
                     from faceVertexCount in BParse.Int32
                     select new PmxMaterial
                     {
-                        Name=name,
-                        EnglishName=englishName,
-                        DiffuseRGBA=diffuseRGBA,
-                        SpecularRGBA=specularRGBA,
-                        AmbientRGB=ambientRGB,
-                        MaterialFlag=flag,
-                        EdgeRGBA=edgeRGBA,
-                        EdgeSize=edgeSize,
-                        MainTextureIndex=mainTextureIndex,
-                        SecondaryTextureIndex=secondaryTextureIndex,
-                        SecondaryTextureType=secondaryTextureType,
-                        UseSystemToonTexture=useSystemToonTexure,
-                        ToonTextureIndex=toonTextureIndex,
-                        Comment=comment,
-                        FaceVertexCount=faceVertexCount,
+                        Name = name,
+                        EnglishName = englishName,
+                        DiffuseRGBA = diffuseRGBA,
+                        SpecularRGBA = specularRGBA,
+                        AmbientRGB = ambientRGB,
+                        MaterialFlag = flag,
+                        EdgeRGBA = edgeRGBA,
+                        EdgeSize = edgeSize,
+                        MainTextureIndex = mainTextureIndex,
+                        SecondaryTextureIndex = secondaryTextureIndex,
+                        SecondaryTextureType = secondaryTextureType,
+                        UseSystemToonTexture = useSystemToonTexure,
+                        ToonTextureIndex = toonTextureIndex,
+                        Comment = comment,
+                        FaceVertexCount = faceVertexCount,
                     };
             }
         }
@@ -214,15 +205,15 @@ namespace MMIO.Mmd
             {
                 return
                     from boneIndex in BoneIndex
-                    from limitAngle in BParse.Byte.Select(x => x!=0)
+                    from limitAngle in BParse.Byte.Select(x => x != 0)
                     from min in (limitAngle ? BParse.Vector3 : BParse.Return(default(Vector3)))
                     from max in (limitAngle ? BParse.Vector3 : BParse.Return(default(Vector3)))
                     select new PmxIKLink
                     {
-                        BoneIndex=boneIndex,
-                        LimitAngle=limitAngle,
-                        LimitMinRadians=min,
-                        LimitMaxRadians=max,
+                        BoneIndex = boneIndex,
+                        LimitAngle = limitAngle,
+                        LimitMinRadians = min,
+                        LimitMaxRadians = max,
                     };
             }
         }
@@ -239,10 +230,10 @@ namespace MMIO.Mmd
                     from links in IKLink.Times(linkCount)
                     select new PmxIK
                     {
-                        TargetIndex=targetIndex,
-                        Loop=loop,
-                        LimitAngleCycle=limitRadians,
-                        Links=links,
+                        TargetIndex = targetIndex,
+                        Loop = loop,
+                        LimitAngleCycle = limitRadians,
+                        Links = links,
                     };
             }
         }
@@ -258,42 +249,42 @@ namespace MMIO.Mmd
                     from parentIndex in BoneIndex
                     from layer in BParse.Int32
                     from flag in BParse.UInt16.Select(x => (PmxBoneFlags)x)
-                    // tail
+                        // tail
                     from tailOffset in flag.Has(PmxBoneFlags.HasTailBone) ? BParse.Return(default(Vector3)) : BParse.Vector3
-                    from tailBoneIndex in flag.Has(PmxBoneFlags.HasTailBone) ? BoneIndex : BParse.Return<Int32?>(null) 
-                    // add
-                    from addParentIndex in (flag.Has(PmxBoneFlags.Rotated)||flag.Has(PmxBoneFlags.Translated))
+                    from tailBoneIndex in flag.Has(PmxBoneFlags.HasTailBone) ? BoneIndex : BParse.Return<Int32?>(null)
+                        // add
+                    from addParentIndex in (flag.Has(PmxBoneFlags.Rotated) || flag.Has(PmxBoneFlags.Translated))
                     ? BoneIndex : BParse.Return<Int32?>(null)
                     from addRatio in (flag.Has(PmxBoneFlags.Rotated) || flag.Has(PmxBoneFlags.Translated))
                     ? BParse.Single : BParse.Return(0.0f)
-                    // fixed axis
+                        // fixed axis
                     from fixedaxis in flag.Has(PmxBoneFlags.FixedAxis) ? BParse.Vector3 : BParse.Return(default(Vector3))
-                    // local axis
+                        // local axis
                     from localX in flag.Has(PmxBoneFlags.LocalAxis) ? BParse.Vector3 : BParse.Return(default(Vector3))
                     from localZ in flag.Has(PmxBoneFlags.LocalAxis) ? BParse.Vector3 : BParse.Return(default(Vector3))
-                    // external axis
+                        // external axis
                     from externalKey in flag.Has(PmxBoneFlags.ExternalParent) ? BParse.Int32 : BParse.Return(0)
-                    // ik
+                        // ik
                     from ik in flag.Has(PmxBoneFlags.IKEffector) ? IK : BParse.Return(default(PmxIK))
                     select new PmxBone
                     {
-                        Name=name,
-                        EnglishName=englishName,
-                        Position=position,
-                        ParentIndex=parentIndex,
-                        Layer=layer,
-                        BoneFlag=flag,
-                        TailOffset=tailOffset,
-                        TailIndex=tailBoneIndex,
-                        AddIndex=addParentIndex,
-                        AddRatio=addRatio,
-                        FixedAxis=fixedaxis,
-                        LocalAxisX=localX,
-                        LocalAXisZ=localZ,
-                        ExternalKey=externalKey,
-                        IK=ik,
+                        Name = name,
+                        EnglishName = englishName,
+                        Position = position,
+                        ParentIndex = parentIndex,
+                        Layer = layer,
+                        BoneFlag = flag,
+                        TailOffset = tailOffset,
+                        TailIndex = tailBoneIndex,
+                        AddIndex = addParentIndex,
+                        AddRatio = addRatio,
+                        FixedAxis = fixedaxis,
+                        LocalAxisX = localX,
+                        LocalAXisZ = localZ,
+                        ExternalKey = externalKey,
+                        IK = ik,
                     };
-            }           
+            }
         }
 
         BParser<PmxGroupMorphOffset> GroupMorphOffset
@@ -305,8 +296,8 @@ namespace MMIO.Mmd
                     from value in BParse.Single
                     select new PmxGroupMorphOffset
                     {
-                        MorphIndex=morphIndex,
-                        Value=value,
+                        MorphIndex = morphIndex,
+                        Value = value,
                     };
             }
         }
@@ -320,8 +311,8 @@ namespace MMIO.Mmd
                     from position in BParse.Vector3
                     select new PmxVertexMorphOffset
                     {
-                        VertexIndex=vertexIndex,
-                        PositionOffset=position,
+                        VertexIndex = vertexIndex,
+                        PositionOffset = position,
                     };
             }
         }
@@ -333,12 +324,12 @@ namespace MMIO.Mmd
                 return
                     from boneIndex in BoneIndex
                     from position in BParse.Vector3
-                    from rotation in BParse.Vector4
+                    from rotation in BParse.Quaternion
                     select new PmxBoneMorphOffset
                     {
-                        BoneIndex=boneIndex,
-                        Position=position,
-                        Rotation=rotation,
+                        BoneIndex = boneIndex,
+                        Position = position,
+                        Rotation = rotation,
                     };
             }
         }
@@ -352,8 +343,8 @@ namespace MMIO.Mmd
                     from uv in BParse.Vector4
                     select new PmxUVMorphOffset
                     {
-                        VertexIndex=vertexIndex,
-                        UVOffset=uv,
+                        VertexIndex = vertexIndex,
+                        UVOffset = uv,
                     };
             }
         }
@@ -375,16 +366,16 @@ namespace MMIO.Mmd
                     from toonTextureFactor in BParse.Vector4
                     select new PmxMaterialMorphOffset
                     {
-                        MaterialIndex=materialIndex,
-                        Operation=operation,
-                        DiffuseRGBA=diffuseRGBA,
-                        SpecularRGBA=specularRGBA,
-                        AmbientRGB=ambientRGB,
-                        EdgeRGBA=edgeRGBA,
-                        EdgeSize=edgeSize,
-                        MainTextureFactor=mainTextureFactor,
-                        SecondaryTextureFactor=secondaryTextureFactor,
-                        ToonTextureFactor=toonTextureFactor,
+                        MaterialIndex = materialIndex,
+                        Operation = operation,
+                        DiffuseRGBA = diffuseRGBA,
+                        SpecularRGBA = specularRGBA,
+                        AmbientRGB = ambientRGB,
+                        EdgeRGBA = edgeRGBA,
+                        EdgeSize = edgeSize,
+                        MainTextureFactor = mainTextureFactor,
+                        SecondaryTextureFactor = secondaryTextureFactor,
+                        ToonTextureFactor = toonTextureFactor,
                     };
             }
         }
@@ -400,29 +391,29 @@ namespace MMIO.Mmd
                     from morphType in BParse.Byte.Select(x => (PmxMorphType)x)
                     from offsetCount in BParse.Int32
                     from groupMorphOffsets in (morphType == PmxMorphType.Group ? GroupMorphOffset.Times(offsetCount) : BParse.Return<PmxGroupMorphOffset[]>(null))
-                    from vertexMorphOffsets in(morphType==PmxMorphType.Vertex ? VertexMorphOffset.Times(offsetCount) : BParse.Return<PmxVertexMorphOffset[]>(null))
-                    from boneMorphOffsets in (morphType==PmxMorphType.Bone ? BoneMorphOffset.Times(offsetCount) : BParse.Return<PmxBoneMorphOffset[]>(null))
-                    from uvMorphOffsets in (morphType==PmxMorphType.UV ? UVMorphOffset.Times(offsetCount): BParse.Return<PmxUVMorphOffset[]>(null))
+                    from vertexMorphOffsets in (morphType == PmxMorphType.Vertex ? VertexMorphOffset.Times(offsetCount) : BParse.Return<PmxVertexMorphOffset[]>(null))
+                    from boneMorphOffsets in (morphType == PmxMorphType.Bone ? BoneMorphOffset.Times(offsetCount) : BParse.Return<PmxBoneMorphOffset[]>(null))
+                    from uvMorphOffsets in (morphType == PmxMorphType.UV ? UVMorphOffset.Times(offsetCount) : BParse.Return<PmxUVMorphOffset[]>(null))
                     from uvMorphOffsets1 in (morphType == PmxMorphType.ExtendedUV1 ? UVMorphOffset.Times(offsetCount) : BParse.Return<PmxUVMorphOffset[]>(null))
                     from uvMorphOffsets2 in (morphType == PmxMorphType.ExtendedUV2 ? UVMorphOffset.Times(offsetCount) : BParse.Return<PmxUVMorphOffset[]>(null))
                     from uvMorphOffsets3 in (morphType == PmxMorphType.ExtendedUV3 ? UVMorphOffset.Times(offsetCount) : BParse.Return<PmxUVMorphOffset[]>(null))
                     from uvMorphOffsets4 in (morphType == PmxMorphType.ExtendedUV4 ? UVMorphOffset.Times(offsetCount) : BParse.Return<PmxUVMorphOffset[]>(null))
-                    from materialMorphOffsets in (morphType==PmxMorphType.Material ? MaterialMorphOffset.Times(offsetCount) : BParse.Return<PmxMaterialMorphOffset[]>(null))
+                    from materialMorphOffsets in (morphType == PmxMorphType.Material ? MaterialMorphOffset.Times(offsetCount) : BParse.Return<PmxMaterialMorphOffset[]>(null))
                     select new PmxMorph
                     {
-                        Name=name,
-                        EnglishName=englishName,
-                        MorphPanel=panel,
-                        MorphType=morphType,
-                        GroupMorphOffsets=groupMorphOffsets,
-                        VertexMorphOffsets=vertexMorphOffsets,
-                        BoneMorphOffsets=boneMorphOffsets,
-                        UVMorphOffsets=uvMorphOffsets,
-                        ExtendedUV1MorphOffsets=uvMorphOffsets1,
-                        ExtendedUV2MorphOffsets=uvMorphOffsets2,
-                        ExtendedUV3MorphOffsets=uvMorphOffsets3,
-                        ExtendedUV4MorphOffsets=uvMorphOffsets4,
-                        MaterialMorphOffsets=materialMorphOffsets,
+                        Name = name,
+                        EnglishName = englishName,
+                        MorphPanel = panel,
+                        MorphType = morphType,
+                        GroupMorphOffsets = groupMorphOffsets,
+                        VertexMorphOffsets = vertexMorphOffsets,
+                        BoneMorphOffsets = boneMorphOffsets,
+                        UVMorphOffsets = uvMorphOffsets,
+                        ExtendedUV1MorphOffsets = uvMorphOffsets1,
+                        ExtendedUV2MorphOffsets = uvMorphOffsets2,
+                        ExtendedUV3MorphOffsets = uvMorphOffsets3,
+                        ExtendedUV4MorphOffsets = uvMorphOffsets4,
+                        MaterialMorphOffsets = materialMorphOffsets,
                     };
             }
         }
@@ -433,11 +424,11 @@ namespace MMIO.Mmd
             {
                 return
                     from displayType in BParse.Byte.Select(x => (PmxDisplayType)x)
-                    from index in (displayType==PmxDisplayType.Bone ? BoneIndex : MorphIndex)
+                    from index in (displayType == PmxDisplayType.Bone ? BoneIndex : MorphIndex)
                     select new PmxDisplayItem
                     {
-                        DisplayType=displayType,
-                        Index=index,
+                        DisplayType = displayType,
+                        Index = index,
                     };
             }
         }
@@ -466,7 +457,7 @@ namespace MMIO.Mmd
         {
             get
             {
-                return 
+                return
                     from name in PmxString
                     from englishName in PmxString
                     from boneIndex in BoneIndex
@@ -484,21 +475,21 @@ namespace MMIO.Mmd
                     from operatoinType in BParse.Byte.Select(x => (Bullet.RigidbodyOperationType)x)
                     select new Bullet.Rigidbody
                     {
-                        Name=name,
-                        EnglishName=englishName,
-                        BoneIndex=boneIndex,
-                        CollisionGroup=collisionGroup,
-                        CollisionIgnoreGroup=collisionIgnoreCollisionGroup,
-                        ShapeType=shapeType,
-                        ShapeSize=shapeSize,
-                        Position=position,
-                        EulerAngleRadians=rotation,
-                        Mass=mass,
-                        LinearDamping=linearDampler,
-                        AngularDamping=angularDampler,
-                        Restitution=restitusion,
-                        Friction=friction,
-                        OperationType=operatoinType
+                        Name = name,
+                        EnglishName = englishName,
+                        BoneIndex = boneIndex,
+                        CollisionGroup = collisionGroup,
+                        CollisionIgnoreGroup = collisionIgnoreCollisionGroup,
+                        ShapeType = shapeType,
+                        ShapeSize = shapeSize,
+                        Position = position,
+                        EulerAngleRadians = rotation,
+                        Mass = mass,
+                        LinearDamping = linearDampler,
+                        AngularDamping = angularDampler,
+                        Restitution = restitusion,
+                        Friction = friction,
+                        OperationType = operatoinType
                     };
             }
         }
@@ -510,7 +501,7 @@ namespace MMIO.Mmd
                 return
                     from name in PmxString
                     from englishName in PmxString
-                    from jointType in BParse.Byte.Select(x =>(Bullet.JointType)x)
+                    from jointType in BParse.Byte.Select(x => (Bullet.JointType)x)
                     from indexA in RigidbodyIndex
                     from indexB in RigidbodyIndex
                     from position in BParse.Vector3
@@ -523,19 +514,19 @@ namespace MMIO.Mmd
                     from rotationStiffness in BParse.Vector3
                     select new Bullet.Joint
                     {
-                        Name=name,
-                        EnglishName=englishName,
-                        JointType=jointType,
-                        RigidBodyIndexA=indexA,
-                        RigidBodyIndexB=indexB,
-                        Position=position,
-                        EulerAngleRadians=rotation,
-                        LinearLowerLimit=minTranslation,
-                        LinearUpperLimit=maxTranslation,
-                        AngularLowerLimit=minRotation,
-                        AngularUpperLimit=maxRotation,
-                        LinearStiffness=translationStiffness,
-                        AngularStiffness=rotationStiffness,
+                        Name = name,
+                        EnglishName = englishName,
+                        JointType = jointType,
+                        RigidBodyIndexA = indexA,
+                        RigidBodyIndexB = indexB,
+                        Position = position,
+                        EulerAngleRadians = rotation,
+                        LinearLowerLimit = minTranslation,
+                        LinearUpperLimit = maxTranslation,
+                        AngularLowerLimit = minRotation,
+                        AngularUpperLimit = maxRotation,
+                        LinearStiffness = translationStiffness,
+                        AngularStiffness = rotationStiffness,
                     };
             }
         }
@@ -551,41 +542,42 @@ namespace MMIO.Mmd
                     // vertex
                     from vertexCount in BParse.Int32
                     from vertices in Vertex.Times(vertexCount)
-                    // index
+                        // index
                     from indexCount in BParse.Int32
                     from indices in VertexIndex.Times(indexCount)
-                    // textures
+                        // textures
                     from textureCount in BParse.Int32
                     from textures in PmxString.Times(textureCount)
-                    // materials
+                        // materials
                     from materialCount in BParse.Int32
                     from materials in Material.Times(materialCount)
-                    // bones
+                        // bones
                     from boneCount in BParse.Int32
                     from bones in Bone.Times(boneCount)
-                    // morphs
+                        // morphs
                     from morphCount in BParse.Int32
                     from morphs in Morph.Times(morphCount)
-                    // display
+                        // display
                     from displayCount in BParse.Int32
                     from displays in DisplayPanel.Times(displayCount)
-                    // physics
+                        // physics
                     from rigidbodyCount in BParse.Int32
                     from rigidbodies in Rigidbody.Times(rigidbodyCount)
                     from jointCount in BParse.Int32
                     from joints in Joint.Times(jointCount)
-                    //
+                        //
                     select new PmxModel
                     {
+                        Header = Context,
                         Vertices = vertices,
                         Indices = indices,
-                        Textures=textures,
-                        Materials=materials,
-                        Bones=bones,
-                        Morphs=morphs,
-                        Dispplays=displays,
-                        Rigidbodies=rigidbodies,
-                        Joints=joints,
+                        Textures = textures,
+                        Materials = materials,
+                        Bones = bones,
+                        Morphs = morphs,
+                        Dispplays = displays,
+                        Rigidbodies = rigidbodies,
+                        Joints = joints,
                     };
             }
         }

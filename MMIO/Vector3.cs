@@ -48,4 +48,20 @@ namespace MMIO
         }
     }
 
+
+    public struct Quaternion
+    {
+        public Single X;
+        public Single Y;
+        public Single Z;
+        public Single W;
+
+        public Quaternion(float x, float y, float z, float w)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+            W = w;
+        }
+    }
 }

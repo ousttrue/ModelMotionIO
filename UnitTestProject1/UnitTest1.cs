@@ -3,6 +3,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using Sprache;
 using System.Linq;
+using System.Text;
+using MMIO;
 
 namespace UnitTestProject1
 {
@@ -15,9 +17,9 @@ namespace UnitTestProject1
         public void TestBvhParser()
         {
             var path = SAMPLE_DIRECTORY+"simple.bvh";
-            var text = File.ReadAllText(path);
+            var text = File.ReadAllText(path, Encoding.GetEncoding(932));
 
-            var root = MMIO.Bvh.BvhParse.Parse(text);
+            var root = MMIO.Bvh.BvhParse.Parser.Parse(text);
 
             Assert.AreEqual("Hips", root.Name);
         }
@@ -26,11 +28,11 @@ namespace UnitTestProject1
         public void TestVpdParser()
         {
             var path = SAMPLE_DIRECTORY + "右手グー.vpd";
-            var text = File.ReadAllText(path);
+            var text = File.ReadAllText(path, Encoding.GetEncoding(932));
 
-            var root = MMIO.Mmd.VpdParse.Parse(text);
+            var pose = MMIO.Mmd.VpdParse.Parser.Parse(text);
 
-            //Assert.AreEqual("Hips", root.Name);
+            Assert.AreEqual(14, pose.Bones.Length);
         }
 
 
@@ -40,7 +42,7 @@ namespace UnitTestProject1
             var path = SAMPLE_DIRECTORY+"初音ミクVer2.pmd";
             var bytes = File.ReadAllBytes(path);
 
-            var model = MMIO.Mmd.PmdParse.Parse(bytes);
+            var model = MMIO.Mmd.PmdParse.Parser.Parse(bytes);
 
             Assert.AreEqual("初音ミク", model.Header.Name);
             Assert.AreEqual(12354, model.Vertices.Length);
@@ -59,7 +61,7 @@ namespace UnitTestProject1
             var path = SAMPLE_DIRECTORY+"初音ミクVer2.pmx";
             var bytes = File.ReadAllBytes(path);
 
-            var model = MMIO.Mmd.PmxParse.Parse(bytes);
+            var model = MMIO.Mmd.PmxParse.Parser.Parse(bytes);
             Assert.AreEqual("初音ミク", model.Header.Name);
             Assert.AreEqual(12354, model.Vertices.Length);
             Assert.AreEqual(22961 * 3, model.Indices.Length);

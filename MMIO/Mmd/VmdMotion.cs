@@ -11,7 +11,7 @@ namespace MMIO.Mmd
         public String BoneName;
         public Int32 Frame;
         public Vector3 Position;
-        public Vector4 Rotation;
+        public Quaternion Rotation;
         public Byte[] InterpolationParams;
     }
 

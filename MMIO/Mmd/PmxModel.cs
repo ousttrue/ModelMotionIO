@@ -228,7 +228,7 @@ namespace MMIO.Mmd
     {
         public Int32? BoneIndex;
         public Vector3 Position;
-        public Vector4 Rotation;
+        public Quaternion Rotation;
     }
 
     public struct PmxUVMorphOffset

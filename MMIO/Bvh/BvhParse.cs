@@ -48,17 +48,17 @@ namespace MMIO.Bvh
 
     public static class BvhParse
     {
-        public static Parser<String> Exponent = from _ in Sprache.Parse.Char('E')
-                                                from sign in Sprache.Parse.Chars("+-")
-                                                from num in Sprache.Parse.Number
+        public static Parser<String> Exponent = from _ in Parse.Char('E')
+                                                from sign in Parse.Chars("+-")
+                                                from num in Parse.Number
                                                 select String.Format("E{0}{1}", sign, num);
 
-        public static Parser<Single> FloatEx = from negative in Sprache.Parse.Char('-').Optional().Select(x => x.IsDefined ? x.Get().ToString() : "")
-                                               from num in Sprache.Parse.Decimal
+        public static Parser<Single> FloatEx = from negative in Parse.Char('-').Optional().Select(x => x.IsDefined ? x.Get().ToString() : "")
+                                               from num in Parse.Decimal
                                                from exponent in Exponent.Optional().Select(x => x.IsDefined ? x.Get() : "")
                                                select Convert.ToSingle(negative + num + exponent);
 
-        public static Parser<Vector3> Offset = from _ in Sprache.Parse.String("OFFSET").Token()
+        public static Parser<Vector3> Offset = from _ in Parse.String("OFFSET").Token()
                                                from x in FloatEx.Token().Select(x => Convert.ToSingle(x))
                                                from y in FloatEx.Token().Select(x => Convert.ToSingle(x))
                                                from z in FloatEx.Token().Select(x => Convert.ToSingle(x))
@@ -69,46 +69,41 @@ namespace MMIO.Bvh
                                                    Z = z
                                                };
 
-        public static Parser<IEnumerable<ChannelType>> Channels = from _ in Sprache.Parse.String("CHANNELS").Token()
-                                                                  from n in Sprache.Parse.Number.Select(x => Convert.ToInt32(x))
-                                                                  from channels in Sprache.Parse.String("Xposition").Token().Return(ChannelType.Xposition)
-                                                                      .Or(Sprache.Parse.String("Yposition").Token().Return(ChannelType.Yposition))
-                                                                      .Or(Sprache.Parse.String("Zposition").Token().Return(ChannelType.Zposition))
-                                                                      .Or(Sprache.Parse.String("Xrotation").Token().Return(ChannelType.Xrotation))
-                                                                      .Or(Sprache.Parse.String("Yrotation").Token().Return(ChannelType.Yrotation))
-                                                                      .Or(Sprache.Parse.String("Zrotation").Token().Return(ChannelType.Zrotation))
+        public static Parser<IEnumerable<ChannelType>> Channels = from _ in Parse.String("CHANNELS").Token()
+                                                                  from n in Parse.Number.Select(x => Convert.ToInt32(x))
+                                                                  from channels in Parse.String("Xposition").Token().Return(ChannelType.Xposition)
+                                                                      .Or(Parse.String("Yposition").Token().Return(ChannelType.Yposition))
+                                                                      .Or(Parse.String("Zposition").Token().Return(ChannelType.Zposition))
+                                                                      .Or(Parse.String("Xrotation").Token().Return(ChannelType.Xrotation))
+                                                                      .Or(Parse.String("Yrotation").Token().Return(ChannelType.Yrotation))
+                                                                      .Or(Parse.String("Zrotation").Token().Return(ChannelType.Zrotation))
                                                                       .Repeat(n)
                                                                   select channels
                                                                     ;
 
-        public static Parser<Node> EndSite = from _ in Sprache.Parse.String("End Site").Token()
-                                             from open in Sprache.Parse.Char('{').Token()
+        public static Parser<Node> EndSite = from _ in Parse.String("End Site").Token()
+                                             from open in Parse.Char('{').Token()
                                              from offset in Offset
-                                             from close in Sprache.Parse.Char('}').Token()
+                                             from close in Parse.Char('}').Token()
                                              select new Node("EndSite", offset);
 
         public static Parser<Node> Node(String prefix)
         {
-            return from _ in Sprache.Parse.String(prefix).Token()
-                   from name in Sprache.Parse.LetterOrDigit.Many().Token().Text()
-                   from open in Sprache.Parse.Char('{').Token()
+            return from _ in Parse.String(prefix).Token()
+                   from name in Parse.LetterOrDigit.Many().Token().Text()
+                   from open in Parse.Char('{').Token()
                    from offset in Offset
                    from channels in Channels
                    from children in Node("JOINT").AtLeastOnce().Or(EndSite
                         // 型をIEnumerable<Node>にそろえる
                         .Select(x => new Node[] { x }))
-                   from close in Sprache.Parse.Char('}').Token()
+                   from close in Parse.Char('}').Token()
                    select new Node(name, offset, channels, children)
                                         ;
         }
 
-        public static Parser<Node> Parser = from hierarchy in Sprache.Parse.String("HIERARCHY").Token()
+        public static Parser<Node> Parser = from hierarchy in Parse.String("HIERARCHY").Token()
                                             from root in Node("ROOT")
                                             select root;
-
-        public static Node Parse(String text)
-        {
-            return Parser.Parse(text);
-        }
     }
 }
