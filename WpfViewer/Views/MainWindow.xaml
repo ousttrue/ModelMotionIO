@@ -10,7 +10,7 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
         xmlns:vm="clr-namespace:WpfViewer.ViewModels"
         xmlns:v="clr-namespace:WpfViewer.Views"
         xmlns:local="clr-namespace:WpfViewer"
-        xmlns:win32="clr-namespace:Win32"
+        xmlns:d3d11="clr-namespace:WpfViewer.Win32.D3D11"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="800">
     <Window.Resources>
@@ -90,7 +90,7 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
                         <!-- ドキュメント -->
                         <avalonDock:LayoutDocumentPane>
                             <avalonDock:LayoutDocument Title="Scene" CanClose="False" CanFloat="False" ContentId="Document">
-                                <win32:D3DHost Scene="{Binding Scene}" />
+                                <d3d11:D3D11Host RenderFrameObservable="{Binding Scene.RenderFrameObservable}" />
                             </avalonDock:LayoutDocument>
                         </avalonDock:LayoutDocumentPane>
                         <!-- Animation -->

@@ -148,9 +148,14 @@
     </ApplicationDefinition>
     <Compile Include="Models\Node.cs" />
     <Compile Include="Models\Scene.cs" />
+    <Compile Include="Renderer\Command.cs" />
+    <Compile Include="Renderer\IRenderer.cs" />
+    <Compile Include="Renderer\RenderFrame.cs" />
+    <Compile Include="Renderer\Resource.cs" />
     <Compile Include="ViewModels\LogLevelToColorConverter.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
-    <Compile Include="Win32\D3DHost.cs" />
+    <Compile Include="Win32\D3D11\D3D11Host.cs" />
+    <Compile Include="Win32\D3D11\D3D11Renderer.cs" />
     <Compile Include="Win32\EmptyHwnd.cs" />
     <Compile Include="Win32\Win32Import.cs" />
     <Page Include="Views\MainWindow.xaml">

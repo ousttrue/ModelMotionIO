@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 
 
-namespace Win32
+namespace WpfViewer.Win32
 {
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
     public struct CREATESTRUCT

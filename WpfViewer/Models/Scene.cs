@@ -7,28 +7,36 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
+using WpfViewer.Renderer;
 
 namespace WpfViewer.Models
 {
     public class Scene
     {
+        RenderFrame m_currentFrame;
+        public RenderFrame CurrentFrame
+        {
+            get { return m_currentFrame; }
+        }
+
         public Scene()
         {
+            // Timer駆動でPushする
             Observable.Interval(TimeSpan.FromMilliseconds(33))
-                .Subscribe(x => {
+                .Subscribe(_ => {
 
-                    m_updateSubject.OnNext(x);
+                    m_renderFrameSubject.OnNext(CurrentFrame);
                     
                 })
                 ;
         }
 
-        Subject<Int64> m_updateSubject = new Subject<Int64>();
-        public IObservable<Int64> UpdateObservable
+        Subject<RenderFrame> m_renderFrameSubject = new Subject<RenderFrame>();
+        public IObservable<RenderFrame> RenderFrameObservable
         {
             get
             {
-                return m_updateSubject;
+                return m_renderFrameSubject;
             }
         }
 

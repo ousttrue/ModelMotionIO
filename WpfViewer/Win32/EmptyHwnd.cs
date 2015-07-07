@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
 
-namespace Win32
+namespace WpfViewer.Win32
 {
     public class EmptyHwnd: HwndHost
     {
