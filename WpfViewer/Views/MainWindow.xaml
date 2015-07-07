@@ -74,7 +74,7 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
                 <avalonDock:LayoutPanel Orientation="Vertical">
                     <avalonDock:LayoutPanel Orientation="Horizontal">
                         <!-- NodeTree -->
-                        <avalonDock:LayoutAnchorablePane DockWidth="150">
+                        <avalonDock:LayoutAnchorablePane DockWidth="400">
                             <avalonDock:LayoutAnchorable Title="NodeTree" ContentId="NodeTree" x:Name="NodeTree">
                                 <TreeView ItemsSource="{Binding Nodes}">
                                     <TreeView.ItemTemplate>

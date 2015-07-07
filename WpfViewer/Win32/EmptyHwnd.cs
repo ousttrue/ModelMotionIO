@@ -31,12 +31,6 @@ namespace Win32
             }
         }
 
-        protected virtual IntPtr WndProc(IntPtr hWnd, WM msg, IntPtr wParam, IntPtr lParam)
-        {
-            //return Import.DefWindowProcW(hWnd, msg, wParam, lParam);
-            return IntPtr.Zero;
-        }
-
         protected override HandleRef BuildWindowCore(HandleRef hwndParent)
         {
             if (m_classAtom == 0)
@@ -50,9 +44,6 @@ namespace Win32
                 m_classAtom = Import.RegisterClassW(ref wind_class);
             }
 
-            HwndSource source = (HwndSource)HwndSource.FromVisual(this);
-            var hParent = source.Handle;
-
             // create window
             Hwnd = Import.CreateWindowExW(
                 0, // ex flag
@@ -63,7 +54,7 @@ namespace Win32
                 Import.CW_USEDEFAULT,
                 Import.CW_USEDEFAULT,
                 Import.CW_USEDEFAULT,
-                hParent,
+                hwndParent.Handle,
                 IntPtr.Zero,
                 IntPtr.Zero,
                 IntPtr.Zero

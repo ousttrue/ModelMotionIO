@@ -178,6 +178,7 @@ namespace WpfViewer.ViewModels
 
         void ClearItems()
         {
+            Logger.Info("シーンをクリア");
             Nodes.Clear();
         }
         #endregion

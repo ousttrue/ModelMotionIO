@@ -1,5 +1,6 @@
 ﻿using System;
 
+
 namespace Win32
 {
     class D3DHost: EmptyHwnd
@@ -13,7 +14,7 @@ namespace Win32
             // d3d11
             var flags = SharpDX.Direct3D11.DeviceCreationFlags.BgraSupport;
 #if DEBUG
-            //flags |= SharpDX.Direct3D11.DeviceCreationFlags.Debug;
+            flags |= SharpDX.Direct3D11.DeviceCreationFlags.Debug;
 #endif
 
             using (var device = new SharpDX.Direct3D11.Device(SharpDX.Direct3D.DriverType.Hardware
@@ -58,30 +59,42 @@ namespace Win32
 
         void ResizeSwapchain(int w, int h)
         {
-            if (SwapChain == null) return;
-
-            var sdesc = SwapChain.Description;
-            SwapChain.ResizeBuffers(sdesc.BufferCount
-                , w, h
-                , sdesc.ModeDescription.Format, sdesc.Flags);
+            if (SwapChain != null)
+            {
+                var sdesc = SwapChain.Description;
+                SwapChain.ResizeBuffers(sdesc.BufferCount
+                    , w, h
+                    , sdesc.ModeDescription.Format, sdesc.Flags);
+            }
         }
 
         void DestroySwapChain()
         {
-            SwapChain.Dispose();
-            SwapChain = null;
+            if (SwapChain != null)
+            {
+                SwapChain.Dispose();
+                SwapChain = null;
+            }
         }
 
         void DestroyDevice()
-        { 
-            DXGIDevice.Dispose();
-            DXGIDevice = null;
+        {
+            if (DXGIDevice != null)
+            {
+                DXGIDevice.Dispose();
+                DXGIDevice = null;
+            }
 
-            D3DDevice.Dispose();
-            D3DDevice = null;
+            if (D3DDevice != null) {
+                D3DDevice.Dispose();
+                D3DDevice = null;
+            }
         }
 
-        void Draw()
+        /// <summary>
+        /// 如何にトリガーするか
+        /// </summary>
+        public void Draw()
         {
             if (DXGIDevice == null)
             {
@@ -94,17 +107,19 @@ namespace Win32
 
             using (var texture = SwapChain.GetBackBuffer<SharpDX.Direct3D11.Texture2D>(0))
             using (var RTV = new SharpDX.Direct3D11.RenderTargetView(D3DDevice, texture))
-            //using (
             {
                 var context = D3DDevice.ImmediateContext;
                 var desc = texture.Description;
                 context.ClearRenderTargetView(RTV, new SharpDX.Color4(0, 0.5f, 0, 0.5f));
+                context.Flush();
             }
 
             var flags = SharpDX.DXGI.PresentFlags.None;
             //flags|=SharpDX.DXGI.PresentFlags.DoNotWait;
             SwapChain.Present(0, flags, new SharpDX.DXGI.PresentParameters());
         }
+
+        IDisposable m_interval;
 
         protected override IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
@@ -117,9 +132,9 @@ namespace Win32
                         PAINTSTRUCT ps;
                         var hdc = Import.BeginPaint(hwnd, out ps);
                         Import.EndPaint(hwnd, ref ps);
+                        handled = true;
 
                         Draw();
-                        handled = true;
                     }
                     return IntPtr.Zero;
 
@@ -132,6 +147,7 @@ namespace Win32
 
                 case WM.WM_DESTROY:
                     {
+                        m_interval.Dispose();
                         DestroySwapChain();
                         DestroyDevice();
                     }
