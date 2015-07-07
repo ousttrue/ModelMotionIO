@@ -57,7 +57,7 @@ namespace MMIO.Mmd
                 MorphFrames=morphFrames,
             };
 
-        public static VmdMotion Parse(Byte[] bytes)
+        public static VmdMotion Execute(Byte[] bytes)
         {
             var result = Motion(new ArraySegment<byte>(bytes));
 

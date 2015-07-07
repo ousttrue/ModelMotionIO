@@ -1,10 +1,8 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
-using Sprache;
 using System.Linq;
 using System.Text;
-using MMIO;
+
 
 namespace UnitTestProject1
 {
@@ -19,7 +17,7 @@ namespace UnitTestProject1
             var path = SAMPLE_DIRECTORY+"simple.bvh";
             var text = File.ReadAllText(path, Encoding.GetEncoding(932));
 
-            var root = MMIO.Bvh.BvhParse.Parser.Parse(text);
+            var root = MMIO.Bvh.BvhParse.Execute(text);
 
             Assert.AreEqual("Hips", root.Name);
         }
@@ -30,7 +28,7 @@ namespace UnitTestProject1
             var path = SAMPLE_DIRECTORY + "右手グー.vpd";
             var text = File.ReadAllText(path, Encoding.GetEncoding(932));
 
-            var pose = MMIO.Mmd.VpdParse.Parser.Parse(text);
+            var pose = MMIO.Mmd.VpdParse.Execute(text);
 
             Assert.AreEqual(14, pose.Bones.Length);
         }
@@ -42,7 +40,7 @@ namespace UnitTestProject1
             var path = SAMPLE_DIRECTORY+"初音ミクVer2.pmd";
             var bytes = File.ReadAllBytes(path);
 
-            var model = MMIO.Mmd.PmdParse.Parser.Parse(bytes);
+            var model = MMIO.Mmd.PmdParse.Execute(bytes);
 
             Assert.AreEqual("初音ミク", model.Header.Name);
             Assert.AreEqual(12354, model.Vertices.Length);
@@ -61,7 +59,7 @@ namespace UnitTestProject1
             var path = SAMPLE_DIRECTORY+"初音ミクVer2.pmx";
             var bytes = File.ReadAllBytes(path);
 
-            var model = MMIO.Mmd.PmxParse.Parser.Parse(bytes);
+            var model = MMIO.Mmd.PmxParse.Execute(bytes);
             Assert.AreEqual("初音ミク", model.Header.Name);
             Assert.AreEqual(12354, model.Vertices.Length);
             Assert.AreEqual(22961 * 3, model.Indices.Length);
@@ -79,10 +77,9 @@ namespace UnitTestProject1
             var path = SAMPLE_DIRECTORY + "sample.vmd";
             var bytes = File.ReadAllBytes(path);
 
-            var vmd = MMIO.Mmd.VmdParse.Parse(bytes);
+            var vmd = MMIO.Mmd.VmdParse.Execute(bytes);
 
             int a = 0;
         }
-
     }
 }

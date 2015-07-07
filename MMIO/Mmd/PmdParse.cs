@@ -274,5 +274,7 @@ namespace MMIO.Mmd
             };
 
         public static readonly BParser<PmdModel> Parser = Model;
+
+        public static PmdModel Execute(Byte[] bytes) { return Parser.Parse(bytes); }
     }
 }

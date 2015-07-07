@@ -105,5 +105,7 @@ namespace MMIO.Bvh
         public static Parser<Node> Parser = from hierarchy in Parse.String("HIERARCHY").Token()
                                             from root in Node("ROOT")
                                             select root;
+
+        public static Node Execute(String text) { return Parser.Parse(text); }
     }
 }

@@ -44,6 +44,8 @@ namespace MMIO.Mmd
             from parser in Header.Select(x => new PmxParse(x))
             from model in parser.Model
             select model;
+
+        public static PmxModel Execute(Byte[] bytes) { return Parser.Parse(bytes); }
         #endregion
 
         /// <summary>

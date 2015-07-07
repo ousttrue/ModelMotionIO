@@ -135,5 +135,7 @@ namespace MMIO.Mmd
                 select new VpdPose {
                     Bones=bones.ToArray(),
                 };
+
+        public static VpdPose Execute(String text) { return Parser.Parse(text); }
     }
 }
