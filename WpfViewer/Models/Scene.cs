@@ -8,6 +8,8 @@ using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 using WpfViewer.Renderer;
+using WpfViewer.Renderer.Commands;
+using WpfViewer.Renderer.Resources;
 
 namespace WpfViewer.Models
 {
@@ -21,6 +23,12 @@ namespace WpfViewer.Models
 
         public Scene()
         {
+            m_currentFrame = new RenderFrame
+            {
+                Resources = new RenderResourceBase[] { },
+                Commands = new IRenderCommand[] { BackbufferClearCommand.Create(new SharpDX.Color4(0, 0.5f, 0, 0.5f)) },
+            };
+
             // Timer駆動でPushする
             Observable.Interval(TimeSpan.FromMilliseconds(33))
                 .Subscribe(_ => {

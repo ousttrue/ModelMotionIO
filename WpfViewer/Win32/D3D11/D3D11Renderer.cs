@@ -1,5 +1,7 @@
 ﻿using System;
 using WpfViewer.Renderer;
+using WpfViewer.Renderer.Commands;
+using WpfViewer.Renderer.Resources;
 
 namespace WpfViewer.Win32.D3D11
 {
@@ -9,6 +11,8 @@ namespace WpfViewer.Win32.D3D11
         SharpDX.Direct3D11.Device1 D3DDevice;
         SharpDX.DXGI.Device2 DXGIDevice;
         SharpDX.DXGI.SwapChain1 SwapChain;
+        SharpDX.Direct3D11.Texture2D Backbuffer;
+        SharpDX.Direct3D11.RenderTargetView RTV;
 
         void CreateDevice()
         {
@@ -86,14 +90,30 @@ namespace WpfViewer.Win32.D3D11
             if (SwapChain == null) return;
 
             // update
+            foreach (var r in frame.Resources)
+            {
+            }
 
-            using (var Backbuffer = SwapChain.GetBackBuffer<SharpDX.Direct3D11.Texture2D>(0))
-            using (var RTV = new SharpDX.Direct3D11.RenderTargetView(D3DDevice, Backbuffer))
+            using (Backbuffer = SwapChain.GetBackBuffer<SharpDX.Direct3D11.Texture2D>(0))
+            using (RTV = new SharpDX.Direct3D11.RenderTargetView(D3DDevice, Backbuffer))
             {
                 // render
                 var context = D3DDevice.ImmediateContext;
-                context.ClearRenderTargetView(RTV, new SharpDX.Color4(0, 0.5f, 0, 0.5f));
+                foreach (var c in frame.Commands)
+                {
+                    switch (c.RenderCommandType)
+                    {
+                        case RenderCommandType.Clear_Backbuffer:
+                            {
+                                var command = c as BackbufferClearCommand;
+                                context.ClearRenderTargetView(RTV, command.Color);
+                            }
+                            break;
+                    }
+                }
             }
+            Backbuffer = null;
+            RTV = null;
 
             var flags = SharpDX.DXGI.PresentFlags.None;
             //flags|=SharpDX.DXGI.PresentFlags.DoNotWait;
