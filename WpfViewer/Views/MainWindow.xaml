@@ -1,0 +1,109 @@
+﻿<Window x:Class="WpfViewer.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
+xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions" 
+xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"         
+xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"               
+        xmlns:vm="clr-namespace:WpfViewer.ViewModels"
+        xmlns:v="clr-namespace:WpfViewer.Views"
+        xmlns:local="clr-namespace:WpfViewer"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="600" Width="800">
+    <Window.Resources>
+        <vm:MainWindowViewModel x:Key="ViewModel"/>
+        <vm:LogLevelToColorConverter Target="Background" x:Key="LogLevelToBackgroundColorConverter" />
+        <vm:LogLevelToColorConverter Target="Foreground" x:Key="LogLevelToForegroundColorConverter" />
+    </Window.Resources>
+    <Window.DataContext>
+        <StaticResourceExtension ResourceKey="ViewModel"/>
+    </Window.DataContext>
+    <i:Interaction.Behaviors>
+        <v:FileDropBehavior Command="{Binding AddItemsCommand}" />
+    </i:Interaction.Behaviors>
+    
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="ファイル">
+                <MenuItem
+                    Header="開く">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <l:OpenFileDialogInteractionMessageAction>
+                                <l:DirectInteractionMessage CallbackCommand="{Binding OpenFileDialogCallbackCommand}">
+                                    <l:OpeningFileSelectionMessage Filter="モデル・モーション(*.PMD;*.PMX;*.VMD;*.VPD;*.BVH)|*.PMD;*.PMX;*.VMD;*.VPD;*.BVH|すべてのファイル(*.*)|*.*" Title="ファイルを開く" MultiSelect="True"/>
+                                </l:DirectInteractionMessage>
+                            </l:OpenFileDialogInteractionMessageAction>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="表示">
+                <MenuItem 
+                    Header="NodeTree"
+                    IsCheckable="True"
+                    IsChecked="{Binding IsVisible, ElementName=NodeTree}" />
+                <MenuItem 
+                    Header="Animation"
+                    IsCheckable="True"
+                    IsChecked="{Binding IsVisible, ElementName=Animation}" />
+                <MenuItem 
+                    Header="Messages"
+                    IsCheckable="True"
+                    IsChecked="{Binding IsVisible, ElementName=Messages}" />
+            </MenuItem>
+        </Menu>
+        <avalonDock:DockingManager x:Name="_dockingManager">
+            <avalonDock:LayoutRoot>
+                <avalonDock:LayoutPanel Orientation="Vertical">
+                    <avalonDock:LayoutPanel Orientation="Horizontal">
+                        <!-- NodeTree -->
+                        <avalonDock:LayoutAnchorablePane DockWidth="150">
+                            <avalonDock:LayoutAnchorable Title="NodeTree" ContentId="NodeTree" x:Name="NodeTree">
+                                <StackPanel>
+                                </StackPanel>
+                            </avalonDock:LayoutAnchorable>
+                        </avalonDock:LayoutAnchorablePane>
+                        <!-- ドキュメント -->
+                        <avalonDock:LayoutDocumentPane>
+                            <avalonDock:LayoutDocument Title="Document1" CanClose="False" CanFloat="False" ContentId="Document">
+                                <ListBox ItemsSource="{Binding Items}"
+                                 SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                                 >
+                                </ListBox>
+                            </avalonDock:LayoutDocument>
+                        </avalonDock:LayoutDocumentPane>
+                        <!-- Animation -->
+                        <avalonDock:LayoutAnchorablePane DockWidth="150">
+                            <avalonDock:LayoutAnchorable Title="Animation" ContentId="Animaion" x:Name="Animation">
+                                <StackPanel>
+                                </StackPanel>
+                            </avalonDock:LayoutAnchorable>
+                        </avalonDock:LayoutAnchorablePane>
+                    </avalonDock:LayoutPanel>
+                    <avalonDock:LayoutAnchorablePane DockHeight="150">
+                        <avalonDock:LayoutAnchorable Title="Messages" ContentId="Messages" x:Name="Messages">
+                            <ListBox ItemsSource="{Binding Messages}"
+                                HorizontalContentAlignment="Stretch"                                     
+                                >        
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <DockPanel>
+                                            <Label 
+                                                Content="{Binding FormattedMessage}" 
+                                                Foreground="{Binding Level, Converter={StaticResource LogLevelToForegroundColorConverter}}"
+                                                Background="{Binding Level, Converter={StaticResource LogLevelToBackgroundColorConverter}}"
+                                                />
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </avalonDock:LayoutAnchorable>
+                    </avalonDock:LayoutAnchorablePane>
+               </avalonDock:LayoutPanel>
+            </avalonDock:LayoutRoot>
+        </avalonDock:DockingManager>
+    </DockPanel>
+</Window>

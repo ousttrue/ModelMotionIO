@@ -78,8 +78,6 @@ namespace UnitTestProject1
             var bytes = File.ReadAllBytes(path);
 
             var vmd = MMIO.Mmd.VmdParse.Execute(bytes);
-
-            int a = 0;
         }
     }
 }
