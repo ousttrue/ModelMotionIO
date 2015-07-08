@@ -154,9 +154,11 @@
     <Compile Include="Renderer\Commands\RenderTargetClearCommand.cs" />
     <Compile Include="Renderer\IRenderer.cs" />
     <Compile Include="Renderer\RenderFrame.cs" />
+    <Compile Include="Renderer\Resources\IRenderResource.cs" />
     <Compile Include="Renderer\Resources\RenderResourceBase.cs" />
     <Compile Include="Renderer\Resources\RenderResourceType.cs" />
     <Compile Include="Renderer\Resources\TextureResource.cs" />
+    <Compile Include="Renderer\Resources\VertexBufferResource.cs" />
     <Compile Include="ViewModels\LogLevelToColorConverter.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="Win32\D3D11\D3D11Host.cs" />

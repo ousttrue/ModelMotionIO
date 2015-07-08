@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WpfViewer.Models
 {
@@ -21,6 +18,18 @@ namespace WpfViewer.Models
             }
         }
 
+        SharpDX.Vector3 m_position;
+        public SharpDX.Vector3 Position
+        {
+            get { return m_position; }
+            set
+            {
+                if (m_position == value) return;
+                m_position = value;
+                RaisePropertyChanged(() => this.Position);
+            }
+        }
+
         ObservableCollection<Node> m_children;
         public ObservableCollection<Node> Children
         {
@@ -34,5 +43,18 @@ namespace WpfViewer.Models
             }
         }
 
+        public IEnumerable<T> Traverse<T>(Func<Node, SharpDX.Vector3, T> pred, SharpDX.Vector3 pos=new SharpDX.Vector3())
+        {
+            yield return pred(this, pos);
+
+            foreach (var child in Children)
+            {
+                foreach(var x in child.Traverse(pred, pos+Position))
+                {
+                    yield return x;
+                }
+            }
+
+        }
     }
 }

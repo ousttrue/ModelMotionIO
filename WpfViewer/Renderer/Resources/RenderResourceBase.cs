@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace WpfViewer.Renderer.Resources
 {
-    public abstract class RenderResourceBase
+    public abstract class RenderResourceBase: IRenderResource
     {
         public abstract RenderResourceType RenderResourceType { get; }
+
         public UInt32 ID
         {
             get;
@@ -19,6 +20,7 @@ namespace WpfViewer.Renderer.Resources
         {
             ID = UniqueID++;
         }
+
         Int32 m_age;
         public Int32 Age
         {

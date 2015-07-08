@@ -8,7 +8,7 @@ namespace WpfViewer.Renderer
 {
     public class RenderFrame
     {
-        public Resources.RenderResourceBase[] Resources;
+        public Resources.IRenderResource[] Resources;
         public Commands.IRenderCommand[] Commands;
     }
 }
