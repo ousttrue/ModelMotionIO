@@ -2,7 +2,7 @@
 
 namespace WpfViewer.Renderer.Resources
 {
-    class TextureResource: RenderResourceBase
+    public class TextureResource: RenderResourceBase
     {
         public override RenderResourceType RenderResourceType
         {

@@ -12,7 +12,6 @@ namespace WpfViewer.Renderer.Resources
         Sampler,
 
         Shader,
-        Effect,
         VertexBuffer,
 
         RasterizerState,

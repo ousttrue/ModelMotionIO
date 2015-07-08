@@ -40,6 +40,7 @@ namespace WpfViewer.Win32.D3D11
             m_compositeDisposable = new CompositeDisposable();
 
             renderFrameObservable
+                .ObserveOnDispatcher()
                 .Subscribe(frame =>
                 {
                     // update & draw

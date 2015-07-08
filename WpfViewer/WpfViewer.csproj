@@ -24,7 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -62,6 +62,10 @@
     </Reference>
     <Reference Include="SharpDX, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpDX.3.0.0-alpha02\lib\net45\SharpDX.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SharpDX.D3DCompiler, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpDX.D3DCompiler.3.0.0-alpha02\lib\net45\SharpDX.D3DCompiler.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SharpDX.Direct3D11, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
@@ -152,17 +156,33 @@
     <Compile Include="Renderer\Commands\RenderCommandType.cs" />
     <Compile Include="Renderer\Commands\IRenderCommand.cs" />
     <Compile Include="Renderer\Commands\RenderTargetClearCommand.cs" />
+    <Compile Include="Renderer\Commands\RenderTargetSetCommand.cs" />
+    <Compile Include="Renderer\Commands\ShaderDrawSubmeshCommand.cs" />
+    <Compile Include="Renderer\Commands\ShaderSamplerSetCommand.cs" />
+    <Compile Include="Renderer\Commands\ShaderSetCommand.cs" />
+    <Compile Include="Renderer\Commands\VertexBufferSetCommand.cs" />
+    <Compile Include="Renderer\Commands\ViewportSetCommand.cs" />
+    <Compile Include="Renderer\Resources\ShaderResourceFactory.cs" />
+    <Compile Include="Renderer\Resources\ShaderStage.cs" />
+    <Compile Include="Renderer\Commands\ShaderTextureSetCommand.cs" />
+    <Compile Include="Renderer\Commands\ShaderVariableSetCommand.cs" />
     <Compile Include="Renderer\IRenderer.cs" />
     <Compile Include="Renderer\RenderFrame.cs" />
     <Compile Include="Renderer\Resources\IRenderResource.cs" />
     <Compile Include="Renderer\Resources\RenderResourceBase.cs" />
     <Compile Include="Renderer\Resources\RenderResourceType.cs" />
+    <Compile Include="Renderer\Resources\SamplerResource.cs" />
+    <Compile Include="Renderer\Resources\ShaderResource.cs" />
     <Compile Include="Renderer\Resources\TextureResource.cs" />
     <Compile Include="Renderer\Resources\VertexBufferResource.cs" />
     <Compile Include="ViewModels\LogLevelToColorConverter.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="Win32\D3D11\ConstantBufferDictionaryFactory.cs" />
     <Compile Include="Win32\D3D11\D3D11Host.cs" />
     <Compile Include="Win32\D3D11\D3D11Renderer.cs" />
+    <Compile Include="Win32\D3D11\ShaderManager.cs" />
+    <Compile Include="Win32\D3D11\VertexBufferManager.cs" />
+    <Compile Include="Win32\D3D11\ResourceManagerBase.cs" />
     <Compile Include="Win32\EmptyHwnd.cs" />
     <Compile Include="Win32\Win32Import.cs" />
     <Page Include="Views\MainWindow.xaml">
