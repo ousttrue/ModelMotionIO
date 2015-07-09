@@ -2,7 +2,10 @@
 using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reflection;
 using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media;
 using WpfViewer.Renderer;
 
 namespace WpfViewer.Win32.D3D11
@@ -86,6 +89,37 @@ namespace WpfViewer.Win32.D3D11
                     //EmitKeyDowned(wParam.ToInt32());
                     ///handled = true;
                     return IntPtr.Zero;
+
+                case WM.WM_LBUTTONDOWN:
+                    {
+                        var e = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left)
+                        {
+                            RoutedEvent = Mouse.MouseDownEvent,
+                            Source = this,
+                        };
+                        RaiseEvent(e);
+                    }
+                    handled = true;
+                    return IntPtr.Zero;
+
+                case WM.WM_LBUTTONUP:
+                    RaiseEvent(new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left)
+                    {
+                        RoutedEvent = Mouse.MouseUpEvent,
+                        Source = this,
+                    });
+                    handled = true;
+                    return IntPtr.Zero;
+
+                case WM.WM_MOUSEMOVE:
+                    RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, 0)
+                    {
+                        RoutedEvent = Mouse.MouseMoveEvent,
+                        Source = this,
+                    });
+                    handled = true;
+                    return IntPtr.Zero;
+
             }
 
             return base.WndProc(hwnd, msg, wParam, lParam, ref handled);

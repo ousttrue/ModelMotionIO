@@ -90,7 +90,13 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
                         <!-- ドキュメント -->
                         <avalonDock:LayoutDocumentPane>
                             <avalonDock:LayoutDocument Title="Scene" CanClose="False" CanFloat="False" ContentId="Document">
-                                <d3d11:D3D11Host RenderFrameObservable="{Binding Scene.RenderFrameObservable}" />
+                                <d3d11:D3D11Host 
+                                    RenderFrameObservable="{Binding Scene.RenderFrameObservable}" 
+                                    >
+                                    <i:Interaction.Behaviors>
+                                        <v:MouseEventBehavior MouseEventObserver="{Binding Scene}" />
+                                    </i:Interaction.Behaviors>
+                                </d3d11:D3D11Host>
                             </avalonDock:LayoutDocument>
                         </avalonDock:LayoutDocumentPane>
                         <!-- Animation -->

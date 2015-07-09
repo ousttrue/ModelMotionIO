@@ -218,7 +218,9 @@ namespace WpfViewer.Win32.D3D11
         {
             if (SwapChain == null) return;
 
+            /////////////////////////////////////////////////
             // update
+            /////////////////////////////////////////////////
             foreach (var resource in frame.Resources)
             {
                 switch (resource.RenderResourceType)
@@ -252,11 +254,13 @@ namespace WpfViewer.Win32.D3D11
                 }
             }
 
+            /////////////////////////////////////////////////
+            // render
+            /////////////////////////////////////////////////
             m_pass = new ShaderPass();
             using (Backbuffer = SwapChain.GetBackBuffer<SharpDX.Direct3D11.Texture2D>(0))
             using (RTV = new SharpDX.Direct3D11.RenderTargetView(D3DDevice, Backbuffer))
             {
-                // render
                 var context = D3DDevice.ImmediateContext;
                 foreach (var c in frame.Commands)
                 {
@@ -362,7 +366,6 @@ namespace WpfViewer.Win32.D3D11
                             }
                             break;
 
-                            /*
                         case RenderCommandType.ShaderVriable_Set:
                             {
                                 var command = c as ShaderVariableSetCommand;
@@ -370,24 +373,25 @@ namespace WpfViewer.Win32.D3D11
                             }
                             break;
 
-                        case RenderCommandType.ShaderTexture_Set:
+                        /*
+                    case RenderCommandType.ShaderTexture_Set:
+                        {
+                            var command = c as ShaderTextureSetCommand;
+                            var texture = m_resources.TextureManager.Get(command.ResourceID);
+                            if (texture != null)
                             {
-                                var command = c as ShaderTextureSetCommand;
-                                var texture = m_resources.TextureManager.Get(command.ResourceID);
-                                if (texture != null)
-                                {
-                                    m_pass.SetSRV(context, command.Key, texture.ShaderResourceView);
-                                }
+                                m_pass.SetSRV(context, command.Key, texture.ShaderResourceView);
                             }
-                            break;
+                        }
+                        break;
 
-                        case RenderCommandType.ShaderSampler_Set:
-                            {
-                                var command = c as ShaderSamplerSetCommand;
-                                Pass.SetSampler(command);
-                            }
-                            break;
-                            */
+                    case RenderCommandType.ShaderSampler_Set:
+                        {
+                            var command = c as ShaderSamplerSetCommand;
+                            Pass.SetSampler(command);
+                        }
+                        break;
+                        */
 
                         case RenderCommandType.Shader_Set:
                             {
@@ -490,6 +494,9 @@ namespace WpfViewer.Win32.D3D11
             Backbuffer = null;
             RTV = null;
 
+            /////////////////////////////////////////////////
+            // flip
+            /////////////////////////////////////////////////
             var flags = SharpDX.DXGI.PresentFlags.None;
             flags|=SharpDX.DXGI.PresentFlags.DoNotWait;
             SwapChain.Present(0, flags, new SharpDX.DXGI.PresentParameters());
