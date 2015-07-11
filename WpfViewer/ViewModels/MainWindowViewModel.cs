@@ -15,6 +15,7 @@ using System.Windows.Input;
 using WpfViewer.Views;
 using System.Reactive.Subjects;
 using WpfViewer.Win32;
+using WpfViewer.Extensions;
 
 namespace WpfViewer.ViewModels
 {
@@ -181,11 +182,11 @@ namespace WpfViewer.ViewModels
                         .TakeUntil(mouseRightUp)
                         ;
                     dragRight
-                        .Zip(dragRight.Skip(1), (Old, New) => new { Old, New })
+                        .Pairwise()
                         // Zipの都合上ここで繰り返す
                         .Repeat()
                         // 値の変換
-                        .Select(x => new { x = x.Old.X - x.New.X, y = x.Old.Y - x.New.Y })
+                        .Select(x => new { x = x.OldItem.X - x.NewItem.X, y = x.OldItem.Y - x.NewItem.Y })
                         .Subscribe(x =>
                     {
                         const float factor = 0.01f;
@@ -202,11 +203,11 @@ namespace WpfViewer.ViewModels
                         .TakeUntil(mouseMiddleUp)
                         ;
                     dragMiddle
-                        .Zip(dragMiddle.Skip(1), (Old, New) => new { Old, New })
+                        .Pairwise()
                         // Zipの都合上ここで繰り返す
                         .Repeat()
                         // 値の変換
-                        .Select(x => new { x = x.Old.X - x.New.X, y = x.Old.Y - x.New.Y })
+                        .Select(x => new { x = x.OldItem.X - x.NewItem.X, y = x.OldItem.Y - x.NewItem.Y })
                         .Subscribe(x =>
                         {
                             const float factor = 0.01f;
