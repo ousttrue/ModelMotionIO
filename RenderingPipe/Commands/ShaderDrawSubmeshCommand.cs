@@ -1,7 +1,7 @@
 ﻿using System;
-using WpfViewer.Renderer.Resources;
+using RenderingPipe.Resources;
 
-namespace WpfViewer.Renderer.Commands
+namespace RenderingPipe.Commands
 {
     public class ShaderDrawSubMeshCommand : IRenderCommand
     {

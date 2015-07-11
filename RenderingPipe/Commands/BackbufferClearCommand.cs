@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace WpfViewer.Renderer.Commands
+namespace RenderingPipe.Commands
 {
-    class BackbufferClearCommand : IRenderCommand
+    public class BackbufferClearCommand : IRenderCommand
     {
         public RenderCommandType RenderCommandType
         {
@@ -22,13 +18,13 @@ namespace WpfViewer.Renderer.Commands
                 , Color);
         }
 
-        public SharpDX.Color4 Color
+        public Color4 Color
         {
             get;
             private set;
         }
 
-        public static BackbufferClearCommand Create(SharpDX.Color4 color)
+        public static BackbufferClearCommand Create(Color4 color)
         {
             return new BackbufferClearCommand
             {

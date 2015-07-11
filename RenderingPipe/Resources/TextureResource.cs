@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WpfViewer.Renderer.Resources
+namespace RenderingPipe.Resources
 {
     public class TextureResource: RenderResourceBase
     {

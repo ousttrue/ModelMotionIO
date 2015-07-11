@@ -2,20 +2,18 @@
 using Livet.Messaging;
 using Livet.Messaging.IO;
 using NLog;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Reactive.Linq;
-using System.Windows.Input;
-using WpfViewer.Views;
 using System.Reactive.Subjects;
+using System.Windows;
+using System.Windows.Input;
 using WpfViewer.Win32;
-using WpfViewer.Extensions;
+
 
 namespace WpfViewer.ViewModels
 {

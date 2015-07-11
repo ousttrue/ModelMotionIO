@@ -1,7 +1,7 @@
 ﻿using System;
-using WpfViewer.Renderer.Resources;
+using RenderingPipe.Resources;
 
-namespace WpfViewer.Renderer.Commands
+namespace RenderingPipe.Commands
 {
     class RenderTargetClearCommand: IRenderCommand
     {
@@ -22,13 +22,13 @@ namespace WpfViewer.Renderer.Commands
             private set;
         }
 
-        public SharpDX.Color4 Color
+        public Color4 Color
         {
             get;
             private set;
         }
 
-        public RenderTargetClearCommand Create(TextureResource resource, SharpDX.Color4 color)
+        public RenderTargetClearCommand Create(TextureResource resource, Color4 color)
         {
             if (resource == null)
             {

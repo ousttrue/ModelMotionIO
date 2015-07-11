@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WpfViewer.Renderer.Resources
+namespace RenderingPipe.Resources
 {
     public class SamplerResource : RenderResourceBase
     {

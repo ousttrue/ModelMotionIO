@@ -1,13 +1,11 @@
-﻿using System;
+﻿using RenderingPipe.Commands;
+using RenderingPipe.Resources;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using WpfViewer.Renderer.Commands;
-using WpfViewer.Renderer.Resources;
+
 
 namespace WpfViewer.Win32.D3D11
 {
@@ -295,7 +293,69 @@ namespace WpfViewer.Win32.D3D11
             return null;
         }
 
-        static public VertexBufferResource.VertexWriter<VERTEX> GetVertexWriter<VERTEX>(Byte[] bytes)
+        public class VertexWriter<VERTEX>
+        {
+            public delegate void StreamWriter(SharpDX.DataStream w, VERTEX v);
+
+            public StreamWriter Writer
+            {
+                get;
+                set;
+            }
+
+            public Int32 Stride
+            {
+                get;
+                set;
+            }
+
+            public VertexWriter(StreamWriter writer, Int32 stride)
+            {
+                Writer = writer;
+                Stride = stride;
+            }
+
+            public Byte[] ToBytes(IEnumerable<VERTEX> vertices)
+            {
+                Byte[] buffer;
+                using (var w = new SharpDX.DataStream(Stride * vertices.Count(), true, true))
+                {
+                    vertices.ForEach(v => Writer(w, v));
+                    w.Position = 0;
+                    buffer = new Byte[w.Length];
+                    w.ReadRange(buffer, 0, buffer.Length);
+                }
+                return buffer;
+            }
+        }
+
+        public static VertexBufferResource Create<T>(IEnumerable<T> vertices
+            , VertexWriter<T> vertexWriter
+            , IEnumerable<Int32> indices = null
+            , IEnumerable<VertexBufferResource.SubMesh> submeshes = null)
+        {
+            if (submeshes == null)
+            {
+                if (indices == null)
+                {
+                    submeshes = new[] { new VertexBufferResource.SubMesh(vertices.Count()) };
+                }
+                else
+                {
+                    submeshes = new[] { new VertexBufferResource.SubMesh(indices.Count()) };
+                }
+            }
+
+            return new VertexBufferResource
+            {
+                Vertices = vertexWriter.ToBytes(vertices),
+                Stride = vertexWriter.Stride,
+                Indices = indices != null ? indices.ToArray() : null,
+                SubMeshes = submeshes.ToArray(),
+            };
+        }
+
+        static public VertexWriter<VERTEX> GetVertexWriter<VERTEX>(Byte[] bytes)
         {
             var fields = typeof(VERTEX).GetFields();
             var inputs = ShaderManager.ParseByteCode(bytes);
@@ -344,16 +404,16 @@ namespace WpfViewer.Win32.D3D11
                 stride+=4 * (int)input.Components;
             }
 
-            var writerType=typeof(VertexBufferResource.VertexWriter<>).MakeGenericType(new []{typeof(VERTEX)});
+            var writerType=typeof(VertexWriter<>).MakeGenericType(new []{typeof(VERTEX)});
 
             var vertexWriter = Activator.CreateInstance(writerType, new Object[]{
-                new VertexBufferResource.VertexWriter<VERTEX>.StreamWriter((s, vertex)=>{
+                new VertexWriter<VERTEX>.StreamWriter((s, vertex)=>{
                     fieldWriters.ForEach(writer=>writer(s, vertex));
                 })
                 , stride
             });
 
-            return vertexWriter as VertexBufferResource.VertexWriter<VERTEX>;
+            return vertexWriter as VertexWriter<VERTEX>;
         }
 
         public static List<VertexInput> ParseByteCode(Byte[] bytes)

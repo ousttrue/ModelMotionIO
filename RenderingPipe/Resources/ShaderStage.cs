@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WpfViewer.Renderer
+namespace RenderingPipe.Resources
 {
-    public interface IRenderer
+    public enum ShaderStage
     {
-        void Render(RenderFrame frame);
+        Vertex,
+        Geometry,
+        Pixel,
     }
 }

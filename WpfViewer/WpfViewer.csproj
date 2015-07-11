@@ -150,33 +150,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Extensions\ObservablePairwiseExtensions.cs" />
+    <Compile Include="Extensions\SharpDXExtensions.cs" />
     <Compile Include="Models\Node.cs" />
     <Compile Include="Models\Scene.cs" />
     <Compile Include="Models\Transformation.cs" />
-    <Compile Include="Renderer\Commands\BackbufferClearCommand.cs" />
-    <Compile Include="Renderer\Commands\RenderCommandType.cs" />
-    <Compile Include="Renderer\Commands\IRenderCommand.cs" />
-    <Compile Include="Renderer\Commands\RenderTargetClearCommand.cs" />
-    <Compile Include="Renderer\Commands\RenderTargetSetCommand.cs" />
-    <Compile Include="Renderer\Commands\ShaderDrawSubmeshCommand.cs" />
-    <Compile Include="Renderer\Commands\ShaderSamplerSetCommand.cs" />
-    <Compile Include="Renderer\Commands\ShaderSetCommand.cs" />
-    <Compile Include="Renderer\Commands\VertexBufferSetCommand.cs" />
-    <Compile Include="Renderer\Commands\ViewportSetCommand.cs" />
     <Compile Include="Renderer\Resources\ShaderResourceFactory.cs" />
-    <Compile Include="Renderer\Resources\ShaderStage.cs" />
-    <Compile Include="Renderer\Commands\ShaderTextureSetCommand.cs" />
-    <Compile Include="Renderer\Commands\ShaderVariableSetCommand.cs" />
-    <Compile Include="Renderer\IRenderer.cs" />
-    <Compile Include="Renderer\RenderFrame.cs" />
-    <Compile Include="Renderer\Resources\IRenderResource.cs" />
-    <Compile Include="Renderer\Resources\RenderResourceBase.cs" />
-    <Compile Include="Renderer\Resources\RenderResourceType.cs" />
-    <Compile Include="Renderer\Resources\SamplerResource.cs" />
-    <Compile Include="Renderer\Resources\ShaderResource.cs" />
-    <Compile Include="Renderer\Resources\TextureResource.cs" />
-    <Compile Include="Renderer\Resources\VertexBufferResource.cs" />
     <Compile Include="ViewModels\LogLevelToColorConverter.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="Win32\MouseEventBehavior.cs" />
@@ -237,8 +215,14 @@
       <Project>{90580417-379d-4b97-ab4e-b180b8997b34}</Project>
       <Name>MMIO</Name>
     </ProjectReference>
+    <ProjectReference Include="..\RenderingPipe\RenderingPipe.csproj">
+      <Project>{b3344beb-0688-4ae1-bb6a-0dd6afb3fdbf}</Project>
+      <Name>RenderingPipe</Name>
+    </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Renderer\Commands\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

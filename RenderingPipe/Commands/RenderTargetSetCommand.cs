@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WpfViewer.Renderer.Resources;
+using RenderingPipe.Resources;
 
-namespace WpfViewer.Renderer.Commands
+namespace RenderingPipe.Commands
 {
     public class RenderTargetsSetCommand : IRenderCommand
     {

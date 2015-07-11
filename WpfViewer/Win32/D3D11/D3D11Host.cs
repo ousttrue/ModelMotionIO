@@ -1,13 +1,9 @@
 ﻿using Reactive.Bindings.Extensions;
+using RenderingPipe;
 using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Reflection;
 using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media;
-using WpfViewer.Renderer;
-using WpfViewer.Views;
 
 namespace WpfViewer.Win32.D3D11
 {

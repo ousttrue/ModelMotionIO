@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using RenderingPipe.Resources;
+using System;
 
 namespace WpfViewer.Renderer.Resources
 {

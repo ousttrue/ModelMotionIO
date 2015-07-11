@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WpfViewer.Renderer.Commands
+namespace RenderingPipe.Commands
 {
     public class ShaderVariableSetCommand : IRenderCommand
     {

@@ -1,15 +1,15 @@
-﻿using SharpDX;
+﻿using RenderingPipe;
+using RenderingPipe.Commands;
+using RenderingPipe.Resources;
+using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Windows.Input;
 using WpfViewer.Renderer;
-using WpfViewer.Renderer.Commands;
 using WpfViewer.Renderer.Resources;
-using WpfViewer.Views;
 
 namespace WpfViewer.Models
 {
@@ -169,7 +169,7 @@ namespace WpfViewer.Models
         {
             get
             {
-                yield return BackbufferClearCommand.Create(new Color4(0.5f * ((Single)Math.Sin((counter++) * 0.1f) + 1.0f), 0.5f, 0, 1.0f));
+                yield return BackbufferClearCommand.Create(new RenderingPipe.Color4(0.5f * ((Single)Math.Sin((counter++) * 0.1f) + 1.0f), 0.5f, 0, 1.0f));
                 yield return ShaderSetCommand.Create(m_vs);
                 yield return ShaderSetCommand.Create(m_ps);
 

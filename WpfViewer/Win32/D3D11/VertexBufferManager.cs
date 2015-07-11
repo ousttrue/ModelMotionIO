@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RenderingPipe.Resources;
+using System;
 using WpfViewer.Renderer.Resources;
 
 namespace WpfViewer.Win32.D3D11

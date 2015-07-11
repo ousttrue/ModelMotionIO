@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WpfViewer.Renderer.Commands
+namespace RenderingPipe.Commands
 {
     public class ViewportSetCommand : IRenderCommand
     {
@@ -19,13 +19,13 @@ namespace WpfViewer.Renderer.Commands
                 , Viewport);
         }
 
-        public SharpDX.ViewportF Viewport { get; set; }
+        public Viewport Viewport { get; set; }
 
         public static ViewportSetCommand Create(float x, float y, float w, float h, float minD = 0, float MaxD = 1.0f)
         {
             return new ViewportSetCommand
             {
-                Viewport = new SharpDX.ViewportF
+                Viewport = new Viewport
                 {
                     X = x,
                     Y = y,

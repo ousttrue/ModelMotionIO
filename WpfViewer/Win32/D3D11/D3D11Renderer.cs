@@ -1,8 +1,10 @@
-﻿using System;
+﻿using RenderingPipe;
+using RenderingPipe.Commands;
+using RenderingPipe.Resources;
+using System;
 using System.Linq;
-using WpfViewer.Renderer;
-using WpfViewer.Renderer.Commands;
-using WpfViewer.Renderer.Resources;
+using WpfViewer.Extensions;
+
 
 namespace WpfViewer.Win32.D3D11
 {
@@ -290,7 +292,7 @@ namespace WpfViewer.Win32.D3D11
                         case RenderCommandType.Clear_Backbuffer:
                             {
                                 var command = c as BackbufferClearCommand;
-                                context.ClearRenderTargetView(RTV, command.Color);
+                                context.ClearRenderTargetView(RTV, command.Color.ToSharpDX());
                                 context.OutputMerger.SetTargets((SharpDX.Direct3D11.DepthStencilView)null, new SharpDX.Direct3D11.RenderTargetView[] { RTV });
                                 context.Rasterizer.SetViewports(new [] {
                                     new SharpDX.Mathematics.Interop.RawViewportF
