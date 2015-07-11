@@ -12,28 +12,28 @@ namespace WpfViewer.Win32
     //class MouseEventBehavior : Behavior<UIElement>
     {
         #region MouseEvent
-        public IObserver<Win32MouseEventArgs> MouseEventObserver
+        public IObserver<Win32EventArgs> MouseEventObserver
         {
-            get { return (IObserver<Win32MouseEventArgs>)GetValue(MouseEventObserverProperty); }
+            get { return (IObserver<Win32EventArgs>)GetValue(MouseEventObserverProperty); }
             set { SetValue(MouseEventObserverProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for MouseEventObserver.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MouseEventObserverProperty =
             DependencyProperty.Register("MouseEventObserver"
-                , typeof(IObserver<Win32MouseEventArgs>), typeof(MouseEventBehavior)
+                , typeof(IObserver<Win32EventArgs>), typeof(MouseEventBehavior)
                 , new PropertyMetadata(null, new PropertyChangedCallback(MouseEvnetObserverChanged)));
 
         static void MouseEvnetObserverChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
         {
-            (o as MouseEventBehavior).MouseEventObserverChanged(e.NewValue as IObserver<Win32MouseEventArgs>);
+            (o as MouseEventBehavior).MouseEventObserverChanged(e.NewValue as IObserver<Win32EventArgs>);
         }
 
-        Subject<Win32MouseEventArgs> m_subject = new Subject<Win32MouseEventArgs>();
+        Subject<Win32EventArgs> m_subject = new Subject<Win32EventArgs>();
         //Subject<MouseEventArgs> m_subject = new Subject<MouseEventArgs>();
 
         IDisposable m_subscription;
-        void MouseEventObserverChanged(IObserver<Win32MouseEventArgs> o)
+        void MouseEventObserverChanged(IObserver<Win32EventArgs> o)
         {
             if (m_subscription != null)
             {
@@ -50,9 +50,9 @@ namespace WpfViewer.Win32
             var element = this.AssociatedObject;
 
 #if true
-            element.Win32Mouse += (o, e) =>
+            element.Win32 += (o, e) =>
             {
-                var m = e as Win32MouseEventArgs;
+                var m = e as Win32EventArgs;
                 if (m != null)
                 {
                     m_subject.OnNext(m);

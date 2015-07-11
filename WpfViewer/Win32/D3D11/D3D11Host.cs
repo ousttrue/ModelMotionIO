@@ -4,6 +4,7 @@ using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
+using System.Runtime.InteropServices;
 
 namespace WpfViewer.Win32.D3D11
 {
@@ -52,44 +53,34 @@ namespace WpfViewer.Win32.D3D11
         }
         #endregion
 
-        protected override IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        protected override HandleRef BuildWindowCore(HandleRef hwndParent)
         {
-            handled = false;
+            var result=base.BuildWindowCore(hwndParent);
 
-            switch ((WM)msg)
-            {
-                case WM.WM_PAINT:
-                    {
-                        PAINTSTRUCT ps;
-                        var hdc = Import.BeginPaint(hwnd, out ps);
-                        Import.EndPaint(hwnd, ref ps);
-                        handled = true;
+            Win32 += (o, e) =>
+              {
+                  var win32 = e as Win32EventArgs;
+                  if (e != null)
+                  {
+                      switch (win32.EventType)
+                      {
+                          case WM.WM_SIZE:
+                              m_renderer.ResizeSwapchain(win32.X, win32.Y);
+                              break;
+                      }
+                  }
+              };
 
-                        m_renderer.OnPaint(hwnd);
-                    }
-                    return IntPtr.Zero;
+            m_renderer.OnPaint(Hwnd);
 
-                case WM.WM_SIZE:
-                    m_renderer.ResizeSwapchain(lParam.Lo(), lParam.Hi());
-                    handled = true;
-                    break;
+            return result;
+        }
 
-                case WM.WM_DESTROY:
-                    m_renderer.Dispose();
-                    break;
+        protected override void DestroyWindowCore(HandleRef hwnd)
+        {
+            m_renderer.Dispose();
 
-                case WM.WM_ERASEBKGND:
-                    handled = true;
-                    return IntPtr.Zero;
-
-                case WM.WM_KEYDOWN:
-                    //EmitKeyDowned(wParam.ToInt32());
-                    ///handled = true;
-                    return IntPtr.Zero;
-
-            }
-
-            return base.WndProc(hwnd, msg, wParam, lParam, ref handled);
+            base.DestroyWindowCore(hwnd);
         }
     }
 }

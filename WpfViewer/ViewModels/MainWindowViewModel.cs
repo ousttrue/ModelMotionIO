@@ -146,17 +146,18 @@ namespace WpfViewer.ViewModels
             get { return m_scene; }
         }
 
-        Subject<Win32MouseEventArgs> m_orbitmouse;
-        public IObserver<Win32MouseEventArgs> MouseEventObserver
+        Subject<Win32EventArgs> m_win32Subject;
+        public IObserver<Win32EventArgs> Win32EventObserver
         {
             get
             {
-                if (m_orbitmouse == null)
+                if (m_win32Subject == null)
                 {
-                    m_orbitmouse = new Subject<Win32MouseEventArgs>();
-                    var mouseMove = m_orbitmouse.Where(x => x.MouseEventType == Win32MouseEventType.Move);
-                    var mouseLeftDown = m_orbitmouse.Where(x => x.MouseEventType == Win32MouseEventType.LeftButtonDown);
-                    var mouseLeftUp = m_orbitmouse.Where(x => x.MouseEventType == Win32MouseEventType.LeftButtonUp);
+                    m_win32Subject = new Subject<Win32EventArgs>();
+                    var mouseMove = m_win32Subject.Where(x => x.EventType == WM.WM_MOUSEMOVE);
+
+                    var mouseLeftDown = m_win32Subject.Where(x => x.EventType == WM.WM_LBUTTONDOWN);
+                    var mouseLeftUp = m_win32Subject.Where(x => x.EventType == WM.WM_LBUTTONUP);
                     /*
                     var dragLeft = mouseMove
                         // マウスムーブをマウスダウンまでスキップ。マウスダウン時にマウスをキャプチャ
@@ -171,8 +172,8 @@ namespace WpfViewer.ViewModels
                     });
                     */
 
-                    var mouseRightDown = m_orbitmouse.Where(x => x.MouseEventType == Win32MouseEventType.RightButtonDown);
-                    var mouseRightUp = m_orbitmouse.Where(x => x.MouseEventType == Win32MouseEventType.RightButtonUp);
+                    var mouseRightDown = m_win32Subject.Where(x => x.EventType == WM.WM_RBUTTONDOWN);
+                    var mouseRightUp = m_win32Subject.Where(x => x.EventType == WM.WM_RBUTTONUP);
                     var dragRight = mouseMove
                         // マウスムーブをマウスダウンまでスキップ。マウスダウン時にマウスをキャプチャ
                         .SkipUntil(mouseRightDown)
@@ -192,8 +193,8 @@ namespace WpfViewer.ViewModels
                         Scene.OrbitTransformation.AddPitch(x.y * factor);
                     });
 
-                    var mouseMiddleDown = m_orbitmouse.Where(x => x.MouseEventType == Win32MouseEventType.MiddleButtonDown);
-                    var mouseMiddleUp = m_orbitmouse.Where(x => x.MouseEventType == Win32MouseEventType.MiddleButtonUp);
+                    var mouseMiddleDown = m_win32Subject.Where(x => x.EventType == WM.WM_MBUTTONDOWN);
+                    var mouseMiddleUp = m_win32Subject.Where(x => x.EventType == WM.WM_MBUTTONUP);
                     var dragMiddle = mouseMove
                         // マウスムーブをマウスダウンまでスキップ。マウスダウン時にマウスをキャプチャ
                         .SkipUntil(mouseMiddleDown)
@@ -208,11 +209,11 @@ namespace WpfViewer.ViewModels
                         .Select(x => new { x = x.OldItem.X - x.NewItem.X, y = x.OldItem.Y - x.NewItem.Y })
                         .Subscribe(x =>
                         {
-                            const float factor = 0.01f;
+                            const float factor = 0.005f;
                             Scene.OrbitTransformation.AddShift(-x.x * factor, x.y * factor);
                         });
 
-                    var mouseWheel = m_orbitmouse.Where(x => x.MouseEventType == Win32MouseEventType.Wheel)
+                    var mouseWheel = m_win32Subject.Where(x => x.EventType == WM.WM_MOUSEWHEEL)
                         .Select(x => x.Y)
                         .Select(x => x < 0 ? 1.1f : 0.9f)
                         ;
@@ -220,8 +221,15 @@ namespace WpfViewer.ViewModels
                     {
                         Scene.OrbitTransformation.Dolly(x);
                     });
+
+                    var size = m_win32Subject.Where(x => x.EventType == WM.WM_SIZE)
+                        ;
+                    size.Subscribe(x =>
+                    {
+                        Scene.Projection.TargetSize = new SharpDX.Vector2(x.X, x.Y);
+                    });
                 }
-                return m_orbitmouse;
+                return m_win32Subject;
             }
         }
 

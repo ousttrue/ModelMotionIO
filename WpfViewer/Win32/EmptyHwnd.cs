@@ -7,36 +7,24 @@ using WpfViewer.Views;
 
 namespace WpfViewer.Win32
 {
-    public enum Win32MouseEventType
+    public class Win32EventArgs : RoutedEventArgs
     {
-        LeftButtonDown,
-        LeftButtonUp,
-        RightButtonDown,
-        RightButtonUp,
-        MiddleButtonDown,
-        MiddleButtonUp,
-        Move,
-        Wheel,
-    }
-
-    public class Win32MouseEventArgs : RoutedEventArgs
-    {
-        public Win32MouseEventType MouseEventType { get; set; }
+        public Win32.WM EventType { get; set; }
         public Int32 X { get; set; }
         public Int32 Y { get; set; }
     }
 
     public class EmptyHwnd : HwndHost
     {
-        #region Win32MouseEvent
-        public static readonly RoutedEvent Win32MouseEvent = EventManager.RegisterRoutedEvent(
-            "Win32Mouse", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(HwndHost));
+        #region Win32Event
+        public static readonly RoutedEvent Win32Event = EventManager.RegisterRoutedEvent(
+            "Win32", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(HwndHost));
 
         // Provide CLR accessors for the event
-        public event RoutedEventHandler Win32Mouse
+        public event RoutedEventHandler Win32
         {
-            add { AddHandler(Win32MouseEvent, value); }
-            remove { RemoveHandler(Win32MouseEvent, value); }
+            add { AddHandler(Win32Event, value); }
+            remove { RemoveHandler(Win32Event, value); }
         }
         #endregion
 
@@ -116,7 +104,7 @@ namespace WpfViewer.Win32
             //CaptureMouse();
             if (Capture == 0)
             {
-                Win32.Import.SetCapture(hwnd);
+                WpfViewer.Win32.Import.SetCapture(hwnd);
             }
             ++Capture;
         }
@@ -128,103 +116,143 @@ namespace WpfViewer.Win32
                 Capture = 0;
             }
             if (Capture == 0){
-                Win32.Import.ReleaseCapture();
+                WpfViewer.Win32.Import.ReleaseCapture();
             }
         }
 
-        protected override IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        protected override IntPtr WndProc(IntPtr hwnd, int _msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
-            switch ((WM)msg)
+            var msg = (WM)_msg;
+            switch (msg)
             {
-#if true
-#region MouseEvent
-                case WM.WM_LBUTTONDOWN:
-                    RaiseEvent(new Win32MouseEventArgs
+                case WM.WM_PAINT:
                     {
-                        RoutedEvent = Win32MouseEvent,
+                        PAINTSTRUCT ps;
+                        var hdc = Import.BeginPaint(hwnd, out ps);
+                        Import.EndPaint(hwnd, ref ps);
+                    }
+                    RaiseEvent(new Win32EventArgs
+                    {
+                        RoutedEvent = Win32Event,
                         Source = this,
-                        MouseEventType = Win32MouseEventType.LeftButtonDown,
+                        EventType = msg,
+                    });
+                    handled = true;
+                    return IntPtr.Zero;
+
+                case WM.WM_SIZE:
+                    RaiseEvent(new Win32EventArgs
+                    {
+                        RoutedEvent = Win32Event,
+                        Source = this,
+                        EventType = msg,
                         X = lParam.Lo(),
                         Y = lParam.Hi(),
                     });
                     handled = true;
+                    return IntPtr.Zero;
+
+                case WM.WM_DESTROY:
+                    RaiseEvent(new Win32EventArgs
+                    {
+                        RoutedEvent = Win32Event,
+                        Source = this,
+                        EventType = msg,
+                    });
+                    handled = true;
+                    return IntPtr.Zero;
+
+                case WM.WM_ERASEBKGND:
+                    handled = true;
+                    return IntPtr.Zero;
+
+                #region MouseEvent
+                case WM.WM_LBUTTONDOWN:
+                    RaiseEvent(new Win32EventArgs
+                    {
+                        RoutedEvent = Win32Event,
+                        Source = this,
+                        EventType = msg,
+                        X = lParam.Lo(),
+                        Y = lParam.Hi(),
+                    });
                     CaptureAndCursor(hwnd);
+                    handled = true;
                     return IntPtr.Zero;
 
                 case WM.WM_LBUTTONUP:
-                    RaiseEvent(new Win32MouseEventArgs
+                    RaiseEvent(new Win32EventArgs
                     {
-                        RoutedEvent = Win32MouseEvent,
+                        RoutedEvent = Win32Event,
                         Source = this,
-                        MouseEventType = Win32MouseEventType.LeftButtonUp,
+                        EventType = msg,
                         X = lParam.Lo(),
                         Y = lParam.Hi(),
                     });
-                    handled = true;
                     ReleaseMouse();
+                    handled = true;
                     return IntPtr.Zero;
 
                 case WM.WM_RBUTTONDOWN:
-                    RaiseEvent(new Win32MouseEventArgs
+                    RaiseEvent(new Win32EventArgs
                     {
-                        RoutedEvent = Win32MouseEvent,
+                        RoutedEvent = Win32Event,
                         Source = this,
-                        MouseEventType = Win32MouseEventType.RightButtonDown,
+                        EventType = msg,
                         X = lParam.Lo(),
                         Y = lParam.Hi(),
                     });
-                    handled = true;
                     CaptureAndCursor(hwnd);
+                    handled = true;
                     return IntPtr.Zero;
 
                 case WM.WM_RBUTTONUP:
-                    RaiseEvent(new Win32MouseEventArgs
+                    RaiseEvent(new Win32EventArgs
                     {
-                        RoutedEvent = Win32MouseEvent,
+                        RoutedEvent = Win32Event,
                         Source = this,
-                        MouseEventType = Win32MouseEventType.RightButtonUp,
+                        EventType = msg,
                         X = lParam.Lo(),
                         Y = lParam.Hi(),
                     });
-                    handled = true;
                     ReleaseMouse();
+                    handled = true;
                     return IntPtr.Zero;
 
                 case WM.WM_MBUTTONDOWN:
-                    RaiseEvent(new Win32MouseEventArgs
+                    RaiseEvent(new Win32EventArgs
                     {
-                        RoutedEvent = Win32MouseEvent,
+                        RoutedEvent = Win32Event,
                         Source = this,
-                        MouseEventType = Win32MouseEventType.MiddleButtonDown,
+                        EventType = msg,
                         X = lParam.Lo(),
                         Y = lParam.Hi(),
                     });
-                    handled = true;
                     CaptureAndCursor(hwnd);
+                    handled = true;
                     return IntPtr.Zero;
 
                 case WM.WM_MBUTTONUP:
-                    RaiseEvent(new Win32MouseEventArgs
+                    RaiseEvent(new Win32EventArgs
                     {
-                        RoutedEvent = Win32MouseEvent,
+                        RoutedEvent = Win32Event,
                         Source = this,
-                        MouseEventType = Win32MouseEventType.MiddleButtonUp,
+                        EventType = msg,
                         X = lParam.Lo(),
                         Y = lParam.Hi(),
                     });
-                    handled = true;
                     ReleaseMouse();
+                    handled = true;
                     return IntPtr.Zero;
 
                 case WM.WM_MOUSEMOVE:
-                    Cursor = Cursors.Hand;
                     if (Capture>0)
                     {
-                        RaiseEvent(new Win32MouseEventArgs
+                        RaiseEvent(new Win32EventArgs
                         {
-                            RoutedEvent = Win32MouseEvent,
+                            RoutedEvent = Win32Event,
                             Source = this,
-                            MouseEventType = Win32MouseEventType.Move,
+                            EventType = msg,
                             X = lParam.Lo(),
                             Y = lParam.Hi(),
                         });
@@ -232,24 +260,24 @@ namespace WpfViewer.Win32
                     else
                     {
                     }
+                    Cursor = Cursors.Hand;
                     handled = true;
                     return IntPtr.Zero;
 
                 case WM.WM_MOUSEWHEEL:
-                    RaiseEvent(new Win32MouseEventArgs
+                    RaiseEvent(new Win32EventArgs
                     {
-                        RoutedEvent = Win32MouseEvent,
+                        RoutedEvent = Win32Event,
                         Source = this,
-                        MouseEventType = Win32MouseEventType.Wheel,
+                        EventType = msg,
                         Y = (short)wParam.Hi(),
                     });
                     handled = true;
                     return IntPtr.Zero;
 #endregion
-#endif
             }
 
-            return base.WndProc(hwnd, msg, wParam, lParam, ref handled);
+            return base.WndProc(hwnd, _msg, wParam, lParam, ref handled);
         }
     }
 }

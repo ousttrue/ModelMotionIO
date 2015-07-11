@@ -95,7 +95,7 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
                                     RenderFrameObservable="{Binding Scene.RenderFrameObservable}" 
                                     >
                                     <i:Interaction.Behaviors>
-                                        <win32:MouseEventBehavior MouseEventObserver="{Binding MouseEventObserver}" />
+                                        <win32:MouseEventBehavior MouseEventObserver="{Binding Win32EventObserver}" />
                                     </i:Interaction.Behaviors>
                                 </d3d11:D3D11Host>
                             </avalonDock:LayoutDocument>
