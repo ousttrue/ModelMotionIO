@@ -544,5 +544,10 @@ namespace WpfViewer.Win32
 
         public const int ERROR_CLASS_ALREADY_EXISTS = 1410;
 
+        [DllImport("user32.dll")]
+        public static extern IntPtr SetCapture(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        public static extern bool ReleaseCapture();
     }
 }

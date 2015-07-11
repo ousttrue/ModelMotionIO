@@ -7,10 +7,11 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using WpfViewer.Renderer;
+using WpfViewer.Views;
 
 namespace WpfViewer.Win32.D3D11
 {
-    class D3D11Host: EmptyHwnd
+    public class D3D11Host : EmptyHwnd
     {
         D3D11Renderer m_renderer = new D3D11Renderer();
 
@@ -59,7 +60,7 @@ namespace WpfViewer.Win32.D3D11
         {
             handled = false;
 
-            switch((WM)msg)
+            switch ((WM)msg)
             {
                 case WM.WM_PAINT:
                     {
@@ -88,36 +89,6 @@ namespace WpfViewer.Win32.D3D11
                 case WM.WM_KEYDOWN:
                     //EmitKeyDowned(wParam.ToInt32());
                     ///handled = true;
-                    return IntPtr.Zero;
-
-                case WM.WM_LBUTTONDOWN:
-                    {
-                        var e = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left)
-                        {
-                            RoutedEvent = Mouse.MouseDownEvent,
-                            Source = this,
-                        };
-                        RaiseEvent(e);
-                    }
-                    handled = true;
-                    return IntPtr.Zero;
-
-                case WM.WM_LBUTTONUP:
-                    RaiseEvent(new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left)
-                    {
-                        RoutedEvent = Mouse.MouseUpEvent,
-                        Source = this,
-                    });
-                    handled = true;
-                    return IntPtr.Zero;
-
-                case WM.WM_MOUSEMOVE:
-                    RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, 0)
-                    {
-                        RoutedEvent = Mouse.MouseMoveEvent,
-                        Source = this,
-                    });
-                    handled = true;
                     return IntPtr.Zero;
 
             }

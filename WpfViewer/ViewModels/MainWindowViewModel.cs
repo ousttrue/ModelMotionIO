@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Reactive.Linq;
 using System.Windows.Input;
+using WpfViewer.Views;
+using System.Reactive.Subjects;
+using WpfViewer.Win32;
 
 namespace WpfViewer.ViewModels
 {
@@ -24,6 +27,7 @@ namespace WpfViewer.ViewModels
         }
         #endregion
 
+        #region LivetMessage
         #region InformationMessage
         protected void InfoDialog(String message)
         {
@@ -75,6 +79,7 @@ namespace WpfViewer.ViewModels
             Messenger.Raise(message);
             return message.Response != null ? message.Response[0] : null;
         }
+        #endregion
         #endregion
 
         Livet.Commands.ViewModelCommand m_clearCommand;
@@ -140,6 +145,85 @@ namespace WpfViewer.ViewModels
         public Models.Scene Scene
         {
             get { return m_scene; }
+        }
+
+        Subject<Win32MouseEventArgs> m_orbitmouse;
+        public IObserver<Win32MouseEventArgs> MouseEventObserver
+        {
+            get
+            {
+                if (m_orbitmouse == null)
+                {
+                    m_orbitmouse = new Subject<Win32MouseEventArgs>();
+                    var mouseMove = m_orbitmouse.Where(x => x.MouseEventType == Win32MouseEventType.Move);
+                    var mouseLeftDown = m_orbitmouse.Where(x => x.MouseEventType == Win32MouseEventType.LeftButtonDown);
+                    var mouseLeftUp = m_orbitmouse.Where(x => x.MouseEventType == Win32MouseEventType.LeftButtonUp);
+                    /*
+                    var dragLeft = mouseMove
+                        // マウスムーブをマウスダウンまでスキップ。マウスダウン時にマウスをキャプチャ
+                        .SkipUntil(mouseLeftDown)
+                        // マウスアップが行われるまでTake。マウスアップでマウスのキャプチャをリリース
+                        .TakeUntil(mouseLeftUp)
+                        // これを繰り返す
+                        .Repeat();
+                    dragLeft.Subscribe(x =>
+                    {
+                        Console.WriteLine(x);
+                    });
+                    */
+
+                    var mouseRightDown = m_orbitmouse.Where(x => x.MouseEventType == Win32MouseEventType.RightButtonDown);
+                    var mouseRightUp = m_orbitmouse.Where(x => x.MouseEventType == Win32MouseEventType.RightButtonUp);
+                    var dragRight = mouseMove
+                        // マウスムーブをマウスダウンまでスキップ。マウスダウン時にマウスをキャプチャ
+                        .SkipUntil(mouseRightDown)
+                        // マウスアップが行われるまでTake。マウスアップでマウスのキャプチャをリリース
+                        .TakeUntil(mouseRightUp)
+                        ;
+                    dragRight
+                        .Zip(dragRight.Skip(1), (Old, New) => new { Old, New })
+                        // Zipの都合上ここで繰り返す
+                        .Repeat()
+                        // 値の変換
+                        .Select(x => new { x = x.Old.X - x.New.X, y = x.Old.Y - x.New.Y })
+                        .Subscribe(x =>
+                    {
+                        const float factor = 0.01f;
+                        Scene.OrbitTransformation.AddYaw(x.x * factor);
+                        Scene.OrbitTransformation.AddPitch(x.y * factor);
+                    });
+
+                    var mouseMiddleDown = m_orbitmouse.Where(x => x.MouseEventType == Win32MouseEventType.MiddleButtonDown);
+                    var mouseMiddleUp = m_orbitmouse.Where(x => x.MouseEventType == Win32MouseEventType.MiddleButtonUp);
+                    var dragMiddle = mouseMove
+                        // マウスムーブをマウスダウンまでスキップ。マウスダウン時にマウスをキャプチャ
+                        .SkipUntil(mouseMiddleDown)
+                        // マウスアップが行われるまでTake。マウスアップでマウスのキャプチャをリリース
+                        .TakeUntil(mouseMiddleUp)
+                        ;
+                    dragMiddle
+                        .Zip(dragMiddle.Skip(1), (Old, New) => new { Old, New })
+                        // Zipの都合上ここで繰り返す
+                        .Repeat()
+                        // 値の変換
+                        .Select(x => new { x = x.Old.X - x.New.X, y = x.Old.Y - x.New.Y })
+                        .Subscribe(x =>
+                        {
+                            const float factor = 0.01f;
+                            Scene.OrbitTransformation.AddShift(-x.x * factor, x.y * factor);
+                        });
+
+                    var mouseWheel = m_orbitmouse.Where(x => x.MouseEventType == Win32MouseEventType.Wheel)
+                        .Select(x => x.Y)
+                        .Select(x => x < 0 ? 1.1f : 0.9f)
+                        ;
+                    mouseWheel.Subscribe(x =>
+                    {
+                        Scene.OrbitTransformation.Dolly(x);
+                    });
+                }
+                return m_orbitmouse;
+            }
         }
 
         ObservableCollection<Models.Node> m_nodes;

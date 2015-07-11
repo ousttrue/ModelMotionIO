@@ -10,6 +10,7 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
         xmlns:vm="clr-namespace:WpfViewer.ViewModels"
         xmlns:v="clr-namespace:WpfViewer.Views"
         xmlns:local="clr-namespace:WpfViewer"
+        xmlns:win32="clr-namespace:WpfViewer.Win32"
         xmlns:d3d11="clr-namespace:WpfViewer.Win32.D3D11"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="800">
@@ -94,7 +95,7 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
                                     RenderFrameObservable="{Binding Scene.RenderFrameObservable}" 
                                     >
                                     <i:Interaction.Behaviors>
-                                        <v:MouseEventBehavior MouseEventObserver="{Binding Scene}" />
+                                        <win32:MouseEventBehavior MouseEventObserver="{Binding MouseEventObserver}" />
                                     </i:Interaction.Behaviors>
                                 </d3d11:D3D11Host>
                             </avalonDock:LayoutDocument>

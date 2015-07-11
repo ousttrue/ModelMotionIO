@@ -152,6 +152,7 @@
     </ApplicationDefinition>
     <Compile Include="Models\Node.cs" />
     <Compile Include="Models\Scene.cs" />
+    <Compile Include="Models\Transformation.cs" />
     <Compile Include="Renderer\Commands\BackbufferClearCommand.cs" />
     <Compile Include="Renderer\Commands\RenderCommandType.cs" />
     <Compile Include="Renderer\Commands\IRenderCommand.cs" />
@@ -177,7 +178,7 @@
     <Compile Include="Renderer\Resources\VertexBufferResource.cs" />
     <Compile Include="ViewModels\LogLevelToColorConverter.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
-    <Compile Include="Views\MouseEventBehavior.cs" />
+    <Compile Include="Win32\MouseEventBehavior.cs" />
     <Compile Include="Win32\D3D11\ConstantBufferDictionaryFactory.cs" />
     <Compile Include="Win32\D3D11\D3D11Host.cs" />
     <Compile Include="Win32\D3D11\D3D11Renderer.cs" />
