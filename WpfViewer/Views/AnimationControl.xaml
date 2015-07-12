@@ -15,14 +15,21 @@
             <Button Command="{Binding StopCommand}">Stop</Button>
         </StackPanel>
         
-        <ListBox ItemsSource="{Binding Motions}"
+        <TabControl ItemsSource="{Binding Motions}"
                  SelectedItem="{Binding ActiveMotion.Value}"
                  >
-            <ListBox.ItemTemplate>
+            <TabControl.ItemTemplate>
                 <DataTemplate>
                     <Label Content="{Binding Label}" />
                 </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+            </TabControl.ItemTemplate>
+            <TabControl.ContentTemplate>
+                <DataTemplate>
+                    <DockPanel>
+                        <ItemsControl ItemsSource="{Binding CurveMap}" />
+                    </DockPanel>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+        </TabControl>
     </DockPanel>
 </UserControl>

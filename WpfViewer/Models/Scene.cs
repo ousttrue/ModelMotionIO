@@ -206,6 +206,7 @@ namespace WpfViewer.Models
             {
                 Transform value;
                 if (!String.IsNullOrEmpty(node.Name)
+                    && pose!=null
                     && pose.Values.TryGetValue(node.Name, out value))
                 {
                     node.KeyFrame = value;

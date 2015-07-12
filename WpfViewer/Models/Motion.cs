@@ -164,6 +164,8 @@ namespace WpfViewer.Models
 
         public Pose GetPose(TimeSpan time)
         {
+            if (CurveMap == null) return null;
+
             return new Pose { Values = CurveMap.ToDictionary(x => x.Key, x => x.Value.GetValue(time)) };
         }
     }
