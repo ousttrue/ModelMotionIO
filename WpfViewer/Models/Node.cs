@@ -18,6 +18,9 @@ namespace WpfViewer.Models
             }
         }
 
+        /// <summary>
+        /// Model原点からの位置
+        /// </summary>
         SharpDX.Vector3 m_position;
         public SharpDX.Vector3 Position
         {
@@ -27,6 +30,21 @@ namespace WpfViewer.Models
                 if (m_position == value) return;
                 m_position = value;
                 RaisePropertyChanged(() => this.Position);
+            }
+        }
+
+        /// <summary>
+        /// 親ボーンからの位置
+        /// </summary>
+        SharpDX.Vector3 m_offset;
+        public SharpDX.Vector3 Offset
+        {
+            get { return m_offset; }
+            set
+            {
+                if (m_offset == value) return;
+                m_offset = value;
+                RaisePropertyChanged(() => this.Offset);
             }
         }
 
@@ -43,18 +61,30 @@ namespace WpfViewer.Models
             }
         }
 
+        public IEnumerable<Node> Traverse()
+        {
+            yield return this;
+
+            foreach (var child in Children)
+            {
+                foreach (var x in child.Traverse())
+                {
+                    yield return x;
+                }
+            }
+        }
+
         public IEnumerable<T> Traverse<T>(Func<Node, SharpDX.Vector3, T> pred, SharpDX.Vector3 pos=new SharpDX.Vector3())
         {
             yield return pred(this, pos);
 
             foreach (var child in Children)
             {
-                foreach(var x in child.Traverse(pred, pos+Position))
+                foreach(var x in child.Traverse(pred, pos+Offset))
                 {
                     yield return x;
                 }
             }
-
         }
     }
 }

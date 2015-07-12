@@ -10,6 +10,7 @@ namespace RenderingPipe.Resources
     public enum VertexBufferTopology
     {
         TriangleList,
+        Lines,
     }
 
     public class VertexBufferResource : RenderResourceBase

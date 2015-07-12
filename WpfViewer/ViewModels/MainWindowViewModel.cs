@@ -17,7 +17,7 @@ using WpfViewer.Win32;
 
 namespace WpfViewer.ViewModels
 {
-    class MainWindowViewModel: Livet.ViewModel
+    class MainWindowViewModel : Livet.ViewModel
     {
         #region Logger
         static Logger Logger
@@ -54,7 +54,7 @@ namespace WpfViewer.ViewModels
         {
             return OpenDialog(title, "すべてのファイル(*.*)|*.*", multiSelect);
         }
-        protected String[] OpenDialog(String title, String filter= "すべてのファイル(*.*)|*.*", bool multiSelect=false)
+        protected String[] OpenDialog(String title, String filter = "すべてのファイル(*.*)|*.*", bool multiSelect = false)
         {
             var message = new OpeningFileSelectionMessage("Open")
             {
@@ -86,12 +86,12 @@ namespace WpfViewer.ViewModels
         {
             get
             {
-                if(m_clearCommand==null)
+                if (m_clearCommand == null)
                 {
                     m_clearCommand = new ViewModelCommand(() =>
-                      {
-                          ClearItems();
-                      });
+                    {
+                        ClearItems();
+                    });
                 }
                 return m_clearCommand;
             }
@@ -101,7 +101,8 @@ namespace WpfViewer.ViewModels
         Livet.Commands.ViewModelCommand m_openFileDialogCommand;
         public ICommand OpenFileDialogCommand
         {
-            get {
+            get
+            {
                 if (m_openFileDialogCommand == null)
                 {
                     m_openFileDialogCommand = new ViewModelCommand(() => {
@@ -158,19 +159,21 @@ namespace WpfViewer.ViewModels
 
                     var mouseLeftDown = m_win32Subject.Where(x => x.EventType == WM.WM_LBUTTONDOWN);
                     var mouseLeftUp = m_win32Subject.Where(x => x.EventType == WM.WM_LBUTTONUP);
-                    /*
                     var dragLeft = mouseMove
                         // マウスムーブをマウスダウンまでスキップ。マウスダウン時にマウスをキャプチャ
                         .SkipUntil(mouseLeftDown)
                         // マウスアップが行われるまでTake。マウスアップでマウスのキャプチャをリリース
                         .TakeUntil(mouseLeftUp)
-                        // これを繰り返す
-                        .Repeat();
-                    dragLeft.Subscribe(x =>
-                    {
-                        Console.WriteLine(x);
-                    });
-                    */
+                        ;
+                    dragLeft
+                        .Pairwise()
+                        .Repeat()
+                        .Select(x => x.NewItem.Y - x.OldItem.Y)
+                        .Select(x => x > 0 ? 1.1f : 0.9f)
+                        .Subscribe(x =>
+                        {
+                            Scene.OrbitTransformation.Dolly(x);
+                        });
 
                     var mouseRightDown = m_win32Subject.Where(x => x.EventType == WM.WM_RBUTTONDOWN);
                     var mouseRightUp = m_win32Subject.Where(x => x.EventType == WM.WM_RBUTTONUP);
@@ -187,11 +190,11 @@ namespace WpfViewer.ViewModels
                         // 値の変換
                         .Select(x => new { x = x.OldItem.X - x.NewItem.X, y = x.OldItem.Y - x.NewItem.Y })
                         .Subscribe(x =>
-                    {
-                        const float factor = 0.01f;
-                        Scene.OrbitTransformation.AddYaw(x.x * factor);
-                        Scene.OrbitTransformation.AddPitch(x.y * factor);
-                    });
+                        {
+                            const float factor = 0.01f;
+                            Scene.OrbitTransformation.AddYaw(x.x * factor);
+                            Scene.OrbitTransformation.AddPitch(x.y * factor);
+                        });
 
                     var mouseMiddleDown = m_win32Subject.Where(x => x.EventType == WM.WM_MBUTTONDOWN);
                     var mouseMiddleUp = m_win32Subject.Where(x => x.EventType == WM.WM_MBUTTONUP);
@@ -236,7 +239,8 @@ namespace WpfViewer.ViewModels
         ObservableCollection<Models.Node> m_nodes;
         public ObservableCollection<Models.Node> Nodes
         {
-            get {
+            get
+            {
                 if (m_nodes == null)
                 {
                     m_nodes = new ObservableCollection<Models.Node>();

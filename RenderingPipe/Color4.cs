@@ -16,5 +16,10 @@ namespace RenderingPipe
             B = b;
             A = a;
         }
+
+        public static Color4 Green
+        {
+            get { return new Color4(0, 0.4f, 0, 1.0f); }
+        }
     }
 }

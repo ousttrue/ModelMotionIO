@@ -38,7 +38,8 @@ namespace WpfViewer.Win32.D3D11
         public VertexBuffer CreateVertexBuffer(SharpDX.Direct3D11.Device device
             , Byte[] bytes
             , Int32 stride
-            , Int32[] indices)
+            , Int32[] indices
+            , SharpDX.Direct3D.PrimitiveTopology topology)
         {
             if (bytes == null)
             {
@@ -57,7 +58,6 @@ namespace WpfViewer.Win32.D3D11
                 Usage = SharpDX.Direct3D11.ResourceUsage.Default,
             };
 
-            SharpDX.Direct3D.PrimitiveTopology topology = SharpDX.Direct3D.PrimitiveTopology.TriangleList; ;
             SharpDX.Direct3D11.Buffer vbuffer;
             if (bytes.Length > 0)
             {
@@ -114,7 +114,22 @@ namespace WpfViewer.Win32.D3D11
                 return false;
             }
 
-            var vertexBuffer = CreateVertexBuffer(device, r.Vertices, r.Stride, r.Indices);
+            SharpDX.Direct3D.PrimitiveTopology topology;
+            switch(r.Topology)
+            {
+                case VertexBufferTopology.TriangleList:
+                    topology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
+                    break;
+
+                case VertexBufferTopology.Lines:
+                    topology = SharpDX.Direct3D.PrimitiveTopology.LineList;
+                    break;
+
+                default:
+                    throw new NotImplementedException();
+            }
+
+            var vertexBuffer = CreateVertexBuffer(device, r.Vertices, r.Stride, r.Indices, topology);
             if (vertexBuffer == null)
             {
                 return false;
