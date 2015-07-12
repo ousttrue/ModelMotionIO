@@ -1,7 +1,7 @@
 ﻿using RenderingPipe.Resources;
 using System;
 
-namespace WpfViewer.Renderer.Resources
+namespace D3D11
 {
     public class ShaderResourceFactory
     {

@@ -3,7 +3,7 @@ using RenderingPipe.Commands;
 using RenderingPipe.Resources;
 using System;
 using System.Linq;
-using WpfViewer.Extensions;
+using D3D11.Extensions;
 
 
 namespace D3D11

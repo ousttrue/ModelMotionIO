@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RenderingPipe", "RenderingP
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Win32", "Win32\Win32.csproj", "{4F03E880-207B-4BED-A538-4EAE2CBCF9CA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D3D11Renderer", "D3D11Renderer\D3D11Renderer.csproj", "{53570B14-A657-4698-A29D-20895D5725B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{4F03E880-207B-4BED-A538-4EAE2CBCF9CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F03E880-207B-4BED-A538-4EAE2CBCF9CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F03E880-207B-4BED-A538-4EAE2CBCF9CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53570B14-A657-4698-A29D-20895D5725B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53570B14-A657-4698-A29D-20895D5725B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53570B14-A657-4698-A29D-20895D5725B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53570B14-A657-4698-A29D-20895D5725B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

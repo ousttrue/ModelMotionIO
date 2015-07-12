@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿using D3D11;
+using NLog;
 using RenderingPipe;
 using RenderingPipe.Commands;
 using RenderingPipe.Resources;
@@ -11,7 +12,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.InteropServices;
-using WpfViewer.Renderer.Resources;
+
 
 namespace WpfViewer.Models
 {

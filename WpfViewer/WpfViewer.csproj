@@ -150,21 +150,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Extensions\SharpDXExtensions.cs" />
     <Compile Include="ViewModels\AnimationViewModel.cs" />
     <Compile Include="Models\Motion.cs" />
     <Compile Include="Models\Node.cs" />
     <Compile Include="Models\Scene.cs" />
     <Compile Include="Models\Transformation.cs" />
-    <Compile Include="Renderer\Resources\ShaderResourceFactory.cs" />
     <Compile Include="ViewModels\LogLevelToColorConverter.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
-    <Compile Include="D3D11\ConstantBufferDictionaryFactory.cs" />
-    <Compile Include="D3D11\D3D11Host.cs" />
-    <Compile Include="D3D11\D3D11Renderer.cs" />
-    <Compile Include="D3D11\ShaderManager.cs" />
-    <Compile Include="D3D11\VertexBufferManager.cs" />
-    <Compile Include="D3D11\ResourceManagerBase.cs" />
     <Page Include="ViewModels\SampleData\SampleAnimationViewModel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -221,6 +213,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\D3D11Renderer\D3D11Renderer.csproj">
+      <Project>{53570b14-a657-4698-a29d-20895d5725b7}</Project>
+      <Name>D3D11Renderer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MMIO\MMIO.csproj">
       <Project>{90580417-379d-4b97-ab4e-b180b8997b34}</Project>
       <Name>MMIO</Name>
@@ -234,7 +230,9 @@
       <Name>Win32</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Renderer\Resources\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
