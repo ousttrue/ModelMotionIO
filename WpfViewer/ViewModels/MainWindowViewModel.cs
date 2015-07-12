@@ -81,6 +81,7 @@ namespace WpfViewer.ViewModels
         #endregion
         #endregion
 
+        #region ClearCommand
         Livet.Commands.ViewModelCommand m_clearCommand;
         public ICommand ClearCommand
         {
@@ -90,12 +91,13 @@ namespace WpfViewer.ViewModels
                 {
                     m_clearCommand = new ViewModelCommand(() =>
                     {
-                        ClearItems();
+                        m_scene.Clear();
                     });
                 }
                 return m_clearCommand;
             }
         }
+        #endregion
 
         #region OpenFileDialog
         Livet.Commands.ViewModelCommand m_openFileDialogCommand;
@@ -109,7 +111,10 @@ namespace WpfViewer.ViewModels
                         var openfiles = OpenDialog("Select model or motion file"
                             , "モデル・モーション(*.PMD;*.PMX;*.VMD;*.VPD;*.BVH)|*.PMD;*.PMX;*.VMD;*.VPD;*.BVH|すべてのファイル(*.*)|*.*"
                             , true);
-                        AddItems(openfiles.Select(x => new Uri(x)));
+                        if (openfiles != null)
+                        {
+                            AddItems(openfiles.Select(x => new Uri(x)));
+                        }
                     });
                 }
                 return m_openFileDialogCommand;
@@ -141,12 +146,34 @@ namespace WpfViewer.ViewModels
         #endregion
 
         #region Scene
-        Models.Scene m_scene = new Models.Scene();
+        Models.Scene m_scene;
         public Models.Scene Scene
         {
-            get { return m_scene; }
+            get {
+                if (m_scene == null)
+                {
+                    m_scene = new Models.Scene();
+                }
+                return m_scene;
+            }
         }
+        #endregion
 
+        #region AnimationManager
+        Models.AnimationManager m_animationManager;
+        public Models.AnimationManager AnimationManager
+        {
+            get {
+                if (m_animationManager == null) {
+                    m_animationManager = new Models.AnimationManager();
+                    m_animationManager.ActiveMotion.Subscribe(x => Scene.SetMotion(x));
+                }
+                return m_animationManager;
+            }
+        }
+        #endregion
+
+        #region Win32Event
         Subject<Win32EventArgs> m_win32Subject;
         public IObserver<Win32EventArgs> Win32EventObserver
         {
@@ -235,19 +262,7 @@ namespace WpfViewer.ViewModels
                 return m_win32Subject;
             }
         }
-
-        ObservableCollection<Models.Node> m_nodes;
-        public ObservableCollection<Models.Node> Nodes
-        {
-            get
-            {
-                if (m_nodes == null)
-                {
-                    m_nodes = new ObservableCollection<Models.Node>();
-                }
-                return m_nodes;
-            }
-        }
+        #endregion
 
         void AddItems(IEnumerable<Uri> items)
         {
@@ -262,11 +277,15 @@ namespace WpfViewer.ViewModels
             switch (Path.GetExtension(item.LocalPath).ToUpper())
             {
                 case ".PMD":
-                    Nodes.Add(m_scene.LoadPmd(item));
+                    m_scene.LoadPmd(item);
                     break;
 
                 case ".PMX":
-                    Nodes.Add(m_scene.LoadPmx(item));
+                    m_scene.LoadPmx(item);
+                    break;
+
+                case ".VMD":
+                    m_animationManager.LoadVmd(item);
                     break;
 
                 default:
@@ -274,13 +293,6 @@ namespace WpfViewer.ViewModels
                     break;
             }
         }
-
-        void ClearItems()
-        {
-            Logger.Info("シーンをクリア");
-            Nodes.Clear();
-        }
-        #endregion
 
         #region Messages
         ObservableCollection<LogEventInfo> m_messages;

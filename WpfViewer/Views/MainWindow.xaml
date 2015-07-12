@@ -77,11 +77,11 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
                         <!-- NodeTree -->
                         <avalonDock:LayoutAnchorablePane DockWidth="400">
                             <avalonDock:LayoutAnchorable Title="NodeTree" ContentId="NodeTree" x:Name="NodeTree">
-                                <TreeView ItemsSource="{Binding Nodes}">
+                                <TreeView ItemsSource="{Binding Scene.Nodes}">
                                     <TreeView.ItemTemplate>
                                         <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                                             <DockPanel>
-                                                <Label Content="{Binding Name}"/>
+                                                <Label Content="{Binding Label}"/>
                                             </DockPanel>
                                         </HierarchicalDataTemplate>
                                     </TreeView.ItemTemplate>
@@ -103,11 +103,21 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
                         <!-- Animation -->
                         <avalonDock:LayoutAnchorablePane DockWidth="150">
                             <avalonDock:LayoutAnchorable Title="Animation" ContentId="Animaion" x:Name="Animation">
-                                <StackPanel>
-                                </StackPanel>
+                                <DockPanel>
+                                    <ListBox ItemsSource="{Binding AnimationManager.Motions}"
+                                             SelectedItem="{Binding AnimationManager.ActiveMotion.Value}"
+                                        >
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Label Content="{Binding Name}" />
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </DockPanel>
                             </avalonDock:LayoutAnchorable>
                         </avalonDock:LayoutAnchorablePane>
                     </avalonDock:LayoutPanel>
+                    <!-- Logger -->
                     <avalonDock:LayoutAnchorablePane DockHeight="150">
                         <avalonDock:LayoutAnchorable Title="Messages" ContentId="Messages" x:Name="Messages">
                             <ListBox ItemsSource="{Binding Messages}"

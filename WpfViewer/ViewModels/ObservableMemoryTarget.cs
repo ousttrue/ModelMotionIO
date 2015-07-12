@@ -1,13 +1,7 @@
 ﻿using NLog;
-using NLog.Common;
-using NLog.Config;
 using NLog.Targets;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Subjects;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WpfViewer.ViewModels
 {

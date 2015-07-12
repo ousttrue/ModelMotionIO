@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
@@ -15,6 +16,17 @@ namespace WpfViewer.Models
                 if (m_name == value) return;
                 m_name = value;
                 RaisePropertyChanged(() => this.Name);
+                RaisePropertyChanged(() => this.Label);
+            }
+        }
+
+        public String Label
+        {
+            get
+            {
+                if (Curve == null) return Name;
+
+                return String.Format("{0}({1})", Name, Curve.Values.Count());
             }
         }
 
@@ -48,6 +60,19 @@ namespace WpfViewer.Models
             }
         }
 
+        Curve m_curve;
+        public Curve Curve
+        {
+            get { return m_curve; }
+            set {
+                if (m_curve == value) return;
+                m_curve = value;
+                RaisePropertyChanged(() => this.Curve);
+                RaisePropertyChanged(() => this.Label);
+            }
+        }
+
+        #region Children
         ObservableCollection<Node> m_children;
         public ObservableCollection<Node> Children
         {
@@ -86,5 +111,6 @@ namespace WpfViewer.Models
                 }
             }
         }
+        #endregion
     }
 }

@@ -151,6 +151,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Extensions\SharpDXExtensions.cs" />
+    <Compile Include="Models\AnimationManager.cs" />
     <Compile Include="Models\Node.cs" />
     <Compile Include="Models\Scene.cs" />
     <Compile Include="Models\Transformation.cs" />

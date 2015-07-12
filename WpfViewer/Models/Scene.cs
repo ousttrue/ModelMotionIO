@@ -1,9 +1,11 @@
-﻿using RenderingPipe;
+﻿using NLog;
+using RenderingPipe;
 using RenderingPipe.Commands;
 using RenderingPipe.Resources;
 using SharpDX;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -22,6 +24,13 @@ namespace WpfViewer.Models
 
     public class Scene
     {
+        #region Logger
+        static Logger Logger
+        {
+            get { return LogManager.GetCurrentClassLogger(); }
+        }
+        #endregion
+
         #region Rendering
         ShaderResource m_vs;
         ShaderResource m_ps;
@@ -125,32 +134,65 @@ namespace WpfViewer.Models
         #endregion
 
         #region LoadScene
-        Node m_root;
+        Node m_root = new Node();
         public Node Root
         {
             get { return m_root; }
-            set {
-                if (m_root == value) return;
-                m_root = value;
-                if (value != null)
+        }
+
+        public ObservableCollection<Node> Nodes
+        {
+            get
+            {
+                return Root.Children;
+            }
+        }
+
+        void AddModel(Node model)
+        {
+            Root.Children.Add(model);
+
+            var lines = Root.Traverse((Node, pos) => new { Parent = pos, Offset = Node.Offset });
+
+            var vertices =
+                from l in lines
+                from v in new Vector3[] { l.Parent, l.Parent + l.Offset }
+                select new Single[] { v.X, v.Y, v.Z, 1.0f, /*color*/ 1.0f, 1.0f, 1.0f, 1.0f, }
+                ;
+
+            var indices = lines.SelectMany((x, i) => new[] { i * 2, i * 2 + 1 });
+
+            m_vertexbuffer = VertexBufferResource.Create(vertices, indices);
+            m_vertexbuffer.Topology = VertexBufferTopology.Lines;
+        }
+
+        public void Clear()
+        {
+            Root.Children.Clear();
+            m_vertexbuffer = null;
+            Logger.Info("Clear");
+        }
+
+        public void SetMotion(Motion motion)
+        {
+            foreach (var node in Root.Traverse())
+            {
+                Curve curve;
+                if(motion!=null
+                    && motion.CurveMap!=null 
+                    && !String.IsNullOrEmpty(node.Name) 
+                    && motion.CurveMap.TryGetValue(node.Name, out curve))
                 {
-                    var lines = Root.Traverse((Node, pos) => new { Parent = pos, Offset = Node.Offset });
-
-                    var vertices =
-                        from l in lines
-                        from v in new Vector3[] { l.Parent, l.Parent + l.Offset }
-                        select new Single[] { v.X, v.Y, v.Z, 1.0f, /*color*/ 1.0f, 1.0f, 1.0f, 1.0f, }
-                        ;
-
-                    var indices = lines.SelectMany((x, i) => new[] { i * 2, i * 2 + 1 });
-
-                    m_vertexbuffer=VertexBufferResource.Create(vertices, indices);
-                    m_vertexbuffer.Topology = VertexBufferTopology.Lines;
+                    node.Curve = curve;
+                }
+                else
+                {
+                    node.Curve = null;
                 }
             }
         }
 
-        public Node LoadPmd(Uri uri)
+        public void LoadPmd(Uri uri)
         {
             var root = new Node
             {
@@ -174,11 +216,12 @@ namespace WpfViewer.Models
                 parent.Children.Add(node);
             });
 
-            Root = root;
-            return root;
+            AddModel(root);
+
+            Logger.Info("Loaded: {0}", uri);
         }
 
-        public Node LoadPmx(Uri uri)
+        public void LoadPmx(Uri uri)
         {
             var root = new Node
             {
@@ -203,8 +246,9 @@ namespace WpfViewer.Models
                 parent.Children.Add(node);
             });
 
-            Root = root;
-            return root;
+            AddModel(root);
+
+            Logger.Info("Loaded: {0}", uri);
         }
         #endregion
     }
