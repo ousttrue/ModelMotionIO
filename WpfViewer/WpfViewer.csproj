@@ -151,7 +151,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Extensions\SharpDXExtensions.cs" />
-    <Compile Include="Models\AnimationManager.cs" />
+    <Compile Include="ViewModels\AnimationViewModel.cs" />
+    <Compile Include="Models\Motion.cs" />
     <Compile Include="Models\Node.cs" />
     <Compile Include="Models\Scene.cs" />
     <Compile Include="Models\Transformation.cs" />
@@ -164,6 +165,10 @@
     <Compile Include="D3D11\ShaderManager.cs" />
     <Compile Include="D3D11\VertexBufferManager.cs" />
     <Compile Include="D3D11\ResourceManagerBase.cs" />
+    <Page Include="Views\AnimationControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -173,6 +178,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ViewModels\ObservableMemoryTarget.cs" />
+    <Compile Include="Views\AnimationControl.xaml.cs">
+      <DependentUpon>AnimationControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\AutoScrollBehavior.cs" />
     <Compile Include="Views\FileDropBehavior.cs" />
     <Compile Include="Views\MainWindow.xaml.cs">

@@ -160,15 +160,15 @@ namespace WpfViewer.ViewModels
         #endregion
 
         #region AnimationManager
-        Models.AnimationManager m_animationManager;
-        public Models.AnimationManager AnimationManager
+        AnimationViewModel m_animationViewModel;
+        public AnimationViewModel AnimationViewModel
         {
             get {
-                if (m_animationManager == null) {
-                    m_animationManager = new Models.AnimationManager();
-                    m_animationManager.ActiveMotion.Subscribe(x => Scene.SetMotion(x));
+                if (m_animationViewModel == null) {
+                    m_animationViewModel = new AnimationViewModel();
+                    m_animationViewModel.ActiveMotion.Subscribe(x => Scene.SetMotion(x));
                 }
-                return m_animationManager;
+                return m_animationViewModel;
             }
         }
         #endregion
@@ -285,7 +285,7 @@ namespace WpfViewer.ViewModels
                     break;
 
                 case ".VMD":
-                    m_animationManager.LoadVmd(item);
+                    m_animationViewModel.LoadVmd(item);
                     break;
 
                 default:

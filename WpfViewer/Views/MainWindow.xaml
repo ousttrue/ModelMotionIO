@@ -103,17 +103,7 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
                         <!-- Animation -->
                         <avalonDock:LayoutAnchorablePane DockWidth="150">
                             <avalonDock:LayoutAnchorable Title="Animation" ContentId="Animaion" x:Name="Animation">
-                                <DockPanel>
-                                    <ListBox ItemsSource="{Binding AnimationManager.Motions}"
-                                             SelectedItem="{Binding AnimationManager.ActiveMotion.Value}"
-                                        >
-                                        <ListBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <Label Content="{Binding Name}" />
-                                            </DataTemplate>
-                                        </ListBox.ItemTemplate>
-                                    </ListBox>
-                                </DockPanel>
+                                <v:AnimationControl DataContext="{Binding AnimationViewModel}" />
                             </avalonDock:LayoutAnchorable>
                         </avalonDock:LayoutAnchorablePane>
                     </avalonDock:LayoutPanel>
