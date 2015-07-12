@@ -128,6 +128,47 @@ namespace MMIO.Mmd
                         BoneWeight0 = boneWeight0,
                         BoneWeight1 = 1.0f - boneWeight0,
                     };
+
+                case PmxDeformType.BDEF4:
+                    return
+                        from boneIndex0 in BoneIndex
+                        from boneIndex1 in BoneIndex
+                        from boneIndex2 in BoneIndex
+                        from boneIndex3 in BoneIndex
+                        from boneWeight0 in BParse.Single
+                        from boneWeight1 in BParse.Single
+                        from boneWeight2 in BParse.Single
+                        from boneWeight3 in BParse.Single
+                        select new PmxDeform
+                        {
+                            DeformType = PmxDeformType.BDEF4,
+                            BoneIndex0 = boneIndex0,
+                            BoneIndex1 = boneIndex1,
+                            BoneIndex2 = boneIndex2,
+                            BoneIndex3 = boneIndex3,
+                            BoneWeight0 = boneWeight0,
+                            BoneWeight1 = boneWeight1,
+                            BoneWeight2 = boneWeight2,
+                            BoneWeight3 = boneWeight3,
+                        };
+
+                case PmxDeformType.SDEF:
+                    return
+                    from boneIndex0 in BoneIndex
+                    from boneIndex1 in BoneIndex
+                    from boneWeight0 in BParse.Single
+                    from a in BParse.Vector3
+                    from b in BParse.Vector3
+                    from c in BParse.Vector3
+                    // fallback to BDEF2
+                    select new PmxDeform
+                    {
+                        DeformType = PmxDeformType.BDEF2,
+                        BoneIndex0 = boneIndex0,
+                        BoneIndex1 = boneIndex1,
+                        BoneWeight0 = boneWeight0,
+                        BoneWeight1 = 1.0f - boneWeight0,
+                    };
             }
             throw new ArgumentException();
         }
