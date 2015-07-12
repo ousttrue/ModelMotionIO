@@ -2,7 +2,7 @@
 using System;
 using WpfViewer.Renderer.Resources;
 
-namespace WpfViewer.Win32.D3D11
+namespace D3D11
 {
     public class VertexBuffer: ResourceItemBase
     {

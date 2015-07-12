@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Interactivity;
-using WpfViewer.Views;
 
-namespace WpfViewer.Win32
+namespace Win32
 {
-    class MouseEventBehavior : Behavior<EmptyHwnd>
+    public class MouseEventBehavior : Behavior<EmptyHwnd>
     //class MouseEventBehavior : Behavior<UIElement>
     {
         #region MouseEvent

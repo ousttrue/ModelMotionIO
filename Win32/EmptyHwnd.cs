@@ -3,9 +3,9 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
-using WpfViewer.Views;
 
-namespace WpfViewer.Win32
+
+namespace Win32
 {
     public class Win32EventArgs : RoutedEventArgs
     {
@@ -100,11 +100,14 @@ namespace WpfViewer.Win32
 
         void CaptureAndCursor(IntPtr hwnd)
         {
+            //Keyboard.Focus(this);
+            Import.SetFocus(hwnd);
+
             //Mouse.Capture(this);
             //CaptureMouse();
             if (Capture == 0)
             {
-                WpfViewer.Win32.Import.SetCapture(hwnd);
+                Import.SetCapture(hwnd);
             }
             ++Capture;
         }
@@ -116,7 +119,7 @@ namespace WpfViewer.Win32
                 Capture = 0;
             }
             if (Capture == 0){
-                WpfViewer.Win32.Import.ReleaseCapture();
+                Import.ReleaseCapture();
             }
         }
 

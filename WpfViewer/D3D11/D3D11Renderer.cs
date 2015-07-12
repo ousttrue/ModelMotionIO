@@ -6,7 +6,7 @@ using System.Linq;
 using WpfViewer.Extensions;
 
 
-namespace WpfViewer.Win32.D3D11
+namespace D3D11
 {
     class D3D11Renderer : IRenderer, IDisposable
     {

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 
 
-namespace WpfViewer.Win32.D3D11
+namespace D3D11
 {
     public abstract class ShaderResourceSlot
     {

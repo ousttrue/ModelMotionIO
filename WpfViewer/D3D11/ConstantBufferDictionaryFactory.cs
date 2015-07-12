@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 
-namespace WpfViewer.Win32.D3D11
+namespace D3D11
 {
     public class AllocatedPtr : IDisposable
     {

@@ -10,8 +10,8 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
         xmlns:vm="clr-namespace:WpfViewer.ViewModels"
         xmlns:v="clr-namespace:WpfViewer.Views"
         xmlns:local="clr-namespace:WpfViewer"
-        xmlns:win32="clr-namespace:WpfViewer.Win32"
-        xmlns:d3d11="clr-namespace:WpfViewer.Win32.D3D11"
+        xmlns:win32="clr-namespace:Win32;assembly=Win32"
+        xmlns:d3d11="clr-namespace:D3D11"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="800">
     <Window.Resources>

@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 
 
-namespace WpfViewer.Win32
+namespace Win32
 {
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
     public struct CREATESTRUCT
@@ -549,5 +549,8 @@ namespace WpfViewer.Win32
 
         [DllImport("user32.dll")]
         public static extern bool ReleaseCapture();
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr SetFocus(IntPtr hWnd);
     }
 }

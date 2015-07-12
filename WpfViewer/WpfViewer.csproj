@@ -157,15 +157,12 @@
     <Compile Include="Renderer\Resources\ShaderResourceFactory.cs" />
     <Compile Include="ViewModels\LogLevelToColorConverter.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
-    <Compile Include="Win32\MouseEventBehavior.cs" />
-    <Compile Include="Win32\D3D11\ConstantBufferDictionaryFactory.cs" />
-    <Compile Include="Win32\D3D11\D3D11Host.cs" />
-    <Compile Include="Win32\D3D11\D3D11Renderer.cs" />
-    <Compile Include="Win32\D3D11\ShaderManager.cs" />
-    <Compile Include="Win32\D3D11\VertexBufferManager.cs" />
-    <Compile Include="Win32\D3D11\ResourceManagerBase.cs" />
-    <Compile Include="Win32\EmptyHwnd.cs" />
-    <Compile Include="Win32\Win32Import.cs" />
+    <Compile Include="D3D11\ConstantBufferDictionaryFactory.cs" />
+    <Compile Include="D3D11\D3D11Host.cs" />
+    <Compile Include="D3D11\D3D11Renderer.cs" />
+    <Compile Include="D3D11\ShaderManager.cs" />
+    <Compile Include="D3D11\VertexBufferManager.cs" />
+    <Compile Include="D3D11\ResourceManagerBase.cs" />
     <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -218,6 +215,10 @@
     <ProjectReference Include="..\RenderingPipe\RenderingPipe.csproj">
       <Project>{b3344beb-0688-4ae1-bb6a-0dd6afb3fdbf}</Project>
       <Name>RenderingPipe</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Win32\Win32.csproj">
+      <Project>{4f03e880-207b-4bed-a538-4eae2cbcf9ca}</Project>
+      <Name>Win32</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -12,7 +12,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Windows;
 using System.Windows.Input;
-using WpfViewer.Win32;
+using Win32;
 
 
 namespace WpfViewer.ViewModels

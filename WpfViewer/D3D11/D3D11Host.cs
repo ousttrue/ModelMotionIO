@@ -5,10 +5,11 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Runtime.InteropServices;
+using Win32;
 
-namespace WpfViewer.Win32.D3D11
+namespace D3D11
 {
-    public class D3D11Host : EmptyHwnd
+    public class D3D11Host : Win32.EmptyHwnd
     {
         D3D11Renderer m_renderer = new D3D11Renderer();
 
