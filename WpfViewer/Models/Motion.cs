@@ -26,6 +26,14 @@ namespace WpfViewer.Models
                 );
         }
 
+        public static Transform Lerp(Transform a, Transform b, float c)
+        {
+            return new Transform(
+                SharpDX.Vector3.Lerp(a.Translation, b.Translation, c)
+                , SharpDX.Quaternion.Slerp(a.Rotation, b.Rotation, c)
+                );
+        }
+
         public static readonly Transform Identity = new Transform
         (SharpDX.Vector3.Zero, SharpDX.Quaternion.Identity);
     }
@@ -59,15 +67,27 @@ namespace WpfViewer.Models
     /// </summary>
     public class Curve
     {
-        public SortedList<TimeSpan, Transform> Values
+        public int Fps
+        {
+            get;
+            set;
+        }
+
+        public SortedList<int, Transform> Values
         {
             get;
             private set;
         }
 
-        public Curve(IDictionary<TimeSpan, Transform> values)
+        public Curve(IDictionary<int, Transform> values, int fps = 30)
         {
-            Values = new SortedList<TimeSpan, Transform>(values);
+            Fps = fps;
+            Values = new SortedList<int, Transform>(values);
+        }
+
+        double TimeToFrame(TimeSpan time)
+        {
+            return time.TotalSeconds * Fps;
         }
 
         /// <summary>
@@ -77,25 +97,31 @@ namespace WpfViewer.Models
         /// <returns></returns>
         public Transform GetValue(TimeSpan time)
         {
-            var range=Values.BinarySearch(time);
-            if (range.Item1 == range.Item2)
+            var frame = TimeToFrame(time);
+            var range = Values.BinarySearch((int)frame);
+            if (range.Item1 < 0)
             {
-                // 一致するキーがあった。補間なし
-                return Values[time];
-            }
-            else if (range.Item1 < 0)
-            {
+                // 開始フレーム
                 return Values[Values.Keys[range.Item2]];
             }
             else if (range.Item2 >= Values.Count)
             {
+                // 最終フレーム
                 return Values[Values.Keys[range.Item1]];
             }
-            else { 
+            else
+            {
+                if (range.Item1 == range.Item2 && range.Item1+1 >= Values.Count)
+                {
+                    // 最終フレーム
+                    return Values[Values.Keys[range.Item1]];
+                }
                 var lower = Values.Keys[range.Item1];
-                var upper = Values.Keys[range.Item2];
+                var upper = Values.Keys[range.Item1 + 1];
+
                 // 補間する
-                return Values[upper];
+                var rate = (frame - lower) / (upper - lower);
+                return Transform.Lerp(Values[lower], Values[upper], (float)rate);
             }
         }
     }
@@ -121,7 +147,7 @@ namespace WpfViewer.Models
         {
             get
             {
-                return String.Format("{0}({1})", Name, LastFrame);
+                return String.Format("{0}({1:00}分{2:00})", Name, LastFrame.Hours * 60 + LastFrame.Minutes, LastFrame.Seconds);
             }
         }
 

@@ -1,8 +1,6 @@
 ﻿using NLog;
 using Reactive.Bindings;
-using Reactive.Bindings.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -184,7 +182,7 @@ namespace WpfViewer.ViewModels
                 .ToDictionary(
                 x => x.Key
                 , x => new Curve(x.ToDictionary(
-                    y => FrameToTimeSpan(y.Frame, 30)
+                    y => y.Frame
                     , y => VmdBoneFrameToKeyFrame(y)))
                 );
 
