@@ -165,6 +165,10 @@
     <Compile Include="D3D11\ShaderManager.cs" />
     <Compile Include="D3D11\VertexBufferManager.cs" />
     <Compile Include="D3D11\ResourceManagerBase.cs" />
+    <Page Include="ViewModels\SampleData\SampleAnimationViewModel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\AnimationControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -230,9 +234,7 @@
       <Name>Win32</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Renderer\Commands\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

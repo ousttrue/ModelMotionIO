@@ -1,10 +1,10 @@
-﻿using Reactive.Bindings.Extensions;
-using RenderingPipe;
+﻿using RenderingPipe;
 using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Runtime.InteropServices;
+using Reactive.Bindings.Extensions;
 using Win32;
 
 namespace D3D11

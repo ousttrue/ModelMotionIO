@@ -1,5 +1,6 @@
 ﻿using NLog;
 using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -41,8 +42,25 @@ namespace WpfViewer.ViewModels
                 if (m_activeMotion == null)
                 {
                     m_activeMotion = new ReactiveProperty<Motion>();
+                    CurrentTime
+                        .Select(x => ActiveMotion.Value != null ? ActiveMotion.Value.GetPose(x) : null)
+                        .Subscribe(x => CurrentPose.Value = x)
+                        ;
                 }
                 return m_activeMotion;
+            }
+        }
+
+        ReactiveProperty<Pose> m_currentPose;
+        public ReactiveProperty<Pose> CurrentPose
+        {
+            get
+            {
+                if (m_currentPose == null)
+                {
+                    m_currentPose = new ReactiveProperty<Pose>();
+                }
+                return m_currentPose;
             }
         }
 
@@ -88,6 +106,7 @@ namespace WpfViewer.ViewModels
         {
             Stop();
             Stopwatch.Reset();
+            CurrentTime.Value = TimeSpan.Zero;
         }
 
         Livet.Commands.ViewModelCommand m_startCommand;
@@ -142,18 +161,16 @@ namespace WpfViewer.ViewModels
                 .Subscribe(x => Logger.Info(x));
         }
 
-        TimeSpan FrameToTimeSpan(int frame, int frameParSecond)
+        TimeSpan FrameToTimeSpan(int frame, int fps)
         {
-            return TimeSpan.FromMilliseconds(frame * 1000 / frameParSecond);
+            return TimeSpan.FromMilliseconds(frame * (1000 / fps));
         }
 
-        KeyFrame VmdBoneFrameToKeyFrame(MMIO.Mmd.VmdBoneFrame vmd)
+        Transform VmdBoneFrameToKeyFrame(MMIO.Mmd.VmdBoneFrame vmd)
         {
-            return new KeyFrame
-            {
-                Translation = new SharpDX.Vector3(vmd.Position.X, vmd.Position.Y, vmd.Position.Z),
-                Rotation = new SharpDX.Quaternion(vmd.Rotation.X, vmd.Rotation.Y, vmd.Rotation.Z, vmd.Rotation.W),
-            };
+            return new Transform(
+                new SharpDX.Vector3(vmd.Position.X, vmd.Position.Y, vmd.Position.Z)
+                , new SharpDX.Quaternion(vmd.Rotation.X, vmd.Rotation.Y, vmd.Rotation.Z, vmd.Rotation.W));
         }
 
         public void LoadVmd(Uri uri)
@@ -170,6 +187,8 @@ namespace WpfViewer.ViewModels
                     y => FrameToTimeSpan(y.Frame, 30)
                     , y => VmdBoneFrameToKeyFrame(y)))
                 );
+
+            motion.LastFrame = FrameToTimeSpan(vmd.BoneFrames.Max(x => x.Frame), 30);
 
             Motions.Add(motion);
 

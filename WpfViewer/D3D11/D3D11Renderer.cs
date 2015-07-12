@@ -330,11 +330,12 @@ namespace D3D11
                             }
                         }
                         break;
+                        */
 
                         case RenderCommandType.VertexBuffer_Update:
                         {
                             var command = c as VertexBufferUpdateCommand;
-                            var vertexBuffer = m_resources.VertexBufferManager.Get(command.ResourceID);
+                            var vertexBuffer = m_vertexBufferManager.Get(command.ResourceID);
                             if (vertexBuffer != null)
                             {
                                 if (command.Ptr != IntPtr.Zero)
@@ -345,7 +346,6 @@ namespace D3D11
                             }
                         }
                         break;
-                        */
 
                         case RenderCommandType.VertexBuffer_Set:
                             {

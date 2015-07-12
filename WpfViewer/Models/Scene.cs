@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Runtime.InteropServices;
 using WpfViewer.Renderer.Resources;
 
 namespace WpfViewer.Models
@@ -35,6 +36,7 @@ namespace WpfViewer.Models
         ShaderResource m_vs;
         ShaderResource m_ps;
         VertexBufferResource m_vertexbuffer;
+        VertexBufferUpdateCommand m_vertexbufferUpdate;
 
         PerspectiveProjection m_projection;
         public PerspectiveProjection Projection
@@ -99,6 +101,10 @@ namespace WpfViewer.Models
 
                 if (m_vertexbuffer != null)
                 {
+                    if (m_vertexbufferUpdate != null) {
+                        yield return m_vertexbufferUpdate;
+                    }
+
                     yield return VertexBufferSetCommand.Create(m_vertexbuffer);
                     foreach (var c in m_vertexbuffer.SubMeshes.Select(s => ShaderDrawSubMeshCommand.Create(s)))
                     {
@@ -190,6 +196,46 @@ namespace WpfViewer.Models
                     node.Curve = null;
                 }
             }
+        }
+
+        public void SetPose(Pose pose)
+        {
+            // キーフレームの更新
+            foreach (var node in Root.Traverse())
+            {
+                Transform value;
+                if (!String.IsNullOrEmpty(node.Name)
+                    && pose.Values.TryGetValue(node.Name, out value))
+                {
+                    node.KeyFrame = value;
+                }
+                else
+                {
+                    node.KeyFrame = Transform.Identity;
+                }
+            }
+
+            // 積算
+            Root.UpdateWorldTransform(Transform.Identity);
+            var nodes = Root.Traverse();
+            var lines=nodes.Zip(nodes.Skip(1), (parent, node) => new {
+                parent = parent.WorldTransform.Translation,
+                pos = node.WorldTransform.Translation
+            });
+
+            var vertices =
+                (from l in lines
+                 from v in new Vector3[] { l.parent, l.pos }
+                 select new Single[] { v.X, v.Y, v.Z, 1.0f, /*color*/ 1.0f, 1.0f, 1.0f, 1.0f, })
+                .SelectMany(x => x)
+                .ToArray();
+                ;
+
+            // 後で解放せな
+            var ptr = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(float)) * vertices.Length);
+            Marshal.Copy(vertices, 0, ptr, vertices.Length);
+
+            m_vertexbufferUpdate = VertexBufferUpdateCommand.Create(m_vertexbuffer, ptr);
         }
 
         public void LoadPmd(Uri uri)

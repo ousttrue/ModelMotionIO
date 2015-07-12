@@ -54,6 +54,7 @@
     <Compile Include="Commands\ShaderTextureSetCommand.cs" />
     <Compile Include="Commands\ShaderVariableSetCommand.cs" />
     <Compile Include="Commands\VertexBufferSetCommand.cs" />
+    <Compile Include="Commands\VertexBufferUpdateCommand.cs" />
     <Compile Include="Commands\ViewportSetCommand.cs" />
     <Compile Include="IRenderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

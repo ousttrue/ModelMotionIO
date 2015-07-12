@@ -5,14 +5,22 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WpfViewer.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DataContext="{d:DesignData /ViewModels/SampleData/SampleAnimationViewModel.xaml}"
+             d:DesignHeight="480" d:DesignWidth="640">
     <DockPanel>
+        <TextBlock DockPanel.Dock="Top" Text="{Binding CurrentTime.Value}" />
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+            <Button Command="{Binding RewindCommand}">Rewind</Button>
+            <Button Command="{Binding StartCommand}">Start</Button>
+            <Button Command="{Binding StopCommand}">Stop</Button>
+        </StackPanel>
+        
         <ListBox ItemsSource="{Binding Motions}"
                  SelectedItem="{Binding ActiveMotion.Value}"
                  >
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Label Content="{Binding Name}" />
+                    <Label Content="{Binding Label}" />
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

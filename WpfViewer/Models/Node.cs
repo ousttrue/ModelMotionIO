@@ -72,6 +72,41 @@ namespace WpfViewer.Models
             }
         }
 
+        Transform m_keyFrame;
+        public Transform KeyFrame
+        {
+            get { return m_keyFrame; }
+            set {
+                //if (m_keyFrame == value) return;
+                m_keyFrame = value;
+                //RaisePropertyChanged(() => this.KeyFrame);
+            }
+        }
+
+        public Transform LocalTransform
+        {
+            get
+            {
+                return new Transform(m_keyFrame.Translation + m_offset, m_keyFrame.Rotation);
+            }
+        }
+
+        public Transform WorldTransform
+        {
+            get;
+            set;
+        }
+
+        public void UpdateWorldTransform(Transform parent)
+        {
+            WorldTransform = LocalTransform * parent;
+
+            foreach(var child in Children)
+            {
+                child.UpdateWorldTransform(WorldTransform);
+            }
+        }
+
         #region Children
         ObservableCollection<Node> m_children;
         public ObservableCollection<Node> Children

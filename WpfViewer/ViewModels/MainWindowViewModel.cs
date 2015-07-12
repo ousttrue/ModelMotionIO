@@ -167,6 +167,7 @@ namespace WpfViewer.ViewModels
                 if (m_animationViewModel == null) {
                     m_animationViewModel = new AnimationViewModel();
                     m_animationViewModel.ActiveMotion.Subscribe(x => Scene.SetMotion(x));
+                    m_animationViewModel.CurrentPose.Subscribe(x => Scene.SetPose(x));
                 }
                 return m_animationViewModel;
             }
