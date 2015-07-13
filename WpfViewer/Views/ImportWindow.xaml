@@ -1,0 +1,44 @@
+﻿<Window x:Class="WpfViewer.Views.ImportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
+        xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"        
+        xmlns:local="clr-namespace:WpfViewer.Views"
+        mc:Ignorable="d"
+        Title="ImportWindow" Height="300" Width="300">
+    <!--Closeというメッセージキーを持つメッセージがViewModelから届いた際に起動するトリガーです-->
+    <i:Interaction.Triggers>
+        <l:InteractionMessageTrigger MessageKey="Close" Messenger="{Binding Messenger}">
+            <l:WindowInteractionMessageAction/>
+        </l:InteractionMessageTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32"/>
+            <RowDefinition Height="32"/>
+            <RowDefinition Height="32"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="64"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Label Grid.Row="0">Scaling</Label>
+        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Scaling}" />
+
+        <Label Grid.Row="1">FlipAxis</Label>
+        <ComboBox Grid.Row="1" Grid.Column="1"
+                IsEditable="False"
+                ItemsSource="{Binding Axises}"
+                SelectedValue="{Binding FlipAxis}"
+                />
+
+        <Label Grid.Row="2">Y Rotate</Label>
+        <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding YRotate}" />
+    </Grid>
+</Window>

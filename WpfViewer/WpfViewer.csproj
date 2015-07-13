@@ -138,11 +138,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Models\Axis.cs" />
     <Compile Include="ViewModels\AnimationViewModel.cs" />
     <Compile Include="Models\Motion.cs" />
     <Compile Include="Models\Node.cs" />
     <Compile Include="Models\Scene.cs" />
     <Compile Include="Models\Transformation.cs" />
+    <Compile Include="ViewModels\ImportViewModel.cs" />
     <Compile Include="ViewModels\LogLevelToColorConverter.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Page Include="ViewModels\SampleData\SampleAnimationViewModel.xaml">
@@ -150,6 +152,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\AnimationControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ImportWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -162,11 +168,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ViewModels\ObservableMemoryTarget.cs" />
+    <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="Views\AnimationControl.xaml.cs">
       <DependentUpon>AnimationControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\AutoScrollBehavior.cs" />
     <Compile Include="Views\FileDropBehavior.cs" />
+    <Compile Include="Views\ImportWindow.xaml.cs">
+      <DependentUpon>ImportWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

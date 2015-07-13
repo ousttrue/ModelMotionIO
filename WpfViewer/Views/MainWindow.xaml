@@ -41,6 +41,12 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
         <l:InteractionMessageTrigger MessageKey="Save" Messenger="{Binding Messenger}" >
             <l:SaveFileDialogInteractionMessageAction/>
         </l:InteractionMessageTrigger>
+
+        <!--ViewからのTransitionというメッセージキーを持つメッセージを受信します-->
+        <!--TransitionInteractionMessageAction で画面遷移を行っています-->
+        <l:InteractionMessageTrigger MessageKey="Import" Messenger="{Binding Messenger}">
+            <l:TransitionInteractionMessageAction />
+        </l:InteractionMessageTrigger>
     </i:Interaction.Triggers>    
     
     <DockPanel>

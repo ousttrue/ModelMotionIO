@@ -210,20 +210,15 @@ namespace WpfViewer.ViewModels
             throw new ArgumentException();
         }
 
-        public Transform ToTransform(IEnumerator<Single> it, IEnumerable<MMIO.Bvh.ChannelType> channels, Single scale, Axis axis)
+        public Transform ToTransform(IEnumerator<Single> it
+            , IEnumerable<MMIO.Bvh.ChannelType> channels
+            , Single scale, Axis axis, bool yRotate)
         {
             var t = SharpDX.Vector3.Zero;
             var r = SharpDX.Matrix.Identity;
             var axisX = axis == Axis.X ? -1.0f : 1.0f;
             var axisY = axis == Axis.Y ? -1.0f : 1.0f;
             var axisZ = axis == Axis.Z ? -1.0f : 1.0f;
-
-            /*
-            var axisRX = axis == Axis.X ? -1.0f : 1.0f;
-            var axisRY = axis == Axis.Y ? -1.0f : 1.0f;
-            var axisRZ = axis == Axis.Z ? -1.0f : 1.0f;
-            */
-
             foreach (var channel in channels)
             {
                 it.MoveNext();
@@ -242,17 +237,14 @@ namespace WpfViewer.ViewModels
                         break;
 
                     case MMIO.Bvh.ChannelType.Xrotation:
-                        //r = r * SharpDX.Matrix.RotationX(ToRadians(it.Current));
                         r = SharpDX.Matrix.RotationX(ToRadians(it.Current)) * r;
                         break;
 
                     case MMIO.Bvh.ChannelType.Yrotation:
-                        //r = r * SharpDX.Matrix.RotationY(ToRadians(it.Current));
                         r = SharpDX.Matrix.RotationY(ToRadians(it.Current)) * r;
                         break;
 
                     case MMIO.Bvh.ChannelType.Zrotation:
-                        //r = r * SharpDX.Matrix.RotationZ(ToRadians(it.Current));
                         r = SharpDX.Matrix.RotationZ(ToRadians(it.Current)) * r;
                         break;
 
@@ -263,10 +255,9 @@ namespace WpfViewer.ViewModels
 
             var q = SharpDX.Quaternion.RotationMatrix(r);
             return new Transform(t, inverseQ(q, axis));
-            //return new Transform(t, q);
         }
 
-        public void LoadBvh(Uri uri, Single scale = 0.01f)
+        public void LoadBvh(Uri uri, Single scale, Axis flipAxis, bool yRotate)
         {
             var text = File.ReadAllText(uri.LocalPath);
             var bvh = MMIO.Bvh.BvhParse.Execute(text, true);
@@ -279,7 +270,7 @@ namespace WpfViewer.ViewModels
                 pose.Values = new Dictionary<string, Transform>();
                 foreach (var node in bvh.Root.Traverse((node, level) => node).Where(x => x.Name!="EndSite"))
                 {
-                    pose.Values[node.Name] = ToTransform(it, node.Channels, scale, Axis.Z);
+                    pose.Values[node.Name] = ToTransform(it, node.Channels, scale, flipAxis, yRotate);
                 }
                 if (it.MoveNext())
                 {

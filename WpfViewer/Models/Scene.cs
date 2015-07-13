@@ -17,14 +17,6 @@ using System.Runtime.InteropServices;
 
 namespace WpfViewer.Models
 {
-    public enum Axis
-    {
-        None,
-        X,
-        Y,
-        Z,
-    }
-
     static class Extensions
     {
         public static SharpDX.Vector3 ToSharpDX(this MMIO.Vector3 src, Axis axis)
@@ -320,25 +312,25 @@ namespace WpfViewer.Models
             Logger.Info("Loaded: {0}", uri);
         }
 
-        Node BuildBvh(MMIO.Bvh.Node bvh, Node parent, Single scale)
+        Node BuildBvh(MMIO.Bvh.Node bvh, Node parent, Single scale, Axis flipAxis, bool yRotate)
         {
             var node = new Node
             {
                 Name = bvh.Name,
-                Offset = bvh.Offset.ToSharpDX(Axis.Z) * scale,
+                Offset = bvh.Offset.ToSharpDX(flipAxis) * scale,
             };
             node.Position = parent.Position + node.Offset;
             parent.Children.Add(node);
 
             foreach (var child in bvh.Children)
             {
-                BuildBvh(child, node, scale);
+                BuildBvh(child, node, scale, flipAxis, yRotate);
             }
 
             return node;
         }
 
-        public void LoadBvh(Uri uri, Single scale=0.01f)
+        public void LoadBvh(Uri uri, Single scale, Axis flipAxis, bool yRotate)
         {
             var root = new Node
             {
@@ -347,7 +339,7 @@ namespace WpfViewer.Models
             var text = File.ReadAllText(uri.LocalPath);
             var bvh = MMIO.Bvh.BvhParse.Execute(text, false);
 
-            BuildBvh(bvh.Root, root, scale);
+            BuildBvh(bvh.Root, root, scale, flipAxis, yRotate);
 
             AddModel(root);
             Logger.Info("Loaded: {0}", uri);
