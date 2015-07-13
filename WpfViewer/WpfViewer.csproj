@@ -205,6 +205,10 @@
       <Project>{53570b14-a657-4698-a29d-20895d5725b7}</Project>
       <Name>D3D11Renderer</Name>
     </ProjectReference>
+    <ProjectReference Include="..\KeyFrameControl\KeyFrameControl.csproj">
+      <Project>{7c579e35-8a30-4d35-aaed-e902627a9050}</Project>
+      <Name>KeyFrameControl</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MMIO\MMIO.csproj">
       <Project>{90580417-379d-4b97-ab4e-b180b8997b34}</Project>
       <Name>MMIO</Name>

@@ -177,14 +177,13 @@ namespace WpfViewer.ViewModels
             var vmd = MMIO.Mmd.VmdParse.Execute(bytes);
 
             var motion = new Motion(Path.GetFileName(uri.LocalPath));
-            motion.CurveMap = vmd.BoneFrames
+            motion.AddRange(
+                vmd.BoneFrames
                 .ToLookup(x => x.BoneName)
-                .ToDictionary(
-                x => x.Key
-                , x => new Curve(x.ToDictionary(
+                .Select(x => new Curve(x.Key, x.ToDictionary(
                     y => y.Frame
-                    , y => VmdBoneFrameToKeyFrame(y)))
-                );
+                    , y => VmdBoneFrameToKeyFrame(y)
+                    ))));                
 
             motion.LastFrame = FrameToTimeSpan(vmd.BoneFrames.Max(x => x.Frame), 30);
 

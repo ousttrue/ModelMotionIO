@@ -186,9 +186,8 @@ namespace WpfViewer.Models
             {
                 Curve curve;
                 if(motion!=null
-                    && motion.CurveMap!=null 
                     && !String.IsNullOrEmpty(node.Name) 
-                    && motion.CurveMap.TryGetValue(node.Name, out curve))
+                    && motion.TryGetValue(node.Name, out curve))
                 {
                     node.Curve = curve;
                 }

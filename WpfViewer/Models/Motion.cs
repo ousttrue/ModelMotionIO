@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -65,8 +66,14 @@ namespace WpfViewer.Models
     /// <summary>
     /// 一つの部位の連続した姿勢
     /// </summary>
-    public class Curve
+    public class Curve: KeyFrameControl.ITimeline
     {
+        public String Name
+        {
+            get;
+            private set;
+        }
+
         public int Fps
         {
             get;
@@ -79,10 +86,16 @@ namespace WpfViewer.Models
             private set;
         }
 
-        public Curve(IDictionary<int, Transform> values, int fps = 30)
+        public Curve(String name, IDictionary<int, Transform> values, int fps = 30)
         {
+            Name = name;
             Fps = fps;
             Values = new SortedList<int, Transform>(values);
+        }
+
+        public override string ToString()
+        {
+            return String.Format("[{0}(1)]", Name, Values.Count);
         }
 
         double TimeToFrame(TimeSpan time)
@@ -138,8 +151,14 @@ namespace WpfViewer.Models
         }
     }
 
-    public class Motion
+    public class Motion: KeyedCollection<String, Curve>
     {
+        protected override String GetKeyForItem(Curve item)
+        {
+            // In this example, the key is the part number.
+            return item.Name;
+        }
+
         public String Name { get; set; }
         public TimeSpan LastFrame { get; set; }
 
@@ -151,22 +170,49 @@ namespace WpfViewer.Models
             }
         }
 
-        public Motion(String name)
+        public Motion(String name) : base()
         {
             Name = name;
         }
 
-        public Dictionary<String, Curve> CurveMap
-        {
-            get;
-            set;
+        public void AddRange(IEnumerable<Curve> curves)
+        { 
+            foreach (var curve in curves)
+            {
+                Add(curve);
+            }
         }
 
         public Pose GetPose(TimeSpan time)
         {
-            if (CurveMap == null) return null;
+            return new Pose { Values = this.ToDictionary(x => x.Name, x => x.GetValue(time)) };
+        }
 
-            return new Pose { Values = CurveMap.ToDictionary(x => x.Key, x => x.Value.GetValue(time)) };
+        public bool TryGetValue(String key, out Curve curve)
+        {
+            /*
+            try
+            {
+                curve=this[key];
+                return true;
+            }
+            catch(KeyNotFoundException)
+            {
+                curve = null;
+                return false;
+            }
+            */
+            if (Contains(key))
+            {
+                curve=this[key];
+                return true;
+            }
+            else
+            {
+                curve = null;
+                return false;
+
+            }
         }
     }
 }
