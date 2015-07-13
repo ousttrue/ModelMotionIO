@@ -83,7 +83,11 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
                         <!-- NodeTree -->
                         <avalonDock:LayoutAnchorablePane DockWidth="200">
                             <avalonDock:LayoutAnchorable Title="NodeTree" ContentId="NodeTree" x:Name="NodeTree">
-                                <TreeView ItemsSource="{Binding Scene.Nodes}">
+                                <TreeView ItemsSource="{Binding Scene.Nodes}"
+                                          >
+                                    <i:Interaction.Behaviors>
+                                        <v:BindableSelectedItemBehavior SelectedItem="{Binding Scene.Selected, Mode=TwoWay}" />
+                                    </i:Interaction.Behaviors>
                                     <TreeView.ItemTemplate>
                                         <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                                             <DockPanel>

@@ -8,7 +8,7 @@
         xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"        
         xmlns:local="clr-namespace:WpfViewer.Views"
         mc:Ignorable="d"
-        Title="ImportWindow" Height="300" Width="300">
+        Title="ImportWindow" Height="167" Width="300">
     <!--Closeというメッセージキーを持つメッセージがViewModelから届いた際に起動するトリガーです-->
     <i:Interaction.Triggers>
         <l:InteractionMessageTrigger MessageKey="Close" Messenger="{Binding Messenger}">
@@ -24,7 +24,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="64"/>
+            <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
@@ -40,5 +40,8 @@
 
         <Label Grid.Row="2">Y Rotate</Label>
         <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding YRotate}" />
+        
+        <Button Grid.Row="3" Grid.Column="0" Command="{Binding SaveCommand}" >Ok</Button>
+        <Button Grid.Row="3" Grid.Column="1" Command="{Binding CancelCommand}" >Cancel</Button>
     </Grid>
 </Window>

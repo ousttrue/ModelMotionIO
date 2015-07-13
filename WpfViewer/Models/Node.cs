@@ -30,6 +30,17 @@ namespace WpfViewer.Models
             }
         }
 
+        bool m_isSelected;
+        public Boolean IsSelected
+        {
+            get { return m_isSelected; }
+            set {
+                if (m_isSelected == value) return;
+                m_isSelected = value;
+                RaisePropertyChanged(() => this.IsSelected);
+            }
+        }
+
         public String Label
         {
             get
@@ -197,27 +208,49 @@ namespace WpfViewer.Models
 
             // 積算
             UpdateWorldTransform(Transform.Identity);
-            var lines = TraversePair().Select(x => new
-            {
-                parent = x.Item1.WorldTransform.Translation,
-                pos = x.Item2.WorldTransform.Translation
-            });
-            if (!lines.Any()) return;
+        }
 
-            var vertices =
-                (from l in lines
-                 from v in new Vector3[] { l.parent, l.pos }
-                 select new Single[] { v.X, v.Y, v.Z, 1.0f, /*color*/ 1.0f, 1.0f, 1.0f, 1.0f, })
-                .SelectMany(x => x)
-                .ToArray();
-            ;
+        public void UpdateVertexBuffer()
+        {
+            var mesh = Mesh;
+            if (mesh == null) return;
+
+            var gray = new SharpDX.Vector4(0.5f, 0.5f, 0.5f, 0.5f);
+            var white = new SharpDX.Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+            var red = new SharpDX.Vector4(1.0f, 0, 0, 1.0f);
+
+            var vertices = TraversePair()
+                .Select(x =>
+                {
+                    if(x.Item2.IsSelected)
+                    {
+                        return new { line = x, color = red };
+                    }
+                    else if (x.Item2.KeyFrame == Transform.Identity)
+                    {
+                        return new { line = x, color = gray };
+                    }
+                    else
+                    {
+                        return new { line = x, color = white };
+                    }
+                })
+                .SelectMany(x => new SharpDX.Vector4[] {
+                    new SharpDX.Vector4(x.line.Item1.WorldTransform.Translation, 1.0f), x.color
+                    , new SharpDX.Vector4(x.line.Item2.WorldTransform.Translation, 1.0f), x.color
+                })
+                .SelectMany(x => new Single[] { x.X, x.Y, x.Z, x.W })
+                .ToArray()
+                ;
+
+            if (!vertices.Any()) return;
 
             // ToDO: Meshごとにシェーダーを見るべし
             // ToDo: 解放されている？
             var ptr = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(float)) * vertices.Length);
             Marshal.Copy(vertices, 0, ptr, vertices.Length);
 
-            Mesh.VertexBufferUpdate = VertexBufferUpdateCommand.Create(Mesh.VertexBuffer, ptr);
+            mesh.VertexBufferUpdate = VertexBufferUpdateCommand.Create(mesh.VertexBuffer, ptr);
         }
     }
 }

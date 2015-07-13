@@ -173,6 +173,7 @@
       <DependentUpon>AnimationControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\AutoScrollBehavior.cs" />
+    <Compile Include="Views\BindableSelectedItemBehavior.cs" />
     <Compile Include="Views\FileDropBehavior.cs" />
     <Compile Include="Views\ImportWindow.xaml.cs">
       <DependentUpon>ImportWindow.xaml</DependentUpon>

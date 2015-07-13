@@ -235,14 +235,32 @@ namespace WpfViewer.ViewModels
                 case ".BVH":
                     {
                         // 追加パラメーター
-                        // scale:
-                        // flip axis:
-                        // rotate:
+                        var text = File.ReadAllText(item.LocalPath);
+                        var bvh = MMIO.Bvh.BvhParse.Execute(text, false);
+                        var node = new Models.Node();
+                        Scene.BuildBvh(bvh.Root, node, 1.0f, Models.Axis.None, false);
+                        var maxY=node.Traverse().Max(x => x.Position.Y);
+                        var scale = 1.0f;
+                        while (maxY > 1.0f)
+                        {
+                            maxY *= 0.1f;
+                            scale *= 0.1f;
+                        }
+                        while(maxY < 0.1f)
+                        {
+                            maxY *= 10.0f;
+                            scale *= 10.0f;
+                        }
                         var vm = new ImportViewModel
                         {
-
+                            Scaling = scale,
                         };
                         ImportDialog(vm);
+                        if (!vm.IsDone)
+                        {
+                            Logger.Info("Import canceled");
+                            return;
+                        }
 
                         m_scene.LoadBvh(item, vm.Scaling, vm.FlipAxis, vm.YRotate);
                         m_animationViewModel.LoadBvh(item, vm.Scaling, vm.FlipAxis, vm.YRotate);

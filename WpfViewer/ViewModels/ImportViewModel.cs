@@ -5,8 +5,20 @@ using System.Windows.Input;
 
 namespace WpfViewer.ViewModels
 {
-    class ImportViewModel: ViewModelBase
+    class ImportViewModel : ViewModelBase
     {
+        bool m_isDone;
+        public bool IsDone
+        {
+            get { return m_isDone; }
+            set
+            {
+                if (m_isDone == value) return;
+                m_isDone = value;
+                RaisePropertyChanged(() => this.IsDone);
+            }
+        }
+
         Single m_scale = 1.0f;
         public Single Scaling
         {
@@ -66,20 +78,22 @@ namespace WpfViewer.ViewModels
                 {
                     m_saveCommand = new Livet.Commands.ViewModelCommand(() =>
                     {
-                    /*
-                    Name = InputName;
-                    Birthday = DateTime.Parse(InputBirthday);
-                    Memo = InputMemo;
+                        /*
+                        Name = InputName;
+                        Birthday = DateTime.Parse(InputBirthday);
+                        Memo = InputMemo;
 
-                    if (!m_member.IsIncludedInMainCollection())
-                    {
-                        m_member.AddThisToMainCollection();
-                    }
-                    */
+                        if (!m_member.IsIncludedInMainCollection())
+                        {
+                            m_member.AddThisToMainCollection();
+                        }
+                        */
 
-                    // Viewに画面遷移用メッセージを送信しています。
-                    // Viewは対応するメッセージキーを持つInteractionTransitionMessageTriggerでこのメッセージを受信します。
-                    Messenger.Raise(new WindowActionMessage(WindowAction.Close, "Close"));
+                        IsDone = true;
+
+                        // Viewに画面遷移用メッセージを送信しています。
+                        // Viewは対応するメッセージキーを持つInteractionTransitionMessageTriggerでこのメッセージを受信します。
+                        Messenger.Raise(new WindowActionMessage(WindowAction.Close, "Close"));
                     });
                 }
                 return m_saveCommand;

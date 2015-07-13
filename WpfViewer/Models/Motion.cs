@@ -37,6 +37,65 @@ namespace WpfViewer.Models
 
         public static readonly Transform Identity = new Transform
         (SharpDX.Vector3.Zero, SharpDX.Quaternion.Identity);
+
+        #region Equals
+        public override bool Equals(object obj)
+        {
+            return this.Equals((Transform)obj);
+        }
+
+        public bool Equals(Transform rhs)
+        {
+            // If parameter is null, return false. 
+            if (Object.ReferenceEquals(rhs, null))
+            {
+                return false;
+            }
+
+            // Optimization for a common success case. 
+            if (Object.ReferenceEquals(this, rhs))
+            {
+                return true;
+            }
+
+            // If run-time types are not exactly the same, return false. 
+            if (this.GetType() != rhs.GetType())
+                return false;
+
+            // Return true if the fields match. 
+            // Note that the base class is not invoked because it is 
+            // System.Object, which defines Equals as reference equality. 
+            return (Translation == rhs.Translation) && (Rotation == rhs.Rotation);
+        }
+
+        public override int GetHashCode()
+        {
+            return Translation.GetHashCode() * 0x00010000 + Rotation.GetHashCode();
+        }
+
+        public static bool operator ==(Transform lhs, Transform rhs)
+        {
+            // Check for null on left side. 
+            if (Object.ReferenceEquals(lhs, null))
+            {
+                if (Object.ReferenceEquals(rhs, null))
+                {
+                    // null == null = true. 
+                    return true;
+                }
+
+                // Only the left side is null. 
+                return false;
+            }
+            // Equals handles case of null on right side. 
+            return lhs.Equals(rhs);
+        }
+
+        public static bool operator !=(Transform lhs, Transform rhs)
+        {
+            return !(lhs == rhs);
+        }
+        #endregion
     }
 
     public static class SortedListExtensions

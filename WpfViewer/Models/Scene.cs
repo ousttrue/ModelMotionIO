@@ -33,7 +33,7 @@ namespace WpfViewer.Models
         }
     }
 
-    public class Scene
+    public class Scene: Livet.NotificationObject
     {
         #region Logger
         static Logger Logger
@@ -179,6 +179,24 @@ namespace WpfViewer.Models
             }
         }
 
+        Node m_selected;
+        public Node Selected
+        {
+            get { return m_selected; }
+            set {
+                if (m_selected == value) return;
+                if (m_selected != null)
+                {
+                    m_selected.IsSelected = false;
+                }
+                m_selected = value;
+                value.IsSelected = true;
+                RaisePropertyChanged(() => this.Selected);
+                UpdateVertexBuffer();
+                //Logger.Debug("{0} selected", value);
+            }
+        }
+
         void AddModel(Node model)
         {
             Root.Children.Add(model);
@@ -198,6 +216,8 @@ namespace WpfViewer.Models
                 VertexBuffer= VertexBufferResource.Create(vertices, indices),
             };
             model.Mesh.VertexBuffer.Topology = VertexBufferTopology.Lines;
+
+            model.UpdateWorldTransform(Transform.Identity);
         }
 
         public void Clear()
@@ -250,6 +270,15 @@ namespace WpfViewer.Models
             foreach (var node in Root.Children)
             {
                 node.SetPose(pose);
+                node.UpdateVertexBuffer();
+            }
+        }
+
+        public void UpdateVertexBuffer()
+        {
+            foreach (var node in Root.Children)
+            {
+                node.UpdateVertexBuffer();
             }
         }
 
@@ -312,7 +341,7 @@ namespace WpfViewer.Models
             Logger.Info("Loaded: {0}", uri);
         }
 
-        Node BuildBvh(MMIO.Bvh.Node bvh, Node parent, Single scale, Axis flipAxis, bool yRotate)
+        public Node BuildBvh(MMIO.Bvh.Node bvh, Node parent, Single scale, Axis flipAxis, bool yRotate)
         {
             var node = new Node
             {
