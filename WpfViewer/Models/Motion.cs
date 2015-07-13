@@ -23,7 +23,7 @@ namespace WpfViewer.Models
         {
             return new Transform(
                 SharpDX.Vector3.Transform(a.Translation, b.Rotation) + b.Translation
-                , a.Rotation * b.Rotation
+                , b.Rotation * a.Rotation
                 );
         }
 

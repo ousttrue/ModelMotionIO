@@ -17,11 +17,27 @@ using System.Runtime.InteropServices;
 
 namespace WpfViewer.Models
 {
+    public enum Axis
+    {
+        None,
+        X,
+        Y,
+        Z,
+    }
+
     static class Extensions
     {
-        public static SharpDX.Vector3 ToSharpDX(this MMIO.Vector3 src)
+        public static SharpDX.Vector3 ToSharpDX(this MMIO.Vector3 src, Axis axis)
         {
-            return new SharpDX.Vector3(src.X, src.Y, src.Z);
+            switch(axis)
+            {
+                case Axis.None: return new SharpDX.Vector3(src.X, src.Y, src.Z);
+                case Axis.X: return new SharpDX.Vector3(-src.X, src.Y, src.Z);
+                case Axis.Y: return new SharpDX.Vector3(src.X, -src.Y, src.Z);
+                case Axis.Z: return new SharpDX.Vector3(src.X, src.Y, -src.Z);
+            }
+
+            throw new ArgumentException();
         }
     }
 
@@ -134,6 +150,7 @@ namespace WpfViewer.Models
 
             // Timer駆動でPushする
             Observable.Interval(TimeSpan.FromMilliseconds(33))
+                .ObserveOnDispatcher()
             .Subscribe(_ =>
             {
 
@@ -174,7 +191,7 @@ namespace WpfViewer.Models
         {
             Root.Children.Add(model);
 
-            var lines = Root.TraversePair().Select(x => new { Parent = x.Item1.Position, Offset = x.Item2.Offset });
+            var lines = model.TraversePair().Select(x => new { Parent = x.Item1.Position, Offset = x.Item2.Offset });
 
             var vertices =
                 from l in lines
@@ -257,7 +274,7 @@ namespace WpfViewer.Models
                 .Select(x => new Node
                 {
                     Name = x.Name,
-                    Position = x.Position.ToSharpDX() * scale,
+                    Position = x.Position.ToSharpDX(Axis.None) * scale,
                 }).ToArray();
 
             // build tree
@@ -286,7 +303,7 @@ namespace WpfViewer.Models
                 .Select(x => new Node
                 {
                     Name = x.Name,
-                    Position = x.Position.ToSharpDX() * scale,
+                    Position = x.Position.ToSharpDX(Axis.None) * scale,
 
                 }).ToArray();
 
@@ -303,21 +320,22 @@ namespace WpfViewer.Models
             Logger.Info("Loaded: {0}", uri);
         }
 
-        void BuildBvh(MMIO.Bvh.Node bvh, Node parent, Single scale)
+        Node BuildBvh(MMIO.Bvh.Node bvh, Node parent, Single scale)
         {
             var node = new Node
             {
                 Name = bvh.Name,
-                Offset = bvh.Offset.ToSharpDX() * scale,
+                Offset = bvh.Offset.ToSharpDX(Axis.Z) * scale,
             };
             node.Position = parent.Position + node.Offset;
-
             parent.Children.Add(node);
 
             foreach (var child in bvh.Children)
             {
                 BuildBvh(child, node, scale);
             }
+
+            return node;
         }
 
         public void LoadBvh(Uri uri, Single scale=0.01f)

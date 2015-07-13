@@ -196,36 +196,63 @@ namespace WpfViewer.ViewModels
             return (float)(Math.PI * degree / 180.0f);
         }
 
-        public Transform ToTransform(IEnumerator<Single> it, IEnumerable<MMIO.Bvh.ChannelType> channels, Single scale)
+        static SharpDX.Quaternion inverseQ(SharpDX.Quaternion q, Axis axis)
+        {
+            var qaxis = q.Axis;
+            var qangle = q.Angle;
+            switch (axis)
+            {
+                case Axis.None: return q;
+                case Axis.X: return SharpDX.Quaternion.RotationAxis(new SharpDX.Vector3(-qaxis.X, qaxis.Y, qaxis.Z), -qangle);
+                case Axis.Y: return SharpDX.Quaternion.RotationAxis(new SharpDX.Vector3(qaxis.X, -qaxis.Y, qaxis.Z), -qangle);
+                case Axis.Z: return SharpDX.Quaternion.RotationAxis(new SharpDX.Vector3(qaxis.X, qaxis.Y, -qaxis.Z), -qangle);
+            }
+            throw new ArgumentException();
+        }
+
+        public Transform ToTransform(IEnumerator<Single> it, IEnumerable<MMIO.Bvh.ChannelType> channels, Single scale, Axis axis)
         {
             var t = SharpDX.Vector3.Zero;
             var r = SharpDX.Matrix.Identity;
+            var axisX = axis == Axis.X ? -1.0f : 1.0f;
+            var axisY = axis == Axis.Y ? -1.0f : 1.0f;
+            var axisZ = axis == Axis.Z ? -1.0f : 1.0f;
+
+            /*
+            var axisRX = axis == Axis.X ? -1.0f : 1.0f;
+            var axisRY = axis == Axis.Y ? -1.0f : 1.0f;
+            var axisRZ = axis == Axis.Z ? -1.0f : 1.0f;
+            */
+
             foreach (var channel in channels)
             {
                 it.MoveNext();
                 switch (channel)
                 {
                     case MMIO.Bvh.ChannelType.Xposition:
-                        t.X = it.Current * scale;
+                        t.X = it.Current * scale * axisX;
                         break;
 
                     case MMIO.Bvh.ChannelType.Yposition:
-                        t.Y = it.Current * scale;
+                        t.Y = it.Current * scale * axisY;
                         break;
 
                     case MMIO.Bvh.ChannelType.Zposition:
-                        t.Z = it.Current * scale;
+                        t.Z = it.Current * scale * axisZ;
                         break;
 
                     case MMIO.Bvh.ChannelType.Xrotation:
+                        //r = r * SharpDX.Matrix.RotationX(ToRadians(it.Current));
                         r = SharpDX.Matrix.RotationX(ToRadians(it.Current)) * r;
                         break;
 
                     case MMIO.Bvh.ChannelType.Yrotation:
+                        //r = r * SharpDX.Matrix.RotationY(ToRadians(it.Current));
                         r = SharpDX.Matrix.RotationY(ToRadians(it.Current)) * r;
                         break;
 
                     case MMIO.Bvh.ChannelType.Zrotation:
+                        //r = r * SharpDX.Matrix.RotationZ(ToRadians(it.Current));
                         r = SharpDX.Matrix.RotationZ(ToRadians(it.Current)) * r;
                         break;
 
@@ -234,7 +261,9 @@ namespace WpfViewer.ViewModels
                 }
             }
 
-            return new Transform(t, SharpDX.Quaternion.RotationMatrix(r));
+            var q = SharpDX.Quaternion.RotationMatrix(r);
+            return new Transform(t, inverseQ(q, axis));
+            //return new Transform(t, q);
         }
 
         public void LoadBvh(Uri uri, Single scale = 0.01f)
@@ -248,9 +277,9 @@ namespace WpfViewer.ViewModels
                 var it = ((IEnumerable<Single>)frame).GetEnumerator();
                 var pose = new Pose();
                 pose.Values = new Dictionary<string, Transform>();
-                foreach (var node in bvh.Root.Traverse((node, level) => node))
+                foreach (var node in bvh.Root.Traverse((node, level) => node).Where(x => x.Name!="EndSite"))
                 {
-                    pose.Values[node.Name] = ToTransform(it, node.Channels, scale);
+                    pose.Values[node.Name] = ToTransform(it, node.Channels, scale, Axis.Z);
                 }
                 if (it.MoveNext())
                 {
