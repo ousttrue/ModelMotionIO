@@ -20,13 +20,18 @@ namespace WpfViewer.ViewModels
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var level = value as LogLevel;
-            if (level == null) return "";           
+            if (level == null) return "";
 
             if (level == LogLevel.Error)
             {
                 return Target == "Background" ? "Red" : "White";
             }
-            else {
+            else if (level == LogLevel.Info)
+            {
+                return Target == "Background" ? "White" : "Black";
+            }
+            else
+            {
                 return "";
             }
         }
