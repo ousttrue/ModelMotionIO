@@ -1,6 +1,7 @@
 ﻿using NLog;
 using Reactive.Bindings;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -27,7 +28,7 @@ namespace WpfViewer.ViewModels
             {
                 if (m_motions == null) {
                     m_motions = new ObservableCollection<Motion>();
-                    m_motions.Add(new Motion("none"));
+                    m_motions.Add(new Motion("none", 30));
                 }
                 return m_motions;
             }
@@ -176,7 +177,7 @@ namespace WpfViewer.ViewModels
             var bytes = File.ReadAllBytes(uri.LocalPath);
             var vmd = MMIO.Mmd.VmdParse.Execute(bytes);
 
-            var motion = new Motion(Path.GetFileName(uri.LocalPath));
+            var motion = new Motion(Path.GetFileName(uri.LocalPath), 30);
             motion.AddRange(
                 vmd.BoneFrames
                 .ToLookup(x => x.BoneName)
@@ -186,9 +187,79 @@ namespace WpfViewer.ViewModels
                     ))));                
 
             motion.LastFrame = FrameToTimeSpan(vmd.BoneFrames.Max(x => x.Frame), 30);
-
             Motions.Add(motion);
+            Logger.Info("Loaded: {0}", uri);
+        }
 
+        static float ToRadians(float degree)
+        {
+            return (float)(Math.PI * degree / 180.0f);
+        }
+
+        public Transform ToTransform(IEnumerator<Single> it, IEnumerable<MMIO.Bvh.ChannelType> channels, Single scale)
+        {
+            var t = SharpDX.Vector3.Zero;
+            var r = SharpDX.Matrix.Identity;
+            foreach (var channel in channels)
+            {
+                it.MoveNext();
+                switch (channel)
+                {
+                    case MMIO.Bvh.ChannelType.Xposition:
+                        t.X = it.Current * scale;
+                        break;
+
+                    case MMIO.Bvh.ChannelType.Yposition:
+                        t.Y = it.Current * scale;
+                        break;
+
+                    case MMIO.Bvh.ChannelType.Zposition:
+                        t.Z = it.Current * scale;
+                        break;
+
+                    case MMIO.Bvh.ChannelType.Xrotation:
+                        r = SharpDX.Matrix.RotationX(ToRadians(it.Current)) * r;
+                        break;
+
+                    case MMIO.Bvh.ChannelType.Yrotation:
+                        r = SharpDX.Matrix.RotationY(ToRadians(it.Current)) * r;
+                        break;
+
+                    case MMIO.Bvh.ChannelType.Zrotation:
+                        r = SharpDX.Matrix.RotationZ(ToRadians(it.Current)) * r;
+                        break;
+
+                    default:
+                        throw new ArgumentException();
+                }
+            }
+
+            return new Transform(t, SharpDX.Quaternion.RotationMatrix(r));
+        }
+
+        public void LoadBvh(Uri uri, Single scale = 0.01f)
+        {
+            var text = File.ReadAllText(uri.LocalPath);
+            var bvh = MMIO.Bvh.BvhParse.Execute(text, true);
+
+            var motion = new Motion(Path.GetFileName(uri.LocalPath), bvh.Fps);
+            foreach(var frame in bvh.Frames)
+            {
+                var it = ((IEnumerable<Single>)frame).GetEnumerator();
+                var pose = new Pose();
+                pose.Values = new Dictionary<string, Transform>();
+                foreach (var node in bvh.Root.Traverse((node, level) => node))
+                {
+                    pose.Values[node.Name] = ToTransform(it, node.Channels, scale);
+                }
+                if (it.MoveNext())
+                {
+                    throw new ArgumentException();
+                }
+                motion.AddPose(pose);
+            }
+            motion.LastFrame = FrameToTimeSpan(bvh.Frames.Length, bvh.Fps);
+            Motions.Add(motion);
             Logger.Info("Loaded: {0}", uri);
         }
     }

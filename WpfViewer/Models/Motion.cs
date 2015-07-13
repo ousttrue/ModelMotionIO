@@ -74,22 +74,15 @@ namespace WpfViewer.Models
             private set;
         }
 
-        public int Fps
-        {
-            get;
-            set;
-        }
-
         public SortedList<int, Transform> Values
         {
             get;
             private set;
         }
 
-        public Curve(String name, IDictionary<int, Transform> values, int fps = 30)
+        public Curve(String name, IDictionary<int, Transform> values)
         {
             Name = name;
-            Fps = fps;
             Values = new SortedList<int, Transform>(values);
         }
 
@@ -98,19 +91,13 @@ namespace WpfViewer.Models
             return String.Format("[{0}(1)]", Name, Values.Count);
         }
 
-        double TimeToFrame(TimeSpan time)
-        {
-            return time.TotalSeconds * Fps;
-        }
-
         /// <summary>
         /// 補間された値を得る
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
-        public Transform GetValue(TimeSpan time)
+        public Transform GetValue(double frame)
         {
-            var frame = TimeToFrame(time);
             var range = Values.BinarySearch((int)frame);
             if (range.Item1 < 0)
             {
@@ -162,6 +149,17 @@ namespace WpfViewer.Models
         public String Name { get; set; }
         public TimeSpan LastFrame { get; set; }
 
+        public int Fps
+        {
+            get;
+            private set;
+        }
+
+        double TimeToFrame(TimeSpan time)
+        {
+            return time.TotalSeconds * Fps;
+        }
+
         public String Label
         {
             get
@@ -170,9 +168,10 @@ namespace WpfViewer.Models
             }
         }
 
-        public Motion(String name) : base()
+        public Motion(String name, int fps) : base()
         {
             Name = name;
+            Fps = fps;
         }
 
         public void AddRange(IEnumerable<Curve> curves)
@@ -183,9 +182,27 @@ namespace WpfViewer.Models
             }
         }
 
+        public void AddPose(Pose pose)
+        {
+            foreach (var kv in pose.Values)
+            {
+                Curve curve;
+                if (!TryGetValue(kv.Key, out curve))
+                {
+                    curve = new Curve(kv.Key, new Dictionary<int, Transform>());
+                    curve.Values.Add(0, kv.Value);
+                    Add(curve);
+                }
+                else {
+                    curve.Values.Add(curve.Values.Last().Key+1, kv.Value);
+                }
+            }
+        }
+
         public Pose GetPose(TimeSpan time)
         {
-            return new Pose { Values = this.ToDictionary(x => x.Name, x => x.GetValue(time)) };
+            var frame = TimeToFrame(time);
+            return new Pose { Values = this.ToDictionary(x => x.Name, x => x.GetValue(frame)) };
         }
 
         public bool TryGetValue(String key, out Curve curve)

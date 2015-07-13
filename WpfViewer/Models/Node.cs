@@ -137,6 +137,19 @@ namespace WpfViewer.Models
             }
         }
 
+        public IEnumerable<Tuple<Node, Node>> TraversePair()
+        {
+            foreach (var child in Children)
+            {
+                yield return Tuple.Create(this, child);
+
+                foreach (var x in child.TraversePair())
+                {
+                    yield return x;
+                }
+            }
+        }
+
         public IEnumerable<Node> Traverse()
         {
             yield return this;
@@ -184,11 +197,10 @@ namespace WpfViewer.Models
 
             // 積算
             UpdateWorldTransform(Transform.Identity);
-            var nodes = Traverse();
-            var lines = nodes.Zip(nodes.Skip(1), (parent, node) => new
+            var lines = TraversePair().Select(x => new
             {
-                parent = parent.WorldTransform.Translation,
-                pos = node.WorldTransform.Translation
+                parent = x.Item1.WorldTransform.Translation,
+                pos = x.Item2.WorldTransform.Translation
             });
             if (!lines.Any()) return;
 

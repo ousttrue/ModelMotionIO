@@ -17,9 +17,12 @@ namespace UnitTestProject1
             var path = SAMPLE_DIRECTORY+"simple.bvh";
             var text = File.ReadAllText(path, Encoding.GetEncoding(932));
 
-            var root = MMIO.Bvh.BvhParse.Execute(text);
+            var bvh = MMIO.Bvh.BvhParse.Execute(text, false);
 
-            Assert.AreEqual("Hips", root.Name);
+            Assert.AreEqual("Hips", bvh.Root.Name);
+            Assert.AreEqual(2, bvh.MotionProperties.Count);
+            Assert.AreEqual(1, bvh.Frames.Count());
+            Assert.AreEqual(12, bvh.Frames.First().Count());
         }
 
         [TestMethod]
@@ -32,7 +35,6 @@ namespace UnitTestProject1
 
             Assert.AreEqual(14, pose.Bones.Length);
         }
-
 
         [TestMethod]
         public void TestPmdParser()

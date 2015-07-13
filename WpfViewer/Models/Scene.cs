@@ -174,7 +174,7 @@ namespace WpfViewer.Models
         {
             Root.Children.Add(model);
 
-            var lines = Root.Traverse((Node, pos) => new { Parent = pos, Offset = Node.Offset });
+            var lines = Root.TraversePair().Select(x => new { Parent = x.Item1.Position, Offset = x.Item2.Offset });
 
             var vertices =
                 from l in lines
@@ -309,8 +309,9 @@ namespace WpfViewer.Models
             {
                 Name = bvh.Name,
                 Offset = bvh.Offset.ToSharpDX() * scale,
-                Position = (parent.Position+bvh.Offset.ToSharpDX()) * scale,
             };
+            node.Position = parent.Position + node.Offset;
+
             parent.Children.Add(node);
 
             foreach (var child in bvh.Children)
@@ -326,9 +327,9 @@ namespace WpfViewer.Models
                 Name = uri.ToString(),
             };
             var text = File.ReadAllText(uri.LocalPath);
-            var bvh = MMIO.Bvh.BvhParse.Execute(text);
+            var bvh = MMIO.Bvh.BvhParse.Execute(text, false);
 
-            BuildBvh(bvh, root, scale);
+            BuildBvh(bvh.Root, root, scale);
 
             AddModel(root);
             Logger.Info("Loaded: {0}", uri);

@@ -291,7 +291,7 @@ namespace WpfViewer.ViewModels
 
                 case ".BVH":
                     m_scene.LoadBvh(item);
-                    //m_animationViewModel.LoadBvh(item);
+                    m_animationViewModel.LoadBvh(item);
                     break;
 
                 default:

@@ -49,6 +49,29 @@ namespace MMIO.Bvh
         }
     }
 
+    public class BvhMotion
+    {
+        public Node Root { get; set; }
+        public Dictionary<String, String> MotionProperties { get; set; }
+        public Single[][] Frames { get; set; }
+
+        public Single FrameTime
+        {
+            get
+            {
+                return Convert.ToSingle(MotionProperties["Frame Time"]);
+            }
+        }
+
+        public Int32 Fps
+        {
+            get
+            {
+                return (Int32)(1.0f / FrameTime);
+            }
+        }      
+    }
+
     public static class BvhParse
     {
         public static Parser<String> Exponent = from _ in Parse.Char('E')
@@ -105,10 +128,49 @@ namespace MMIO.Bvh
                                         ;
         }
 
-        public static Parser<Node> Parser = from hierarchy in Parse.String("HIERARCHY").Token()
-                                            from root in Node("ROOT")
-                                            select root;
+        static Parser<String> Line =
+            from line in Parse.AnyChar.Except(Parse.Char((char)0x0a)).Many().Text()
+            from _ in Parse.Char((Char)0x0a)
+            select line;
 
-        public static Node Execute(String text) { return Parser.Parse(text); }
+        /*
+        static Tuple<String, String> ToKV(String src)
+        {
+            var splited = src.Split(new[] { ':' }, 2);
+            return Tuple.Create(splited[0].Trim(), splited[1].Trim());
+        }
+        */
+
+        static Parser<Tuple<String, String>> MotionProperty =
+            from key in Parse.AnyChar.Except(Parse.Char(':')).Many().Text()
+            from colon in Parse.Char(':')
+            from value in Parse.AnyChar.Except(Parse.Char((char)0x0a)).Many().Text()
+            from _ in Parse.Char((char)0x0a)
+            select Tuple.Create(key.Trim(), value.Trim())
+            ;
+
+        static Parser<Single[]> Frame =
+            from line in Line
+            select line.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => {
+                return Convert.ToSingle(x);
+            }).ToArray()
+            ;
+
+        public static Parser<BvhMotion> Parser = from hierarchy in Parse.String("HIERARCHY").Token()
+                                                 from root in Node("ROOT")
+                                                 from motion in Parse.String("MOTION").Token()
+                                                 from motionProperties in MotionProperty.Many().Select(x => x.ToDictionary(y => y.Item1, y=> y.Item2))
+                                                 from frames in Frame.Repeat(Convert.ToInt32(motionProperties["Frames"]))
+                                                 select new BvhMotion
+                                                 {
+                                                     Root=root,
+                                                     MotionProperties=motionProperties,
+                                                     Frames=frames.ToArray(),
+                                                 };
+
+        public static BvhMotion Execute(String text, bool getFrames)
+        {
+            return Parser.Parse(text);
+        }
     }
 }
