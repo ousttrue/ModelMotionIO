@@ -35,13 +35,16 @@ namespace MMIO.Bvh
             return String.Format("{0}[{1}, {2}, {3}]{4}", Name, Offset.X, Offset.Y, Offset.Z, String.Join(", ", Channels));
         }
 
-        public void Traverse(Action<Node, int> pred, int level = 0)
+        public IEnumerable<T> Traverse<T>(Func<Node, int, T> pred, int level = 0)
         {
-            pred(this, level);
+            yield return pred(this, level);
 
             foreach (var child in Children)
             {
-                child.Traverse(pred, level + 1);
+                foreach(var x in child.Traverse(pred, level + 1))
+                {
+                    yield return x;
+                }
             }
         }
     }

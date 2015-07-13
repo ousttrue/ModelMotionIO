@@ -289,6 +289,11 @@ namespace WpfViewer.ViewModels
                     m_animationViewModel.LoadVmd(item);
                     break;
 
+                case ".BVH":
+                    m_scene.LoadBvh(item);
+                    //m_animationViewModel.LoadBvh(item);
+                    break;
+
                 default:
                     Logger.Error("UnknownItem: {0}", item);
                     break;

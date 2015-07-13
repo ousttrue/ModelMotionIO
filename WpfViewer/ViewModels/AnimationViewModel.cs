@@ -164,14 +164,14 @@ namespace WpfViewer.ViewModels
             return TimeSpan.FromMilliseconds(frame * (1000 / fps));
         }
 
-        Transform VmdBoneFrameToKeyFrame(MMIO.Mmd.VmdBoneFrame vmd)
+        Transform VmdBoneFrameToKeyFrame(MMIO.Mmd.VmdBoneFrame vmd, Single scale)
         {
             return new Transform(
-                new SharpDX.Vector3(vmd.Position.X, vmd.Position.Y, vmd.Position.Z)
+                new SharpDX.Vector3(vmd.Position.X, vmd.Position.Y, vmd.Position.Z) * scale
                 , new SharpDX.Quaternion(vmd.Rotation.X, vmd.Rotation.Y, vmd.Rotation.Z, vmd.Rotation.W));
         }
 
-        public void LoadVmd(Uri uri)
+        public void LoadVmd(Uri uri, Single scale=1.58f/20.0f)
         {
             var bytes = File.ReadAllBytes(uri.LocalPath);
             var vmd = MMIO.Mmd.VmdParse.Execute(bytes);
@@ -182,7 +182,7 @@ namespace WpfViewer.ViewModels
                 .ToLookup(x => x.BoneName)
                 .Select(x => new Curve(x.Key, x.ToDictionary(
                     y => y.Frame
-                    , y => VmdBoneFrameToKeyFrame(y)
+                    , y => VmdBoneFrameToKeyFrame(y, scale)
                     ))));                
 
             motion.LastFrame = FrameToTimeSpan(vmd.BoneFrames.Max(x => x.Frame), 30);

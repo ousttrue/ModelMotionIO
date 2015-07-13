@@ -3,6 +3,7 @@ using NLog;
 using RenderingPipe;
 using RenderingPipe.Commands;
 using RenderingPipe.Resources;
+using RenderingPipe.Resources.VertexBuffers;
 using SharpDX;
 using System;
 using System.Collections.Generic;
@@ -36,8 +37,7 @@ namespace WpfViewer.Models
         #region Rendering
         ShaderResource m_vs;
         ShaderResource m_ps;
-        VertexBufferResource m_vertexbuffer;
-        VertexBufferUpdateCommand m_vertexbufferUpdate;
+
 
         PerspectiveProjection m_projection;
         public PerspectiveProjection Projection
@@ -77,10 +77,14 @@ namespace WpfViewer.Models
                 yield return m_vs;
                 yield return m_ps;
 
-                if (m_vertexbuffer != null)
+                foreach(var mesh in
+                Root
+                    .Traverse()
+                    .Select(x => x.Mesh)
+                    .Where(x => x!=null && x.VertexBuffer!=null))
                 {
-                    yield return m_vertexbuffer;
-                }
+                    yield return mesh.VertexBuffer;
+                }                   
             }
         }
 
@@ -100,14 +104,17 @@ namespace WpfViewer.Models
                 yield return ShaderVariableSetCommand.Create("view", m_orbitTransformation.Matrix);
                 yield return ShaderVariableSetCommand.Create("projection", m_projection.Matrix);
 
-                if (m_vertexbuffer != null)
+                foreach (var mesh in Root
+                    .Traverse()
+                    .Select(x => x.Mesh)
+                    .Where(x => x != null && x.VertexBuffer != null))
                 {
-                    if (m_vertexbufferUpdate != null) {
-                        yield return m_vertexbufferUpdate;
+                    if (mesh.VertexBufferUpdate != null) {
+                        yield return mesh.VertexBufferUpdate;
                     }
 
-                    yield return VertexBufferSetCommand.Create(m_vertexbuffer);
-                    foreach (var c in m_vertexbuffer.SubMeshes.Select(s => ShaderDrawSubMeshCommand.Create(s)))
+                    yield return VertexBufferSetCommand.Create(mesh.VertexBuffer);
+                    foreach (var c in mesh.VertexBuffer.SubMeshes.Select(s => ShaderDrawSubMeshCommand.Create(s)))
                     {
                         yield return c;
                     }
@@ -127,7 +134,8 @@ namespace WpfViewer.Models
 
             // Timer駆動でPushする
             Observable.Interval(TimeSpan.FromMilliseconds(33))
-            .Subscribe(_ => {
+            .Subscribe(_ =>
+            {
 
                 m_renderFrameSubject.OnNext(new RenderFrame
                 {
@@ -141,10 +149,17 @@ namespace WpfViewer.Models
         #endregion
 
         #region LoadScene
-        Node m_root = new Node();
+        Node m_root;
         public Node Root
         {
-            get { return m_root; }
+            get {
+                if(m_root==null)
+                {
+                    m_root = new Node();
+                    Clear();
+                }
+                return m_root;
+            }
         }
 
         public ObservableCollection<Node> Nodes
@@ -169,14 +184,37 @@ namespace WpfViewer.Models
 
             var indices = lines.SelectMany((x, i) => new[] { i * 2, i * 2 + 1 });
 
-            m_vertexbuffer = VertexBufferResource.Create(vertices, indices);
-            m_vertexbuffer.Topology = VertexBufferTopology.Lines;
+            model.Mesh = new Mesh
+            {
+                VertexBuffer= VertexBufferResource.Create(vertices, indices),
+            };
+            model.Mesh.VertexBuffer.Topology = VertexBufferTopology.Lines;
         }
 
         public void Clear()
         {
             Root.Children.Clear();
-            m_vertexbuffer = null;
+
+            var grid = GridVertexBuffer.Create(10);
+            Root.Children.Add(new Node
+            {
+                Name = "grid",
+                Mesh = new Mesh
+                {
+                    VertexBuffer = grid,
+                },
+            });
+
+            var axis = AxisVertexBuffer.Create(10);
+            Root.Children.Add(new Node
+            {
+                Name = "axis",
+                Mesh = new Mesh
+                {
+                    VertexBuffer = axis,
+                },
+            });
+
             Logger.Info("Clear");
         }
 
@@ -185,8 +223,8 @@ namespace WpfViewer.Models
             foreach (var node in Root.Traverse())
             {
                 Curve curve;
-                if(motion!=null
-                    && !String.IsNullOrEmpty(node.Name) 
+                if (motion != null
+                    && !String.IsNullOrEmpty(node.Name)
                     && motion.TryGetValue(node.Name, out curve))
                 {
                     node.Curve = curve;
@@ -200,46 +238,13 @@ namespace WpfViewer.Models
 
         public void SetPose(Pose pose)
         {
-            // キーフレームの更新
-            foreach (var node in Root.Traverse())
+            foreach (var node in Root.Children)
             {
-                Transform value;
-                if (!String.IsNullOrEmpty(node.Name)
-                    && pose!=null
-                    && pose.Values.TryGetValue(node.Name, out value))
-                {
-                    node.KeyFrame = value;
-                }
-                else
-                {
-                    node.KeyFrame = Transform.Identity;
-                }
+                node.SetPose(pose);
             }
-
-            // 積算
-            Root.UpdateWorldTransform(Transform.Identity);
-            var nodes = Root.Traverse();
-            var lines=nodes.Zip(nodes.Skip(1), (parent, node) => new {
-                parent = parent.WorldTransform.Translation,
-                pos = node.WorldTransform.Translation
-            });
-
-            var vertices =
-                (from l in lines
-                 from v in new Vector3[] { l.parent, l.pos }
-                 select new Single[] { v.X, v.Y, v.Z, 1.0f, /*color*/ 1.0f, 1.0f, 1.0f, 1.0f, })
-                .SelectMany(x => x)
-                .ToArray();
-                ;
-
-            // 後で解放せな
-            var ptr = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(float)) * vertices.Length);
-            Marshal.Copy(vertices, 0, ptr, vertices.Length);
-
-            m_vertexbufferUpdate = VertexBufferUpdateCommand.Create(m_vertexbuffer, ptr);
         }
 
-        public void LoadPmd(Uri uri)
+        public void LoadPmd(Uri uri, Single scale=1.58f/20.0f)
         {
             var root = new Node
             {
@@ -252,11 +257,12 @@ namespace WpfViewer.Models
                 .Select(x => new Node
                 {
                     Name = x.Name,
-                    Position = x.Position.ToSharpDX(),
+                    Position = x.Position.ToSharpDX() * scale,
                 }).ToArray();
 
             // build tree
-            model.Bones.ForEach((x, i) => {
+            model.Bones.ForEach((x, i) =>
+            {
                 var node = nodes[i];
                 var parent = x.Parent.HasValue ? nodes[x.Parent.Value] : root;
                 node.Offset = node.Position - parent.Position;
@@ -264,11 +270,10 @@ namespace WpfViewer.Models
             });
 
             AddModel(root);
-
             Logger.Info("Loaded: {0}", uri);
         }
 
-        public void LoadPmx(Uri uri)
+        public void LoadPmx(Uri uri, Single scale = 1.58f / 20.0f)
         {
             var root = new Node
             {
@@ -281,12 +286,13 @@ namespace WpfViewer.Models
                 .Select(x => new Node
                 {
                     Name = x.Name,
-                    Position = x.Position.ToSharpDX(),
+                    Position = x.Position.ToSharpDX() * scale,
 
                 }).ToArray();
 
             // build tree
-            model.Bones.ForEach((x, i) => {
+            model.Bones.ForEach((x, i) =>
+            {
                 var node = nodes[i];
                 var parent = x.ParentIndex.HasValue ? nodes[x.ParentIndex.Value] : root;
                 node.Offset = node.Position - parent.Position;
@@ -294,7 +300,37 @@ namespace WpfViewer.Models
             });
 
             AddModel(root);
+            Logger.Info("Loaded: {0}", uri);
+        }
 
+        void BuildBvh(MMIO.Bvh.Node bvh, Node parent, Single scale)
+        {
+            var node = new Node
+            {
+                Name = bvh.Name,
+                Offset = bvh.Offset.ToSharpDX() * scale,
+                Position = (parent.Position+bvh.Offset.ToSharpDX()) * scale,
+            };
+            parent.Children.Add(node);
+
+            foreach (var child in bvh.Children)
+            {
+                BuildBvh(child, node, scale);
+            }
+        }
+
+        public void LoadBvh(Uri uri, Single scale=0.01f)
+        {
+            var root = new Node
+            {
+                Name = uri.ToString(),
+            };
+            var text = File.ReadAllText(uri.LocalPath);
+            var bvh = MMIO.Bvh.BvhParse.Execute(text);
+
+            BuildBvh(bvh, root, scale);
+
+            AddModel(root);
             Logger.Info("Loaded: {0}", uri);
         }
         #endregion

@@ -165,7 +165,7 @@ namespace WpfViewer.Models
             }
         }
 
-        double m_zFar = 100.0;
+        double m_zFar = 1000.0;
         public double ZFar
         {
             get { return m_zFar; }

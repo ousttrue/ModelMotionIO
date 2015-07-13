@@ -2,9 +2,19 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using RenderingPipe.Resources;
+using RenderingPipe.Commands;
+using System.Runtime.InteropServices;
+using SharpDX;
 
 namespace WpfViewer.Models
 {
+    public class Mesh
+    {
+        public VertexBufferResource VertexBuffer { get; set; }
+        public VertexBufferUpdateCommand VertexBufferUpdate { get; set; }
+    }
+
     public class Node : Livet.NotificationObject
     {
         String m_name;
@@ -107,6 +117,12 @@ namespace WpfViewer.Models
             }
         }
 
+        public Mesh Mesh
+        {
+            get;
+            set;
+        }
+
         #region Children
         ObservableCollection<Node> m_children;
         public ObservableCollection<Node> Children
@@ -147,5 +163,49 @@ namespace WpfViewer.Models
             }
         }
         #endregion
+
+        public void SetPose(Pose pose)
+        {
+            // キーフレームの更新
+            foreach (var node in Traverse())
+            {
+                Transform value;
+                if (!String.IsNullOrEmpty(node.Name)
+                    && pose != null
+                    && pose.Values.TryGetValue(node.Name, out value))
+                {
+                    node.KeyFrame = value;
+                }
+                else
+                {
+                    node.KeyFrame = Transform.Identity;
+                }
+            }
+
+            // 積算
+            UpdateWorldTransform(Transform.Identity);
+            var nodes = Traverse();
+            var lines = nodes.Zip(nodes.Skip(1), (parent, node) => new
+            {
+                parent = parent.WorldTransform.Translation,
+                pos = node.WorldTransform.Translation
+            });
+            if (!lines.Any()) return;
+
+            var vertices =
+                (from l in lines
+                 from v in new Vector3[] { l.parent, l.pos }
+                 select new Single[] { v.X, v.Y, v.Z, 1.0f, /*color*/ 1.0f, 1.0f, 1.0f, 1.0f, })
+                .SelectMany(x => x)
+                .ToArray();
+            ;
+
+            // ToDO: Meshごとにシェーダーを見るべし
+            // ToDo: 解放されている？
+            var ptr = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(float)) * vertices.Length);
+            Marshal.Copy(vertices, 0, ptr, vertices.Length);
+
+            Mesh.VertexBufferUpdate = VertexBufferUpdateCommand.Create(Mesh.VertexBuffer, ptr);
+        }
     }
 }
