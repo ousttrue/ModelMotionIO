@@ -145,7 +145,7 @@ namespace MMIO.Mmd
     }
 
     [Flags]
-    public enum PmxBoneFlags : UInt16
+    public enum PmxBoneFlags : ushort
     {
         None = 0x0000,
         HasTailBone = 0x0001,
