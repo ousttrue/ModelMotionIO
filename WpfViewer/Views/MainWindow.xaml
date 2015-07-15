@@ -113,7 +113,7 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
                         <!-- Animation -->
                         <avalonDock:LayoutAnchorablePane DockWidth="400">
                             <avalonDock:LayoutAnchorable Title="Animation" ContentId="Animaion" x:Name="Animation">
-                                <v:AnimationControl DataContext="{Binding AnimationViewModel}" />
+                                <v:AnimationControl />
                             </avalonDock:LayoutAnchorable>
                         </avalonDock:LayoutAnchorablePane>
                     </avalonDock:LayoutPanel>

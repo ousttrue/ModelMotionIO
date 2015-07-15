@@ -29,17 +29,17 @@
         </Grid.ColumnDefinitions>
 
         <Label Grid.Row="0">Scaling</Label>
-        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Scaling}" />
+        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding LoadParams.Scaling.Value}" />
 
         <Label Grid.Row="1">FlipAxis</Label>
         <ComboBox Grid.Row="1" Grid.Column="1"
                 IsEditable="False"
                 ItemsSource="{Binding Axises}"
-                SelectedValue="{Binding FlipAxis}"
+                SelectedValue="{Binding LoadParams.FlipAxis.Value}"
                 />
 
         <Label Grid.Row="2">Y Rotate</Label>
-        <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding YRotate}" />
+        <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding LoadParams.YRotate.Value}" />
         
         <Button Grid.Row="3" Grid.Column="0" Command="{Binding SaveCommand}" >Ok</Button>
         <Button Grid.Row="3" Grid.Column="1" Command="{Binding CancelCommand}" >Cancel</Button>

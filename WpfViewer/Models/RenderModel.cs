@@ -151,11 +151,13 @@ namespace WpfViewer.Models
         public RenderModel(Scene scene)
         {
             m_scene = scene;
-            scene.ModelAdded += (o, e) => AddModel(e.Model);
-            scene.PoseSet += (o, e) =>
+            scene.ModelAdded += (o, e) =>
             {
-                var mesh = m_meshMap[e.Model];
-                mesh.UpdateVertexBuffer(e.Model);
+                var mesh=AddModel(e.Model);
+                e.Model.PoseSet += (oo, ee) =>
+                {
+                    mesh.UpdateVertexBuffer(e.Model);
+                };
             };
             scene.Cleared += (o, e) =>
             {
@@ -183,7 +185,7 @@ namespace WpfViewer.Models
             ;
         }
 
-        void AddModel(Node model)
+        Mesh AddModel(Node model)
         {
             var lines = model.TraversePair().Select(x => new { Parent = x.Item1.Position.Value, Offset = x.Item2.Offset.Value });
 
@@ -202,6 +204,8 @@ namespace WpfViewer.Models
             mesh.VertexBuffer.Topology = VertexBufferTopology.Lines;
 
             m_meshMap[model] = mesh;
+
+            return mesh;
         }
     }
 }

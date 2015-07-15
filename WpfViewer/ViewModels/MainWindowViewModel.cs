@@ -38,6 +38,18 @@ namespace WpfViewer.ViewModels
         }
         #endregion
 
+        Livet.Commands.ListenerCommand<IEnumerable<Uri>> m_addItemsCommand;
+        public ICommand AddItemsCommand
+        {
+            get {
+                if (m_addItemsCommand == null)
+                {
+                    m_addItemsCommand = new ListenerCommand<IEnumerable<Uri>>(AddItems);
+                }
+                return m_addItemsCommand;
+            }
+        }
+
         #region OpenFileDialog
         Livet.Commands.ViewModelCommand m_openFileDialogCommand;
         public ICommand OpenFileDialogCommand
@@ -113,16 +125,41 @@ namespace WpfViewer.ViewModels
         }
         #endregion
 
-        #region AnimationManager
-        AnimationViewModel m_animationViewModel;
-        public AnimationViewModel AnimationViewModel
+        #region MotionCommand
+        Livet.Commands.ViewModelCommand m_rewindCommand;
+        public ICommand RewindCommand
         {
-            get {
-                if (m_animationViewModel == null) {
-                    m_animationViewModel = new AnimationViewModel();
-                    m_animationViewModel.CurrentPose.Subscribe(x => Scene.SetPose(x));
+            get
+            {
+                if (m_rewindCommand == null)
+                {
+                    m_rewindCommand = new Livet.Commands.ViewModelCommand(Scene.Rewind);
                 }
-                return m_animationViewModel;
+                return m_rewindCommand;
+            }
+        }
+        Livet.Commands.ViewModelCommand m_startCommand;
+        public ICommand StartCommand
+        {
+            get
+            {
+                if (m_startCommand == null)
+                {
+                    m_startCommand = new Livet.Commands.ViewModelCommand(Scene.Start);
+                }
+                return m_startCommand;
+            }
+        }
+        Livet.Commands.ViewModelCommand m_stopCommand;
+        public ICommand StopCommand
+        {
+            get
+            {
+                if (m_stopCommand == null)
+                {
+                    m_stopCommand = new Livet.Commands.ViewModelCommand(Scene.Stop);
+                }
+                return m_stopCommand;
             }
         }
         #endregion
@@ -244,41 +281,21 @@ namespace WpfViewer.ViewModels
                     break;
 
                 case ".VMD":
-                    m_animationViewModel.LoadVmd(item);
+                    Scene.LoadVmd(item);
                     break;
 
                 case ".BVH":
                     {
-                        // 追加パラメーター
-                        var text = File.ReadAllText(item.LocalPath);
-                        var bvh = MMIO.Bvh.BvhParse.Execute(text, false);
-                        var node = new Node("bvh");
-                        Scene.BuildBvh(bvh.Root, node, 1.0f, Axis.None, false);
-                        var maxY=node.Traverse().Max(x => x.Position.Value.Y);
-                        var scale = 1.0f;
-                        while (maxY > 1.0f)
-                        {
-                            maxY *= 0.1f;
-                            scale *= 0.1f;
-                        }
-                        while(maxY < 0.1f)
-                        {
-                            maxY *= 10.0f;
-                            scale *= 10.0f;
-                        }
-                        var vm = new ImportViewModel
-                        {
-                            Scaling = scale,
-                        };
+                        var param=Scene.LoadBvh(item);
+                        var vm = new ImportViewModel(param);
                         ImportDialog(vm);
                         if (!vm.IsDone)
                         {
                             Logger.Info("Import canceled");
                             return;
                         }
-
-                        Scene.LoadBvh(item, vm.Scaling, vm.FlipAxis, vm.YRotate);
-                        m_animationViewModel.LoadBvh(item, vm.Scaling, vm.FlipAxis, vm.YRotate);
+                        Scene.LoadBvhModel(item, param.Scaling.Value, param.FlipAxis.Value, param.YRotate.Value);
+                        Scene.LoadBvhMotion(item, param.Scaling.Value, param.FlipAxis.Value, param.YRotate.Value);
                     }
                     break;
 

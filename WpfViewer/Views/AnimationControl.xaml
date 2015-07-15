@@ -6,18 +6,17 @@
              xmlns:local="clr-namespace:WpfViewer.Views"
              xmlns:kf="clr-namespace:KeyFrameControl;assembly=KeyFrameControl"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignData /ViewModels/SampleData/SampleAnimationViewModel.xaml}"
              d:DesignHeight="480" d:DesignWidth="640">
     <DockPanel>
-        <TextBlock DockPanel.Dock="Top" Text="{Binding CurrentTime.Value}" />
+        <TextBlock DockPanel.Dock="Top" Text="{Binding Scene.CurrentTime.Value}" />
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
             <Button Command="{Binding RewindCommand}">Rewind</Button>
             <Button Command="{Binding StartCommand}">Start</Button>
             <Button Command="{Binding StopCommand}">Stop</Button>
         </StackPanel>
         
-        <TabControl ItemsSource="{Binding Motions}"
-                 SelectedItem="{Binding ActiveMotion.Value}"
+        <TabControl ItemsSource="{Binding Scene.Motions}"
+                 SelectedItem="{Binding Scene.ActiveMotion.Value}"
                  >
             <TabControl.ItemTemplate>
                 <DataTemplate>

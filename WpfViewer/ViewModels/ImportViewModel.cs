@@ -20,16 +20,21 @@ namespace WpfViewer.ViewModels
             }
         }
 
-        Single m_scale = 1.0f;
-        public Single Scaling
+        LoadParams m_loadParams;
+        public LoadParams LoadParams
         {
-            get { return m_scale; }
-            set
-            {
-                if (m_scale == value) return;
-                m_scale = value;
-                RaisePropertyChanged(() => this.Scaling);
+            get {
+                if (m_loadParams == null)
+                {
+                    m_loadParams = new LoadParams(1.0f);
+                }
+                return m_loadParams;
             }
+        }
+
+        public ImportViewModel(LoadParams param)
+        {
+            m_loadParams = param;
         }
 
         public IEnumerable<Axis> Axises
@@ -43,30 +48,6 @@ namespace WpfViewer.ViewModels
                     Axis.Y,
                     Axis.Z,
                 };
-            }
-        }
-
-        Axis m_flipAxis = Axis.None;
-        public Axis FlipAxis
-        {
-            get { return m_flipAxis; }
-            set
-            {
-                if (m_flipAxis == value) return;
-                m_flipAxis = value;
-                RaisePropertyChanged(() => this.FlipAxis);
-            }
-        }
-
-        bool m_yRotate = false;
-        public Boolean YRotate
-        {
-            get { return m_yRotate; }
-            set
-            {
-                if (m_yRotate == value) return;
-                m_yRotate = value;
-                RaisePropertyChanged(() => this.YRotate);
             }
         }
 

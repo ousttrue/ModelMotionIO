@@ -211,6 +211,7 @@ namespace SharpDXScene
         }
         #endregion
 
+        #region SetPose
         public void SetPose(Pose pose)
         {
             // キーフレームの更新
@@ -228,6 +229,18 @@ namespace SharpDXScene
                     node.KeyFrame.Value = Transform.Identity;
                 }
             }
+
+            RaisePoseSet();
         }
+        public event EventHandler PoseSet;
+        void RaisePoseSet()
+        {
+            var tmp = PoseSet;
+            if (tmp != null)
+            {
+                tmp(this, EventArgs.Empty);
+            }
+        }
+        #endregion
     }
 }
