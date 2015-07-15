@@ -85,9 +85,9 @@ namespace MMIO.Bvh
                                                select Convert.ToSingle(negative + num + exponent);
 
         public static Parser<Vector3> Offset = from _ in Parse.String("OFFSET").Token()
-                                               from x in FloatEx.Token().Select(x => Convert.ToSingle(x))
-                                               from y in FloatEx.Token().Select(x => Convert.ToSingle(x))
-                                               from z in FloatEx.Token().Select(x => Convert.ToSingle(x))
+                                               from x in FloatEx.Token().Select(n => Convert.ToSingle(n))
+                                               from y in FloatEx.Token().Select(n => Convert.ToSingle(n))
+                                               from z in FloatEx.Token().Select(n => Convert.ToSingle(n))
                                                select new Vector3
                                                {
                                                    X = x,
