@@ -296,6 +296,8 @@ namespace MMIO.Mmd
 
     public class PmxModel
     {
+        public const float MixelToMeter = 1.58f / 20.0f;
+
         public PmxHeader Header;
 
         public PmxVertex[] Vertices;
