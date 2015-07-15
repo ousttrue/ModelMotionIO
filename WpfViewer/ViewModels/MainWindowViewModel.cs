@@ -3,6 +3,7 @@ using Livet.Messaging;
 using Livet.Messaging.IO;
 using NLog;
 using Reactive.Bindings.Extensions;
+using SharpDXScene;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -29,7 +30,7 @@ namespace WpfViewer.ViewModels
                 {
                     m_clearCommand = new ViewModelCommand(() =>
                     {
-                        m_scene.Clear();
+                        Scene.Clear();
                     });
                 }
                 return m_clearCommand;
@@ -84,15 +85,30 @@ namespace WpfViewer.ViewModels
         #endregion
 
         #region Scene
-        Models.Scene m_scene;
-        public Models.Scene Scene
+        SharpDXScene.Scene m_scene;
+        public SharpDXScene.Scene Scene
         {
-            get {
+            get
+            {
                 if (m_scene == null)
                 {
-                    m_scene = new Models.Scene();
+                    m_scene = new SharpDXScene.Scene();
                 }
                 return m_scene;
+            }
+        }
+        #endregion
+
+        #region RenderModel
+        Models.RenderModel m_renderModel;
+        public Models.RenderModel RenderModel
+        {
+            get {
+                if (m_renderModel == null)
+                {
+                    m_renderModel = new Models.RenderModel(Scene);
+                }
+                return m_renderModel;
             }
         }
         #endregion
@@ -104,7 +120,6 @@ namespace WpfViewer.ViewModels
             get {
                 if (m_animationViewModel == null) {
                     m_animationViewModel = new AnimationViewModel();
-                    m_animationViewModel.ActiveMotion.Subscribe(x => Scene.SetMotion(x));
                     m_animationViewModel.CurrentPose.Subscribe(x => Scene.SetPose(x));
                 }
                 return m_animationViewModel;
@@ -221,11 +236,11 @@ namespace WpfViewer.ViewModels
             switch (Path.GetExtension(item.LocalPath).ToUpper())
             {
                 case ".PMD":
-                    m_scene.LoadPmd(item);
+                    Scene.LoadPmd(item);
                     break;
 
                 case ".PMX":
-                    m_scene.LoadPmx(item);
+                    Scene.LoadPmx(item);
                     break;
 
                 case ".VMD":
@@ -237,9 +252,9 @@ namespace WpfViewer.ViewModels
                         // 追加パラメーター
                         var text = File.ReadAllText(item.LocalPath);
                         var bvh = MMIO.Bvh.BvhParse.Execute(text, false);
-                        var node = new Models.Node();
-                        Scene.BuildBvh(bvh.Root, node, 1.0f, Models.Axis.None, false);
-                        var maxY=node.Traverse().Max(x => x.Position.Y);
+                        var node = new Node("bvh");
+                        Scene.BuildBvh(bvh.Root, node, 1.0f, Axis.None, false);
+                        var maxY=node.Traverse().Max(x => x.Position.Value.Y);
                         var scale = 1.0f;
                         while (maxY > 1.0f)
                         {
@@ -262,7 +277,7 @@ namespace WpfViewer.ViewModels
                             return;
                         }
 
-                        m_scene.LoadBvh(item, vm.Scaling, vm.FlipAxis, vm.YRotate);
+                        Scene.LoadBvh(item, vm.Scaling, vm.FlipAxis, vm.YRotate);
                         m_animationViewModel.LoadBvh(item, vm.Scaling, vm.FlipAxis, vm.YRotate);
                     }
                     break;

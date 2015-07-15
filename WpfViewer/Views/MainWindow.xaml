@@ -86,7 +86,7 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
                                 <TreeView ItemsSource="{Binding Scene.Nodes}"
                                           >
                                     <i:Interaction.Behaviors>
-                                        <v:BindableSelectedItemBehavior SelectedItem="{Binding Scene.Selected, Mode=TwoWay}" />
+                                        <v:BindableSelectedItemBehavior SelectedItem="{Binding Scene.Selected.Value, Mode=TwoWay}" />
                                     </i:Interaction.Behaviors>
                                     <TreeView.ItemTemplate>
                                         <HierarchicalDataTemplate ItemsSource="{Binding Children}">
@@ -102,7 +102,7 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
                         <avalonDock:LayoutDocumentPane>
                             <avalonDock:LayoutDocument Title="Scene" CanClose="False" CanFloat="False" ContentId="Document">
                                 <d3d11:D3D11Host 
-                                    RenderFrameObservable="{Binding Scene.RenderFrameObservable}" 
+                                    RenderFrameObservable="{Binding RenderModel.RenderFrameObservable}" 
                                     >
                                     <i:Interaction.Behaviors>
                                         <win32:MouseEventBehavior MouseEventObserver="{Binding Win32EventObserver}" />

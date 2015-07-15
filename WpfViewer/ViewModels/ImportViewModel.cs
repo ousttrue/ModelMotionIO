@@ -1,4 +1,5 @@
 ﻿using Livet.Messaging.Windows;
+using SharpDXScene;
 using System;
 using System.Collections.Generic;
 using System.Windows.Input;
@@ -31,22 +32,22 @@ namespace WpfViewer.ViewModels
             }
         }
 
-        public IEnumerable<Models.Axis> Axises
+        public IEnumerable<Axis> Axises
         {
             get
             {
                 return new[]
                 {
-                    Models.Axis.None,
-                    Models.Axis.X,
-                    Models.Axis.Y,
-                    Models.Axis.Z,
+                    Axis.None,
+                    Axis.X,
+                    Axis.Y,
+                    Axis.Z,
                 };
             }
         }
 
-        Models.Axis m_flipAxis = Models.Axis.None;
-        public Models.Axis FlipAxis
+        Axis m_flipAxis = Axis.None;
+        public Axis FlipAxis
         {
             get { return m_flipAxis; }
             set

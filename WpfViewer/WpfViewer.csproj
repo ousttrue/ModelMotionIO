@@ -138,12 +138,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Models\Axis.cs" />
+    <Compile Include="Models\RenderModel.cs" />
     <Compile Include="ViewModels\AnimationViewModel.cs" />
-    <Compile Include="Models\Motion.cs" />
-    <Compile Include="Models\Node.cs" />
-    <Compile Include="Models\Scene.cs" />
-    <Compile Include="Models\Transformation.cs" />
     <Compile Include="ViewModels\ImportViewModel.cs" />
     <Compile Include="ViewModels\LogLevelToColorConverter.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
@@ -227,6 +223,10 @@
     <ProjectReference Include="..\RenderingPipe\RenderingPipe.csproj">
       <Project>{b3344beb-0688-4ae1-bb6a-0dd6afb3fdbf}</Project>
       <Name>RenderingPipe</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SharpDXScene\SharpDXScene.csproj">
+      <Project>{5145a066-a9ea-4e8e-a606-5ed8daf45613}</Project>
+      <Name>SharpDXScene</Name>
     </ProjectReference>
     <ProjectReference Include="..\Win32\Win32.csproj">
       <Project>{4f03e880-207b-4bed-a538-4eae2cbcf9ca}</Project>

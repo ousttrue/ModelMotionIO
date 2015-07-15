@@ -1,7 +1,7 @@
 ﻿using SharpDX;
 using System;
 
-namespace WpfViewer.Models
+namespace SharpDXScene
 {
     /// <summary>
     /// 姿勢

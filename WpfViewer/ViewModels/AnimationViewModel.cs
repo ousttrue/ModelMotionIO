@@ -1,5 +1,6 @@
 ﻿using NLog;
 using Reactive.Bindings;
+using SharpDXScene;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,11 +9,10 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Windows.Input;
-using WpfViewer.Models;
 
 namespace WpfViewer.ViewModels
 {
-    public class AnimationViewModel: Livet.NotificationObject
+    public class AnimationViewModel
     {
         #region Logger
         static Logger Logger

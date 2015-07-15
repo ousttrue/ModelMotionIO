@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace WpfViewer.Models
+namespace SharpDXScene
 {
     public struct Transform
     {
@@ -125,7 +123,7 @@ namespace WpfViewer.Models
     /// <summary>
     /// 一つの部位の連続した姿勢
     /// </summary>
-    public class Curve: KeyFrameControl.ITimeline
+    public class Curve
     {
         public String Name
         {
