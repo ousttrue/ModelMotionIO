@@ -242,5 +242,18 @@ namespace SharpDXScene
             }
         }
         #endregion
+
+        public T Traverse<T>(Func<Node, T> predSelf, Action<T, T> predChild)
+        {
+            var result = predSelf(this);
+
+            foreach(var child in Children)
+            {
+                var childResult=child.Traverse(predSelf, predChild);
+                predChild(result, childResult);
+            }
+
+            return result;
+        }
     }
 }
