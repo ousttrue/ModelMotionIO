@@ -137,6 +137,12 @@ namespace SharpDXScene
             private set;
         }
 
+        public Curve(String name)
+        {
+            Name = name;
+            Values = new SortedList<int, Transform>();
+        }
+
         public Curve(String name, IDictionary<int, Transform> values)
         {
             Name = name;
