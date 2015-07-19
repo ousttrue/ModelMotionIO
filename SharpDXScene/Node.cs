@@ -30,14 +30,14 @@ namespace SharpDXScene
         public Node(String name, SharpDX.Vector3 position)
         {
             Name.Value = name;
-            Position.Value = position;
+            WorldPosition.Value = position;
         }
 
         public Node(String name, SharpDX.Vector3 position, SharpDX.Vector3 offset)
         {
             Name.Value = name;
-            Position.Value = position;
-            Offset.Value = offset;
+            WorldPosition.Value = position;
+            LocalPosition.Value = offset;
         }
 
         ReactiveProperty<bool> m_isSelected;
@@ -70,30 +70,30 @@ namespace SharpDXScene
         /// <summary>
         /// Model原点からの位置
         /// </summary>
-        ReactiveProperty<SharpDX.Vector3> m_position;
-        public ReactiveProperty<SharpDX.Vector3> Position
+        ReactiveProperty<SharpDX.Vector3> m_worldPosition;
+        public ReactiveProperty<SharpDX.Vector3> WorldPosition
         {
             get {
-                if (m_position == null)
+                if (m_worldPosition == null)
                 {
-                    m_position = new ReactiveProperty<SharpDX.Vector3>();
+                    m_worldPosition = new ReactiveProperty<SharpDX.Vector3>();
                 }
-                return m_position;
+                return m_worldPosition;
             }
         }
 
         /// <summary>
         /// 親ボーンからの位置
         /// </summary>
-        ReactiveProperty<SharpDX.Vector3> m_offset;
-        public ReactiveProperty<SharpDX.Vector3> Offset
+        ReactiveProperty<SharpDX.Vector3> m_localPosition;
+        public ReactiveProperty<SharpDX.Vector3> LocalPosition
         {
             get {
-                if (m_offset == null)
+                if (m_localPosition == null)
                 {
-                    m_offset = new ReactiveProperty<SharpDX.Vector3>();
+                    m_localPosition = new ReactiveProperty<SharpDX.Vector3>();
                 }
-                return m_offset;
+                return m_localPosition;
             }
         }
 
@@ -117,7 +117,7 @@ namespace SharpDXScene
                 if (m_localTransform == null)
                 {
                     m_localTransform=
-                    KeyFrame.CombineLatest(Offset, (keyFrame, offset) =>
+                    KeyFrame.CombineLatest(LocalPosition, (keyFrame, offset) =>
                     {
                         return new Transform(keyFrame.Translation + offset, keyFrame.Rotation);
                     })
@@ -203,7 +203,7 @@ namespace SharpDXScene
 
             foreach (var child in Children)
             {
-                foreach(var x in child.Traverse(pred, pos+Offset.Value))
+                foreach(var x in child.Traverse(pred, pos+LocalPosition.Value))
                 {
                     yield return x;
                 }

@@ -187,7 +187,7 @@ namespace WpfViewer.Models
 
         Mesh AddModel(Node model)
         {
-            var lines = model.TraversePair().Select(x => new { Parent = x.Item1.Position.Value, Offset = x.Item2.Offset.Value });
+            var lines = model.TraversePair().Select(x => new { Parent = x.Item1.WorldPosition.Value, Offset = x.Item2.LocalPosition.Value });
 
             var vertices =
                 from l in lines

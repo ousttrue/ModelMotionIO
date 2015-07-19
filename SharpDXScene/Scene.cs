@@ -272,7 +272,7 @@ namespace SharpDXScene
             var bvh = MMIO.Bvh.BvhParse.Execute(text, false);
             var node = new Node("bvh");
             BuildBvh(bvh.Root, node, 1.0f, Axis.None, false);
-            var maxY = node.Traverse().Max(x => x.Position.Value.Y);
+            var maxY = node.Traverse().Max(x => x.WorldPosition.Value.Y);
             var scale = 1.0f;
             while (maxY > 1.0f)
             {
@@ -406,7 +406,7 @@ namespace SharpDXScene
             {
                 var node = nodes[i];
                 var parent = x.Parent.HasValue ? nodes[x.Parent.Value] : root;
-                node.Offset.Value = node.Position.Value - parent.Position.Value;
+                node.LocalPosition.Value = node.WorldPosition.Value - parent.WorldPosition.Value;
                 parent.AddChild(node);
             });
 
@@ -429,7 +429,7 @@ namespace SharpDXScene
             {
                 var node = nodes[i];
                 var parent = x.ParentIndex.HasValue ? nodes[x.ParentIndex.Value] : root;
-                node.Offset.Value = node.Position.Value - parent.Position.Value;
+                node.LocalPosition.Value = node.WorldPosition.Value - parent.WorldPosition.Value;
                 parent.AddChild(node);
             });
 
@@ -439,7 +439,7 @@ namespace SharpDXScene
         public Node BuildBvh(MMIO.Bvh.Node bvh, Node parent, Single scale, Axis flipAxis, bool yRotate)
         {
             var node = new Node(bvh.Name, SharpDX.Vector3.Zero, bvh.Offset.ToSharpDX(flipAxis) * scale);
-            node.Position.Value = parent.Position.Value + node.Offset.Value;
+            node.WorldPosition.Value = parent.WorldPosition.Value + node.LocalPosition.Value;
             parent.AddChild(node);
 
             foreach (var child in bvh.Children)
