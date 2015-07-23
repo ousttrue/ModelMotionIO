@@ -141,7 +141,7 @@ namespace SharpDXScene
         public event EventHandler PoseSet;
     }
 
-    public class Node : NodeBase<NodeValue>
+    public class Node : Node<NodeValue>
     {
         public Node(String name)
             : this(name, SharpDX.Vector3.Zero, SharpDX.Vector3.Zero)
@@ -247,14 +247,14 @@ namespace SharpDXScene
             }
         }
 
-        ReadOnlyObservableCollection<NodeBase<NodeValue>> m_nodes;
-        public ReadOnlyObservableCollection<NodeBase<NodeValue>> Nodes
+        ReadOnlyObservableCollection<Node<NodeValue>> m_nodes;
+        public ReadOnlyObservableCollection<Node<NodeValue>> Nodes
         {
             get
             {
                 if(m_nodes==null)
                 {
-                    m_nodes = new ReadOnlyObservableCollection<NodeBase<NodeValue>>(Root.Children);
+                    m_nodes = new ReadOnlyObservableCollection<Node<NodeValue>>(Root.Children);
                 }
                 return  m_nodes;
             }

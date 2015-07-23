@@ -1,15 +1,13 @@
-﻿using Reactive.Bindings;
-using System;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Reactive.Linq;
-using System.Collections;
 
 namespace SharpDXScene
 {
-    public class NodeBase<U> : IEnumerable<NodeBase<U>>
+    public class Node<U> : IEnumerable<Node<U>>
     {
         U m_content;
         public U Content
@@ -17,61 +15,64 @@ namespace SharpDXScene
             get { return m_content; }
         }
 
-        public NodeBase(U content)
+        public Node(U content)
         {
             m_content = content;
         }
-        ObservableCollection<NodeBase<U>> m_children = new ObservableCollection<NodeBase<U>>();
-        public ObservableCollection<NodeBase<U>> Children
+
+        #region IEnumerable
+        ObservableCollection<Node<U>> m_children = new ObservableCollection<Node<U>>();
+        public ObservableCollection<Node<U>> Children
         {
             get { return m_children; }
         }
 
-        #region IEnumerable
         public void Add(U value)
         {
-            Children.Add(new NodeBase<U>(value));
+            Children.Add(new Node<U>(value));
         }
 
-        public void Add(NodeBase<U> value)
+        public void Add(Node<U> value)
         {
             Children.Add(value);
         }
 
-        public IEnumerable<NodeBase<U>> Traverse()
+        public IEnumerator<Node<U>> GetEnumerator()
+        {
+            return Children.Cast<Node<U>>().GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return Children.GetEnumerator();
+        }
+        #endregion
+
+        #region Traverse
+        public IEnumerable<Node<U>> Traverse()
         {
             return Enumerable.Repeat(this, 1).Concat(Children.SelectMany(x => x.Traverse()));
         }
 
-        public IEnumerable<Tuple<NodeBase<U>, NodeBase<U>>> TraversePair()
+        public IEnumerable<Tuple<Node<U>, Node<U>>> TraversePair()
         {
             foreach (var child in Children)
             {
                 yield return Tuple.Create(this, child);
 
-                foreach(var x in child.TraversePair())
+                foreach (var x in child.TraversePair())
                 {
                     yield return x;
                 }
             }
         }
-
-        public IEnumerator<NodeBase<U>> GetEnumerator()
-        {
-            return Traverse().GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return Traverse().GetEnumerator();
-        }
         #endregion
 
-        public delegate S Pred<S>(IEnumerable<NodeBase<U>> path, IEnumerable<S> results);
+        public delegate S Pred<S>(IEnumerable<Node<U>> path, IEnumerable<S> results);
 
         #region ForEach
         void ForEach<S>(Pred<S> pred
-            , IEnumerable<NodeBase<U>> path, IEnumerable<S> results)
+            , IEnumerable<Node<U>> path, IEnumerable<S> results)
         {
             var result = pred(path, results);
 
@@ -90,11 +91,11 @@ namespace SharpDXScene
         #endregion
 
         #region Map
-        NodeBase<S> Map<S>(Pred<S> pred
-            , IEnumerable<NodeBase<U>> path, IEnumerable<S> results)
+        Node<S> Map<S>(Pred<S> pred
+            , IEnumerable<Node<U>> path, IEnumerable<S> results)
         {
             var result = pred(path, results);
-            var node = new NodeBase<S>(result);
+            var node = new Node<S>(result);
 
             foreach (var child in Children)
             {
@@ -106,7 +107,7 @@ namespace SharpDXScene
             return node;
         }
 
-        public NodeBase<S> Map<S>(S seed, Pred<S> pred)
+        public Node<S> Map<S>(S seed, Pred<S> pred)
         {
             return Map(pred, Enumerable.Repeat(this, 1), Enumerable.Repeat(seed, 1));
         }
