@@ -18,9 +18,25 @@ using Win32;
 
 namespace WpfViewer.ViewModels
 {
+    static class Extensions
+    {
+        public static SharpDX.Vector3 ToSharpDX(this MMIO.Vector3 src, Axis axis)
+        {
+            switch (axis)
+            {
+                case Axis.None: return new SharpDX.Vector3(src.X, src.Y, src.Z);
+                case Axis.X: return new SharpDX.Vector3(-src.X, src.Y, src.Z);
+                case Axis.Y: return new SharpDX.Vector3(src.X, -src.Y, src.Z);
+                case Axis.Z: return new SharpDX.Vector3(src.X, src.Y, -src.Z);
+            }
+
+            throw new ArgumentException();
+        }
+    }
+
     class MainWindowViewModel : ViewModelBase
     {
-        #region ClearCommand
+        #region Command
         Livet.Commands.ViewModelCommand m_clearCommand;
         public ICommand ClearCommand
         {
@@ -36,7 +52,6 @@ namespace WpfViewer.ViewModels
                 return m_clearCommand;
             }
         }
-        #endregion
 
         Livet.Commands.ListenerCommand<IEnumerable<Uri>> m_addItemsCommand;
         public ICommand AddItemsCommand
@@ -49,6 +64,7 @@ namespace WpfViewer.ViewModels
                 return m_addItemsCommand;
             }
         }
+        #endregion
 
         #region OpenFileDialog
         Livet.Commands.ViewModelCommand m_openFileDialogCommand;
@@ -97,17 +113,111 @@ namespace WpfViewer.ViewModels
         #endregion
 
         #region Scene
-        SharpDXScene.Scene m_scene;
-        public SharpDXScene.Scene Scene
+        SharpDXScene.Scene<NodeValue> m_scene;
+        public SharpDXScene.Scene<NodeValue> Scene
         {
             get
             {
                 if (m_scene == null)
                 {
-                    m_scene = new SharpDXScene.Scene();
+                    m_scene = new SharpDXScene.Scene<NodeValue>();
                 }
                 return m_scene;
             }
+        }
+
+        public void LoadPmd(Uri uri, Single scale=1.58f/20.0f)
+        {
+            var root = new Node<NodeValue>(uri.ToString());
+            var bytes = File.ReadAllBytes(uri.LocalPath);
+            var model = MMIO.Mmd.PmdParse.Execute(bytes);
+
+            var nodes = model.Bones
+                .Select(x => NodeValue.CreateNode(x.Name
+                , x.Position.ToSharpDX(Axis.None) * scale))
+                .ToArray()
+                ;
+
+            // build tree
+            model.Bones.ForEach((x, i) =>
+            {
+                var node = nodes[i];
+                var parent = x.Parent.HasValue ? nodes[x.Parent.Value] : root;
+                node.Content.LocalPosition.Value = node.Content.WorldPosition.Value - parent.Content.WorldPosition.Value;
+                parent.Add(node);
+            });
+
+            Scene.AddModel(root);
+        }
+
+        public void LoadPmx(Uri uri, Single scale = 1.58f / 20.0f)
+        {
+            var root = new Node<NodeValue>(uri.ToString());
+            var bytes = File.ReadAllBytes(uri.LocalPath);
+            var model = MMIO.Mmd.PmxParse.Execute(bytes);
+
+            var nodes = model.Bones
+                .Select(x => NodeValue.CreateNode(x.Name, x.Position.ToSharpDX(Axis.None) * scale))
+                .ToArray()
+                ;
+
+            // build tree
+            model.Bones.ForEach((x, i) =>
+            {
+                var node = nodes[i];
+                var parent = x.ParentIndex.HasValue ? nodes[x.ParentIndex.Value] : root;
+                node.Content.LocalPosition.Value = node.Content.WorldPosition.Value - parent.Content.WorldPosition.Value;
+                parent.Add(node);
+            });
+
+            Scene.AddModel(root);
+        }
+
+        public Node<NodeValue> BuildBvh(MMIO.Bvh.Node bvh, Node<NodeValue> parent, Single scale, Axis flipAxis, bool yRotate)
+        {
+            var node = NodeValue.CreateNode(bvh.Name, SharpDX.Vector3.Zero, bvh.Offset.ToSharpDX(flipAxis) * scale);
+            node.Content.WorldPosition.Value = parent.Content.WorldPosition.Value + node.Content.LocalPosition.Value;
+            parent.Add(node);
+
+            foreach (var child in bvh.Children)
+            {
+                BuildBvh(child, node, scale, flipAxis, yRotate);
+            }
+
+            return node;
+        }
+
+        public void LoadBvhModel(Uri uri, Single scale, Axis flipAxis, bool yRotate)
+        {
+            var root = NodeValue.CreateNode(uri.ToString());
+            var text = File.ReadAllText(uri.LocalPath);
+            var bvh = MMIO.Bvh.BvhParse.Execute(text, false);
+
+            BuildBvh(bvh.Root, root, scale, flipAxis, yRotate);
+
+            Scene.AddModel(root);
+        }
+
+        public LoadParams LoadBvh(Uri uri)
+        {
+            // 追加パラメーター
+            var text = File.ReadAllText(uri.LocalPath);
+            var bvh = MMIO.Bvh.BvhParse.Execute(text, false);
+            var node = new Node<NodeValue>("bvh");
+            BuildBvh(bvh.Root, node, 1.0f, Axis.None, false);
+            var maxY = node.Traverse().Max(x => x.Content.WorldPosition.Value.Y);
+            var scale = 1.0f;
+            while (maxY > 1.0f)
+            {
+                maxY *= 0.1f;
+                scale *= 0.1f;
+            }
+            while (maxY < 0.1f)
+            {
+                maxY *= 10.0f;
+                scale *= 10.0f;
+            }
+            return new LoadParams(scale);
         }
         #endregion
 
@@ -273,11 +383,11 @@ namespace WpfViewer.ViewModels
             switch (Path.GetExtension(item.LocalPath).ToUpper())
             {
                 case ".PMD":
-                    Scene.LoadPmd(item);
+                    LoadPmd(item);
                     break;
 
                 case ".PMX":
-                    Scene.LoadPmx(item);
+                    LoadPmx(item);
                     break;
 
                 case ".VMD":
@@ -286,7 +396,7 @@ namespace WpfViewer.ViewModels
 
                 case ".BVH":
                     {
-                        var param=Scene.LoadBvh(item);
+                        var param=LoadBvh(item);
                         var vm = new ImportViewModel(param);
                         ImportDialog(vm);
                         if (!vm.IsDone)
@@ -294,7 +404,7 @@ namespace WpfViewer.ViewModels
                             Logger.Info("Import canceled");
                             return;
                         }
-                        Scene.LoadBvhModel(item, param.Scaling.Value, param.FlipAxis.Value, param.YRotate.Value);
+                        LoadBvhModel(item, param.Scaling.Value, param.FlipAxis.Value, param.YRotate.Value);
                         Scene.LoadBvhMotion(item, param.Scaling.Value, param.FlipAxis.Value, param.YRotate.Value);
                     }
                     break;

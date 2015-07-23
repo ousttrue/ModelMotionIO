@@ -28,7 +28,7 @@ namespace WpfViewer.Models
             var vertices = node.TraversePair()
                 .Select(x =>
                 {
-                    if (x.Item2.Content.IsSelected.Value)
+                    if (x.Item2.IsSelected.Value)
                     {
                         return new { line = x, color = red };
                     }
@@ -147,9 +147,9 @@ namespace WpfViewer.Models
             }
         }
 
-        Scene m_scene;
+        Scene<NodeValue> m_scene;
 
-        public RenderModel(Scene scene)
+        public RenderModel(Scene<NodeValue> scene)
         {
             m_scene = scene;
             scene.ModelAdded += (o, e) =>

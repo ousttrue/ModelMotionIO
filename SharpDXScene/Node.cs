@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Reactive.Bindings;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,8 +16,40 @@ namespace SharpDXScene
             get { return m_content; }
         }
 
-        public Node(U content)
+        ReactiveProperty<String> m_name;
+        public ReactiveProperty<String> Name
         {
+            get
+            {
+                if (m_name == null)
+                {
+                    m_name = new ReactiveProperty<string>();
+                }
+                return m_name;
+            }
+        }
+
+        ReactiveProperty<Boolean> m_isSelected;
+        public ReactiveProperty<Boolean> IsSelected
+        {
+            get
+            {
+                if (m_isSelected == null)
+                {
+                    m_isSelected = new ReactiveProperty<bool>();
+                }
+                return m_isSelected;
+            }
+        }
+
+        public Node(String name)
+        {
+            Name.Value = name;
+        }
+
+        public Node(String name, U content)
+        {
+            Name.Value = name;
             m_content = content;
         }
 
@@ -29,7 +62,7 @@ namespace SharpDXScene
 
         public void Add(U value)
         {
-            Children.Add(new Node<U>(value));
+            Children.Add(new Node<U>("", value));
         }
 
         public void Add(Node<U> value)
@@ -95,7 +128,7 @@ namespace SharpDXScene
             , IEnumerable<Node<U>> path, IEnumerable<S> results)
         {
             var result = pred(path, results);
-            var node = new Node<S>(result);
+            var node = new Node<S>("", result);
 
             foreach (var child in Children)
             {

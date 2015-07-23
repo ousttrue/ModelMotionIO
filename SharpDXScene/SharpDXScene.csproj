@@ -81,6 +81,7 @@
     <Compile Include="LoadParams.cs" />
     <Compile Include="Motion.cs" />
     <Compile Include="Node.cs" />
+    <Compile Include="NodeContent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scene.cs" />
     <Compile Include="ShaderResource.cs" />
