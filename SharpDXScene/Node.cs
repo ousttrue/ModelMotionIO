@@ -43,6 +43,19 @@ namespace SharpDXScene
             return Enumerable.Repeat(this, 1).Concat(Children.SelectMany(x => x.Traverse()));
         }
 
+        public IEnumerable<Tuple<NodeBase<U>, NodeBase<U>>> TraversePair()
+        {
+            foreach (var child in Children)
+            {
+                yield return Tuple.Create(this, child);
+
+                foreach(var x in child.TraversePair())
+                {
+                    yield return x;
+                }
+            }
+        }
+
         public IEnumerator<NodeBase<U>> GetEnumerator()
         {
             return Traverse().GetEnumerator();

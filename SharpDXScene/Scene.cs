@@ -124,6 +124,21 @@ namespace SharpDXScene
             get;
             set;
         }
+
+        ReactiveProperty<Transform> m_keyframe;
+        public ReactiveProperty<Transform> KeyFrame
+        {
+            get {
+                if (m_keyframe == null) {
+                    m_keyframe = new ReactiveProperty<Transform>();
+                }
+                return m_keyframe;
+            }            
+        }
+
+        public Transform WorldTransform;
+
+        public event EventHandler PoseSet;
     }
 
     public class Node : NodeBase<NodeValue>

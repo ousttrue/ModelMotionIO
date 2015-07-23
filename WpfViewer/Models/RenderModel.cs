@@ -28,11 +28,11 @@ namespace WpfViewer.Models
             var vertices = node.TraversePair()
                 .Select(x =>
                 {
-                    if (x.Item2.IsSelected.Value)
+                    if (x.Item2.Content.IsSelected.Value)
                     {
                         return new { line = x, color = red };
                     }
-                    else if (x.Item2.KeyFrame.Value == Transform.Identity)
+                    else if (x.Item2.Content.KeyFrame.Value == Transform.Identity)
                     {
                         return new { line = x, color = gray };
                     }
@@ -42,8 +42,8 @@ namespace WpfViewer.Models
                     }
                 })
                 .SelectMany(x => new SharpDX.Vector4[] {
-                    new SharpDX.Vector4(x.line.Item1.WorldTransform.Translation, 1.0f), x.color
-                    , new SharpDX.Vector4(x.line.Item2.WorldTransform.Translation, 1.0f), x.color
+                    new SharpDX.Vector4(x.line.Item1.Content.WorldTransform.Translation, 1.0f), x.color
+                    , new SharpDX.Vector4(x.line.Item2.Content.WorldTransform.Translation, 1.0f), x.color
                 })
                 .SelectMany(x => new Single[] { x.X, x.Y, x.Z, x.W })
                 .ToArray()
@@ -99,6 +99,7 @@ namespace WpfViewer.Models
                 foreach (var mesh in
                 m_scene.Root
                     .Traverse()
+                    .Select(x => (Node)x)
                     .Where(x => m_meshMap.ContainsKey(x))
                     .Select(x => m_meshMap[x])
                     .Where(x => x != null && x.VertexBuffer != null))
@@ -126,8 +127,8 @@ namespace WpfViewer.Models
 
                 foreach (var mesh in m_scene.Root
                     .Traverse()
-                    .Where(x => m_meshMap.ContainsKey(x))
-                    .Select(x => m_meshMap[x])
+                    .Where(x => m_meshMap.ContainsKey((Node)x))
+                    .Select(x => m_meshMap[(Node)x])
                     .Where(x => x.VertexBuffer != null)
                     .Concat(new Mesh[] { m_grid, m_axis })
                     )
@@ -154,7 +155,7 @@ namespace WpfViewer.Models
             scene.ModelAdded += (o, e) =>
             {
                 var mesh=AddModel(e.Model);
-                e.Model.PoseSet += (oo, ee) =>
+                e.Model.Content.PoseSet += (oo, ee) =>
                 {
                     mesh.UpdateVertexBuffer(e.Model);
                 };
@@ -187,7 +188,7 @@ namespace WpfViewer.Models
 
         Mesh AddModel(Node model)
         {
-            var lines = model.TraversePair().Select(x => new { Parent = x.Item1.WorldPosition.Value, Offset = x.Item2.LocalPosition.Value });
+            var lines = model.TraversePair().Select(x => new { Parent = x.Item1.Content.WorldPosition.Value, Offset = x.Item2.Content.LocalPosition.Value });
 
             var vertices =
                 from l in lines
