@@ -5,255 +5,98 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Reactive.Linq;
+using System.Collections;
 
 namespace SharpDXScene
 {
-    public class Node
+    public class NodeBase<U> : IEnumerable<NodeBase<U>>
     {
-        ReactiveProperty<String> m_name;
-        public ReactiveProperty<String> Name
+        U m_content;
+        public U Content
         {
-            get {
-                if (m_name == null)
-                {
-                    m_name = new ReactiveProperty<string>();
-                }
-                return m_name;
-            }
+            get { return m_content; }
         }
 
-        public Node(String name)
+        public NodeBase(U content)
         {
-            Name.Value = name;
+            m_content = content;
+        }
+        ObservableCollection<NodeBase<U>> m_children = new ObservableCollection<NodeBase<U>>();
+        public ObservableCollection<NodeBase<U>> Children
+        {
+            get { return m_children; }
         }
 
-        public Node(String name, SharpDX.Vector3 position)
+        #region IEnumerable
+        public void Add(U value)
         {
-            Name.Value = name;
-            WorldPosition.Value = position;
+            Children.Add(new NodeBase<U>(value));
         }
 
-        public Node(String name, SharpDX.Vector3 position, SharpDX.Vector3 offset)
+        public void Add(NodeBase<U> value)
         {
-            Name.Value = name;
-            WorldPosition.Value = position;
-            LocalPosition.Value = offset;
+            Children.Add(value);
         }
 
-        ReactiveProperty<bool> m_isSelected;
-        public ReactiveProperty<Boolean> IsSelected
+        public IEnumerable<NodeBase<U>> Traverse()
         {
-            get {
-                if (m_isSelected == null)
-                {
-                    m_isSelected = new ReactiveProperty<bool>();
-                }
-                return m_isSelected;
-            }
+            return Enumerable.Repeat(this, 1).Concat(Children.SelectMany(x => x.Traverse()));
         }
 
-        ReactiveProperty<String> m_label;
-        public ReactiveProperty<String> Label
+        public IEnumerator<NodeBase<U>> GetEnumerator()
         {
-            get
-            {
-                if (m_label==null)
-                {
-                    m_label = Name
-                      .ToReactiveProperty()
-                      ;
-                }
-                return m_label;
-            }
+            return Traverse().GetEnumerator();
         }
 
-        /// <summary>
-        /// Model原点からの位置
-        /// </summary>
-        ReactiveProperty<SharpDX.Vector3> m_worldPosition;
-        public ReactiveProperty<SharpDX.Vector3> WorldPosition
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            get {
-                if (m_worldPosition == null)
-                {
-                    m_worldPosition = new ReactiveProperty<SharpDX.Vector3>();
-                }
-                return m_worldPosition;
-            }
-        }
-
-        /// <summary>
-        /// 親ボーンからの位置
-        /// </summary>
-        ReactiveProperty<SharpDX.Vector3> m_localPosition;
-        public ReactiveProperty<SharpDX.Vector3> LocalPosition
-        {
-            get {
-                if (m_localPosition == null)
-                {
-                    m_localPosition = new ReactiveProperty<SharpDX.Vector3>();
-                }
-                return m_localPosition;
-            }
-        }
-
-        ReactiveProperty<Transform> m_keyFrame;
-        public ReactiveProperty<Transform> KeyFrame
-        {
-            get {
-                if (m_keyFrame == null)
-                {
-                    m_keyFrame = new ReactiveProperty<Transform>(Transform.Identity);
-                }
-                return m_keyFrame;
-            }
-        }
-
-        ReactiveProperty<Transform> m_localTransform;
-        public ReactiveProperty<Transform> LocalTransform
-        {
-            get
-            {
-                if (m_localTransform == null)
-                {
-                    m_localTransform=
-                    KeyFrame.CombineLatest(LocalPosition, (keyFrame, offset) =>
-                    {
-                        return new Transform(keyFrame.Translation + offset, keyFrame.Rotation);
-                    })
-                    .ToReactiveProperty()
-                    ;
-                }
-                return m_localTransform;
-            }
-        }
-
-        public Transform WorldTransform
-        {
-            get
-            {
-                if (Parent == null) return LocalTransform.Value;
-                return LocalTransform.Value * Parent.WorldTransform;
-            }
-        }
-
-        #region Children
-        public Node Parent
-        {
-            get;
-            private set;
-        }
-
-        ObservableCollection<Node> m_childrenSrc= new ObservableCollection<Node>();
-        ReadOnlyObservableCollection<Node> m_children;
-        public ReadOnlyObservableCollection<Node> Children
-        {
-            get
-            {
-                if (m_children == null)
-                {
-                    m_children = new ReadOnlyObservableCollection<Node>(m_childrenSrc);
-                }
-                return m_children;
-            }
-        }
-        public void AddChild(Node child)
-        {
-            child.Parent = this;
-            m_childrenSrc.Add(child);
-        }
-        public void ClearChildren()
-        {
-            foreach (var child in Children)
-            {
-                child.Parent = null;
-            }
-            m_childrenSrc.Clear();
-        }
-
-        public IEnumerable<Tuple<Node, Node>> TraversePair()
-        {
-            foreach (var child in Children)
-            {
-                yield return Tuple.Create(this, child);
-
-                foreach (var x in child.TraversePair())
-                {
-                    yield return x;
-                }
-            }
-        }
-
-        public IEnumerable<Node> Traverse()
-        {
-            yield return this;
-
-            foreach (var child in Children)
-            {
-                foreach (var x in child.Traverse())
-                {
-                    yield return x;
-                }
-            }
-        }
-
-        public IEnumerable<T> Traverse<T>(Func<Node, SharpDX.Vector3, T> pred, SharpDX.Vector3 pos=new SharpDX.Vector3())
-        {
-            yield return pred(this, pos);
-
-            foreach (var child in Children)
-            {
-                foreach(var x in child.Traverse(pred, pos+LocalPosition.Value))
-                {
-                    yield return x;
-                }
-            }
+            return Traverse().GetEnumerator();
         }
         #endregion
 
-        #region SetPose
-        public void SetPose(Pose pose)
-        {
-            // キーフレームの更新
-            foreach (var node in Traverse())
-            {
-                Transform value;
-                if (!String.IsNullOrEmpty(node.Name.Value)
-                    && pose != null
-                    && pose.Values.TryGetValue(node.Name.Value, out value))
-                {
-                    node.KeyFrame.Value = value;
-                }
-                else
-                {
-                    node.KeyFrame.Value = Transform.Identity;
-                }
-            }
+        public delegate S Pred<S>(IEnumerable<NodeBase<U>> path, IEnumerable<S> results);
 
-            RaisePoseSet();
-        }
-        public event EventHandler PoseSet;
-        void RaisePoseSet()
+        #region ForEach
+        void ForEach<S>(Pred<S> pred
+            , IEnumerable<NodeBase<U>> path, IEnumerable<S> results)
         {
-            var tmp = PoseSet;
-            if (tmp != null)
+            var result = pred(path, results);
+
+            foreach (var child in Children)
             {
-                tmp(this, EventArgs.Empty);
+                child.ForEach(pred
+                    , Enumerable.Repeat(child, 1).Concat(path)
+                    , Enumerable.Repeat(result, 1).Concat(results));
             }
+        }
+
+        public void ForEach<S>(S seed, Pred<S> pred)
+        {
+            ForEach(pred, Enumerable.Repeat(this, 1), Enumerable.Repeat(seed, 1));
         }
         #endregion
 
-        public T Traverse<T>(Func<Node, T> predSelf, Action<T, T> predChild)
+        #region Map
+        NodeBase<S> Map<S>(Pred<S> pred
+            , IEnumerable<NodeBase<U>> path, IEnumerable<S> results)
         {
-            var result = predSelf(this);
+            var result = pred(path, results);
+            var node = new NodeBase<S>(result);
 
-            foreach(var child in Children)
+            foreach (var child in Children)
             {
-                var childResult=child.Traverse(predSelf, predChild);
-                predChild(result, childResult);
+                node.Children.Add(child.Map(pred
+                    , Enumerable.Repeat(child, 1).Concat(path)
+                    , Enumerable.Repeat(result, 1).Concat(results)));
             }
 
-            return result;
+            return node;
         }
+
+        public NodeBase<S> Map<S>(S seed, Pred<S> pred)
+        {
+            return Map(pred, Enumerable.Repeat(this, 1), Enumerable.Repeat(seed, 1));
+        }
+        #endregion
     }
 }

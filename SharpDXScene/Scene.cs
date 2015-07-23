@@ -27,6 +27,145 @@ namespace SharpDXScene
         }
     }
 
+    public enum NodeType
+    {
+        None,
+        Skeleton,
+        Mesh,
+    }
+
+    public class NodeValue
+    {
+        ReactiveProperty<String> m_name;
+        public ReactiveProperty<String> Name
+        {
+            get
+            {
+                if (m_name == null)
+                {
+                    m_name = new ReactiveProperty<string>();
+                }
+                return m_name;
+            }
+        }
+
+        ReactiveProperty<SharpDX.Vector3> m_localPosition;
+        public ReactiveProperty<SharpDX.Vector3> LocalPosition
+        {
+            get
+            {
+                if (m_localPosition == null)
+                {
+                    m_localPosition = new ReactiveProperty<Vector3>();
+                }
+                return m_localPosition;
+            }
+        }
+
+        ReactiveProperty<SharpDX.Vector3> m_worldPosition;
+        public ReactiveProperty<SharpDX.Vector3> WorldPosition
+        {
+            get
+            {
+                if(m_worldPosition==null)
+                {
+                    m_worldPosition = new ReactiveProperty<Vector3>();
+                }
+                return m_worldPosition;
+            }
+        }
+
+        ReactiveProperty<Boolean> m_isSelected;
+        public ReactiveProperty<Boolean> IsSelected
+        {
+            get
+            {
+                if (m_isSelected == null)
+                {
+                    m_isSelected = new ReactiveProperty<bool>();
+                }
+                return m_isSelected;
+            }
+        }
+
+
+        public string Label
+        {
+            get
+            {
+                return String.Format("{0}: {1}", AttributeType, Name);
+            }
+        }
+
+        public NodeType AttributeType
+        {
+            get;
+            set;
+        }
+
+        public Uri IconUri
+        {
+            get
+            {
+                switch (AttributeType)
+                {
+                    case NodeType.Skeleton:
+                        return new Uri("/Images/skeleton.png", UriKind.Relative);
+
+                    case NodeType.Mesh:
+                        return new Uri("/Images/mesh.png", UriKind.Relative);
+                }
+                return new Uri("/Images/null.png", UriKind.Relative);
+            }
+        }
+
+        public Motion Motion
+        {
+            get;
+            set;
+        }
+    }
+
+    public class Node : NodeBase<NodeValue>
+    {
+        public Node(String name)
+            : this(name, SharpDX.Vector3.Zero, SharpDX.Vector3.Zero)
+        { }
+
+        public Node(String name, SharpDX.Vector3 worldPosition)
+            : this(name, worldPosition, SharpDX.Vector3.Zero)
+        { }
+
+        public Node(String name, SharpDX.Vector3 worldPosition, SharpDX.Vector3 localPosition)
+            : base(new NodeValue())
+        {
+            Content.Name.Value = name;
+            Content.LocalPosition.Value = localPosition;
+            Content.WorldPosition.Value = worldPosition;
+        }
+
+        public ReactiveProperty<String> Name
+        {
+            get { return Content.Name; }
+        }
+
+        public ReactiveProperty<SharpDX.Vector3> LocalPosition
+        {
+            get { return Content.LocalPosition; }
+        }
+
+        public ReactiveProperty<SharpDX.Vector3> WorldPosition
+        {
+            get { return Content.WorldPosition; }
+        }
+
+        public NodeType AttributeType
+        {
+            get { return Content.AttributeType; }
+            set { Content.AttributeType = value; }
+        }
+    }
+
     public class Scene
     {
         PerspectiveProjection m_projection;
@@ -81,11 +220,11 @@ namespace SharpDXScene
                         {
                             if (x.OldItem != null)
                             {
-                                x.OldItem.IsSelected.Value = false;
+                                x.OldItem.Content.IsSelected.Value = false;
                             }
                             if (x.NewItem != null)
                             {
-                                x.NewItem.IsSelected.Value = true;
+                                x.NewItem.Content.IsSelected.Value = true;
                             }
                         });
                 }
@@ -93,11 +232,16 @@ namespace SharpDXScene
             }
         }
 
-        public ReadOnlyObservableCollection<Node> Nodes
+        ReadOnlyObservableCollection<NodeBase<NodeValue>> m_nodes;
+        public ReadOnlyObservableCollection<NodeBase<NodeValue>> Nodes
         {
             get
             {
-                return Root.Children;
+                if(m_nodes==null)
+                {
+                    m_nodes = new ReadOnlyObservableCollection<NodeBase<NodeValue>>(Root.Children);
+                }
+                return  m_nodes;
             }
         }
         #endregion
@@ -115,14 +259,14 @@ namespace SharpDXScene
                 tmp(this, new ModelEventArgs { Model = model });
             }
         }
-        void AddModel(Node model)
+        void AddModel(Node node)
         {
-            Root.AddChild(model);
-            RaiseModelAdded(model);
+            Root.Add(node);
+            RaiseModelAdded(node);
 
             CurrentPose.Subscribe(x => {
 
-                model.SetPose(x);
+                //node.SetPose(x);
                 
                 });
         }
@@ -272,7 +416,7 @@ namespace SharpDXScene
             var bvh = MMIO.Bvh.BvhParse.Execute(text, false);
             var node = new Node("bvh");
             BuildBvh(bvh.Root, node, 1.0f, Axis.None, false);
-            var maxY = node.Traverse().Max(x => x.WorldPosition.Value.Y);
+            var maxY = node.Traverse().Max(x => x.Content.WorldPosition.Value.Y);
             var scale = 1.0f;
             while (maxY > 1.0f)
             {
@@ -385,7 +529,7 @@ namespace SharpDXScene
         }
         public void Clear()
         {
-            Root.ClearChildren();
+            Root.Children.Clear();
         }
         #endregion
 
@@ -407,7 +551,7 @@ namespace SharpDXScene
                 var node = nodes[i];
                 var parent = x.Parent.HasValue ? nodes[x.Parent.Value] : root;
                 node.LocalPosition.Value = node.WorldPosition.Value - parent.WorldPosition.Value;
-                parent.AddChild(node);
+                parent.Add(node);
             });
 
             AddModel(root);
@@ -430,7 +574,7 @@ namespace SharpDXScene
                 var node = nodes[i];
                 var parent = x.ParentIndex.HasValue ? nodes[x.ParentIndex.Value] : root;
                 node.LocalPosition.Value = node.WorldPosition.Value - parent.WorldPosition.Value;
-                parent.AddChild(node);
+                parent.Add(node);
             });
 
             AddModel(root);
@@ -440,7 +584,7 @@ namespace SharpDXScene
         {
             var node = new Node(bvh.Name, SharpDX.Vector3.Zero, bvh.Offset.ToSharpDX(flipAxis) * scale);
             node.WorldPosition.Value = parent.WorldPosition.Value + node.LocalPosition.Value;
-            parent.AddChild(node);
+            parent.Add(node);
 
             foreach (var child in bvh.Children)
             {
