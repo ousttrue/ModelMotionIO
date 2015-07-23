@@ -36,6 +36,30 @@ namespace SharpDXScene
 
     public class NodeValue
     {
+        public static Node<NodeValue> CreateNode(String name
+            , SharpDX.Vector3 worldPosition
+            , SharpDX.Vector3 localPosition
+            , NodeType nodeType=NodeType.None
+            )
+        {
+            var node = new Node<NodeValue>(new NodeValue());
+            node.Content.Name.Value = name;
+            node.Content.WorldPosition.Value = worldPosition;
+            node.Content.LocalPosition.Value = localPosition;
+            node.Content.AttributeType = nodeType;
+            return node;
+        }
+        public static Node<NodeValue> CreateNode(String name
+            , SharpDX.Vector3 worldPosition
+            )
+        {
+            return CreateNode(name, worldPosition, SharpDX.Vector3.Zero);
+        }
+        public static Node<NodeValue> CreateNode(String name)
+        {
+            return CreateNode(name, SharpDX.Vector3.Zero);
+        }
+
         ReactiveProperty<String> m_name;
         public ReactiveProperty<String> Name
         {
@@ -141,6 +165,7 @@ namespace SharpDXScene
         public event EventHandler PoseSet;
     }
 
+    /*
     public class Node : Node<NodeValue>
     {
         public Node(String name)
@@ -180,6 +205,7 @@ namespace SharpDXScene
             set { Content.AttributeType = value; }
         }
     }
+    */
 
     public class Scene
     {
@@ -209,26 +235,26 @@ namespace SharpDXScene
         }
 
         #region Node
-        Node m_root;
-        public Node Root
+        Node<NodeValue> m_root;
+        public Node<NodeValue> Root
         {
             get {
                 if(m_root==null)
                 {
-                    m_root = new Node("__root__");
+                    m_root = NodeValue.CreateNode("__root__");
                     Clear();
                 }
                 return m_root;
             }
         }
 
-        ReactiveProperty<Node> m_selected;
-        public ReactiveProperty<Node> Selected
+        ReactiveProperty<Node<NodeValue>> m_selected;
+        public ReactiveProperty<Node<NodeValue>> Selected
         {
             get {
                 if (m_selected == null)
                 {
-                    m_selected = new ReactiveProperty<Node>();
+                    m_selected = new ReactiveProperty<Node<NodeValue>>();
                     m_selected
                         .Pairwise()
                         .Subscribe(x =>
@@ -263,10 +289,10 @@ namespace SharpDXScene
         #region AddModel
         public class ModelEventArgs : EventArgs
         {
-            public Node Model { get; set; }
+            public Node<NodeValue> Model { get; set; }
         }
         public event EventHandler<ModelEventArgs> ModelAdded;
-        void RaiseModelAdded(Node model)
+        void RaiseModelAdded(Node<NodeValue> model)
         {
             var tmp = ModelAdded;
             if (tmp != null)
@@ -274,7 +300,7 @@ namespace SharpDXScene
                 tmp(this, new ModelEventArgs { Model = model });
             }
         }
-        void AddModel(Node node)
+        void AddModel(Node<NodeValue> node)
         {
             Root.Add(node);
             RaiseModelAdded(node);
@@ -429,7 +455,7 @@ namespace SharpDXScene
             // 追加パラメーター
             var text = File.ReadAllText(uri.LocalPath);
             var bvh = MMIO.Bvh.BvhParse.Execute(text, false);
-            var node = new Node("bvh");
+            var node = NodeValue.CreateNode("bvh");
             BuildBvh(bvh.Root, node, 1.0f, Axis.None, false);
             var maxY = node.Traverse().Max(x => x.Content.WorldPosition.Value.Y);
             var scale = 1.0f;
@@ -551,12 +577,12 @@ namespace SharpDXScene
         #region Load
         public void LoadPmd(Uri uri, Single scale=1.58f/20.0f)
         {
-            var root = new Node(uri.ToString());
+            var root = NodeValue.CreateNode(uri.ToString());
             var bytes = File.ReadAllBytes(uri.LocalPath);
             var model = MMIO.Mmd.PmdParse.Execute(bytes);
 
             var nodes = model.Bones
-                .Select(x => new Node(x.Name, x.Position.ToSharpDX(Axis.None) * scale))
+                .Select(x => NodeValue.CreateNode(x.Name, x.Position.ToSharpDX(Axis.None) * scale))
                 .ToArray()
                 ;
 
@@ -565,7 +591,7 @@ namespace SharpDXScene
             {
                 var node = nodes[i];
                 var parent = x.Parent.HasValue ? nodes[x.Parent.Value] : root;
-                node.LocalPosition.Value = node.WorldPosition.Value - parent.WorldPosition.Value;
+                node.Content.LocalPosition.Value = node.Content.WorldPosition.Value - parent.Content.WorldPosition.Value;
                 parent.Add(node);
             });
 
@@ -574,12 +600,12 @@ namespace SharpDXScene
 
         public void LoadPmx(Uri uri, Single scale = 1.58f / 20.0f)
         {
-            var root = new Node(uri.ToString());
+            var root = NodeValue.CreateNode(uri.ToString());
             var bytes = File.ReadAllBytes(uri.LocalPath);
             var model = MMIO.Mmd.PmxParse.Execute(bytes);
 
             var nodes = model.Bones
-                .Select(x => new Node(x.Name, x.Position.ToSharpDX(Axis.None) * scale))
+                .Select(x => NodeValue.CreateNode(x.Name, x.Position.ToSharpDX(Axis.None) * scale))
                 .ToArray()
                 ;
 
@@ -588,17 +614,17 @@ namespace SharpDXScene
             {
                 var node = nodes[i];
                 var parent = x.ParentIndex.HasValue ? nodes[x.ParentIndex.Value] : root;
-                node.LocalPosition.Value = node.WorldPosition.Value - parent.WorldPosition.Value;
+                node.Content.LocalPosition.Value = node.Content.WorldPosition.Value - parent.Content.WorldPosition.Value;
                 parent.Add(node);
             });
 
             AddModel(root);
         }
 
-        public Node BuildBvh(MMIO.Bvh.Node bvh, Node parent, Single scale, Axis flipAxis, bool yRotate)
+        public Node<NodeValue> BuildBvh(MMIO.Bvh.Node bvh, Node<NodeValue> parent, Single scale, Axis flipAxis, bool yRotate)
         {
-            var node = new Node(bvh.Name, SharpDX.Vector3.Zero, bvh.Offset.ToSharpDX(flipAxis) * scale);
-            node.WorldPosition.Value = parent.WorldPosition.Value + node.LocalPosition.Value;
+            var node = NodeValue.CreateNode(bvh.Name, SharpDX.Vector3.Zero, bvh.Offset.ToSharpDX(flipAxis) * scale);
+            node.Content.WorldPosition.Value = parent.Content.WorldPosition.Value + node.Content.LocalPosition.Value;
             parent.Add(node);
 
             foreach (var child in bvh.Children)
@@ -611,7 +637,7 @@ namespace SharpDXScene
 
         public void LoadBvhModel(Uri uri, Single scale, Axis flipAxis, bool yRotate)
         {
-            var root = new Node(uri.ToString());
+            var root = NodeValue.CreateNode(uri.ToString());
             var text = File.ReadAllText(uri.LocalPath);
             var bvh = MMIO.Bvh.BvhParse.Execute(text, false);
 

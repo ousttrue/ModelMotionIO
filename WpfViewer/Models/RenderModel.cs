@@ -19,7 +19,7 @@ namespace WpfViewer.Models
         public VertexBufferResource VertexBuffer { get; set; }
         public VertexBufferUpdateCommand VertexBufferUpdate { get; set; }
 
-        public void UpdateVertexBuffer(Node node)
+        public void UpdateVertexBuffer(Node<NodeValue> node)
         {
             var gray = new SharpDX.Vector4(0.5f, 0.5f, 0.5f, 0.5f);
             var white = new SharpDX.Vector4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -68,7 +68,7 @@ namespace WpfViewer.Models
         Mesh m_grid = new Mesh { VertexBuffer = GridVertexBuffer.Create(10) };
         Mesh m_axis = new Mesh { VertexBuffer = AxisVertexBuffer.Create(10) };
 
-        Dictionary<Node, Mesh> m_meshMap = new Dictionary<Node, Mesh>();
+        Dictionary<Node<NodeValue>, Mesh> m_meshMap = new Dictionary<Node<NodeValue>, Mesh>();
 
         int m_frame;
         Subject<RenderFrame> m_renderFrameSubject = new Subject<RenderFrame>();
@@ -99,7 +99,7 @@ namespace WpfViewer.Models
                 foreach (var mesh in
                 m_scene.Root
                     .Traverse()
-                    .Select(x => (Node)x)
+                    .Select(x => (Node<NodeValue>)x)
                     .Where(x => m_meshMap.ContainsKey(x))
                     .Select(x => m_meshMap[x])
                     .Where(x => x != null && x.VertexBuffer != null))
@@ -127,8 +127,8 @@ namespace WpfViewer.Models
 
                 foreach (var mesh in m_scene.Root
                     .Traverse()
-                    .Where(x => m_meshMap.ContainsKey((Node)x))
-                    .Select(x => m_meshMap[(Node)x])
+                    .Where(x => m_meshMap.ContainsKey((Node<NodeValue>)x))
+                    .Select(x => m_meshMap[(Node<NodeValue>)x])
                     .Where(x => x.VertexBuffer != null)
                     .Concat(new Mesh[] { m_grid, m_axis })
                     )
@@ -186,7 +186,7 @@ namespace WpfViewer.Models
             ;
         }
 
-        Mesh AddModel(Node model)
+        Mesh AddModel(Node<NodeValue> model)
         {
             var lines = model.TraversePair().Select(x => new { Parent = x.Item1.Content.WorldPosition.Value, Offset = x.Item2.Content.LocalPosition.Value });
 
