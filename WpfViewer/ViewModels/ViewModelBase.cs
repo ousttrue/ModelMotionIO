@@ -2,8 +2,10 @@
 using Livet.Messaging.IO;
 using NLog;
 using System;
+using System.Collections.ObjectModel;
+using System.Reactive.Linq;
 using System.Windows;
-
+    
 namespace WpfViewer.ViewModels
 {
     class ViewModelBase: Livet.ViewModel
@@ -12,6 +14,24 @@ namespace WpfViewer.ViewModels
         protected static Logger Logger
         {
             get { return LogManager.GetCurrentClassLogger(); }
+        }
+
+        ObservableCollection<LogEventInfo> m_messages;
+        public ObservableCollection<LogEventInfo> Messages
+        {
+            get
+            {
+                if (m_messages == null)
+                {
+                    m_messages = new ObservableCollection<LogEventInfo>();
+                    ObservableMemoryTarget.Instance.LogObservable
+                        .ObserveOnDispatcher()
+                        .Subscribe(message => {
+                            m_messages.Add(message);
+                        });
+                }
+                return m_messages;
+            }
         }
         #endregion
 

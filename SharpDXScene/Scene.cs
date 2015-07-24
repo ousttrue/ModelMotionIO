@@ -8,10 +8,12 @@ using System.Linq;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using System.Diagnostics;
+using MMIO;
+using System.Reactive;
 
 namespace SharpDXScene
 {
-    public class Scene<T>
+    public class Scene
     {
         PerspectiveProjection m_projection;
         public PerspectiveProjection Projection
@@ -39,37 +41,37 @@ namespace SharpDXScene
         }
 
         #region Node
-        Node<T> m_root;
-        public Node<T> Root
+        Node<NodeContent> m_root;
+        public Node<NodeContent> Root
         {
             get {
                 if(m_root==null)
                 {
-                    m_root = new Node<T>("__root__");
+                    m_root = new Node<NodeContent>();
                     Clear();
                 }
                 return m_root;
             }
         }
 
-        ReactiveProperty<Node<T>> m_selected;
-        public ReactiveProperty<Node<T>> Selected
+        ReactiveProperty<Node<NodeContent>> m_selected;
+        public ReactiveProperty<Node<NodeContent>> Selected
         {
             get {
                 if (m_selected == null)
                 {
-                    m_selected = new ReactiveProperty<Node<T>>();
+                    m_selected = new ReactiveProperty<Node<NodeContent>>();
                     m_selected
                         .Pairwise()
                         .Subscribe(x =>
                         {
                             if (x.OldItem != null)
                             {
-                                x.OldItem.IsSelected.Value = false;
+                                x.OldItem.Content.IsSelected.Value = false;
                             }
                             if (x.NewItem != null)
                             {
-                                x.NewItem.IsSelected.Value = true;
+                                x.NewItem.Content.IsSelected.Value = true;
                             }
                         });
                 }
@@ -77,14 +79,14 @@ namespace SharpDXScene
             }
         }
 
-        ReadOnlyObservableCollection<Node<T>> m_nodes;
-        public ReadOnlyObservableCollection<Node<T>> Nodes
+        ReadOnlyObservableCollection<Node<NodeContent>> m_nodes;
+        public ReadOnlyObservableCollection<Node<NodeContent>> Nodes
         {
             get
             {
                 if(m_nodes==null)
                 {
-                    m_nodes = new ReadOnlyObservableCollection<Node<T>>(Root.Children);
+                    m_nodes = new ReadOnlyObservableCollection<Node<NodeContent>>(Root.Children);
                 }
                 return  m_nodes;
             }
@@ -93,10 +95,10 @@ namespace SharpDXScene
         #region AddModel
         public class ModelEventArgs : EventArgs
         {
-            public Node<T> Model { get; set; }
+            public Node<NodeContent> Model { get; set; }
         }
         public event EventHandler<ModelEventArgs> ModelAdded;
-        void RaiseModelAdded(Node<T> model)
+        void RaiseModelAdded(Node<NodeContent> model)
         {
             var tmp = ModelAdded;
             if (tmp != null)
@@ -105,16 +107,47 @@ namespace SharpDXScene
             }
         }
 
-        public void AddModel(Node<T> node)
+        public void AddModel(Node<NodeContent> node)
         {
             Root.Add(node);
             RaiseModelAdded(node);
 
             CurrentPose.Subscribe(x => {
 
-                //node.SetPose(x);
-                
-                });
+                if (x == null)
+                {
+
+                }
+                else
+                {
+                    node.ForEach(Transform.Identity, (path, results) =>
+                    {
+                        var it = path.GetEnumerator();
+                        it.MoveNext();
+                        var current = it.Current;
+                        var name = current.Content.Name.Value;
+                        if (x != null && x.Values.ContainsKey(name))
+                        {
+                            var t = x.Values[name];
+                            current.Content.KeyFrame.Value = new Transform(t.Translation, t.Rotation);
+                        }
+                        else
+                        {
+                            current.Content.KeyFrame.Value = Transform.Identity;
+                        }
+
+                        current.Content.WorldTransform = current.Content.LocalTransform * results.First();
+
+                        return current.Content.WorldTransform;
+                    });
+                    foreach(var current in node.Traverse())
+                    {
+                    }
+                }
+               
+                node.Content.RaisePoseSet();
+
+            });
         }
         #endregion
 

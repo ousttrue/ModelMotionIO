@@ -1,4 +1,5 @@
 ﻿using D3D11;
+using MMIO;
 using RenderingPipe;
 using RenderingPipe.Commands;
 using RenderingPipe.Resources;
@@ -19,7 +20,7 @@ namespace WpfViewer.Models
         public VertexBufferResource VertexBuffer { get; set; }
         public VertexBufferUpdateCommand VertexBufferUpdate { get; set; }
 
-        public void UpdateVertexBuffer(Node<NodeContent> node)
+        public void UpdateVertexBuffer(MMIO.Node<NodeContent> node)
         {
             var gray = new SharpDX.Vector4(0.5f, 0.5f, 0.5f, 0.5f);
             var white = new SharpDX.Vector4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -28,7 +29,7 @@ namespace WpfViewer.Models
             var vertices = node.TraversePair()
                 .Select(x =>
                 {
-                    if (x.Item2.IsSelected.Value)
+                    if (x.Item2.Content.IsSelected.Value)
                     {
                         return new { line = x, color = red };
                     }
@@ -147,9 +148,9 @@ namespace WpfViewer.Models
             }
         }
 
-        Scene<NodeContent> m_scene;
+        Scene m_scene;
 
-        public RenderModel(Scene<NodeContent> scene)
+        public RenderModel(Scene scene)
         {
             m_scene = scene;
             scene.ModelAdded += (o, e) =>
@@ -192,7 +193,7 @@ namespace WpfViewer.Models
 
             var vertices =
                 from l in lines
-                from v in new Vector3[] { l.Parent, l.Parent + l.Offset }
+                from v in new SharpDX.Vector3[] { l.Parent, l.Parent + l.Offset }
                 select new Single[] { v.X, v.Y, v.Z, 1.0f, /*color*/ 1.0f, 1.0f, 1.0f, 1.0f, }
                 ;
 

@@ -1,56 +1,31 @@
-﻿using Reactive.Bindings;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive.Linq;
 
-namespace SharpDXScene
+namespace MMIO
 {
     public class Node<U> : IEnumerable<Node<U>>
     {
         U m_content;
         public U Content
         {
-            get { return m_content; }
-        }
-
-        ReactiveProperty<String> m_name;
-        public ReactiveProperty<String> Name
-        {
-            get
-            {
-                if (m_name == null)
+            get {
+                if(m_content== null)
                 {
-                    m_name = new ReactiveProperty<string>();
+                    m_content=Activator.CreateInstance<U>();
                 }
-                return m_name;
+                return m_content;
             }
         }
 
-        ReactiveProperty<Boolean> m_isSelected;
-        public ReactiveProperty<Boolean> IsSelected
+        public Node()
         {
-            get
-            {
-                if (m_isSelected == null)
-                {
-                    m_isSelected = new ReactiveProperty<bool>();
-                }
-                return m_isSelected;
-            }
         }
 
-        public Node(String name)
+        public Node(U content)
         {
-            Name.Value = name;
-            m_content = Activator.CreateInstance<U>();
-        }
-
-        public Node(String name, U content)
-        {
-            Name.Value = name;
             m_content = content;
         }
 
@@ -63,7 +38,7 @@ namespace SharpDXScene
 
         public void Add(U value)
         {
-            Children.Add(new Node<U>("", value));
+            Children.Add(new Node<U>(value));
         }
 
         public void Add(Node<U> value)
@@ -129,7 +104,7 @@ namespace SharpDXScene
             , IEnumerable<Node<U>> path, IEnumerable<S> results)
         {
             var result = pred(path, results);
-            var node = new Node<S>("", result);
+            var node = new Node<S>(result);
 
             foreach (var child in Children)
             {

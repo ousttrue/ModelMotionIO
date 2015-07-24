@@ -1,12 +1,12 @@
 ﻿using Livet.Commands;
 using Livet.Messaging;
 using Livet.Messaging.IO;
+using MMIO;
 using NLog;
 using Reactive.Bindings.Extensions;
 using SharpDXScene;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -64,9 +64,7 @@ namespace WpfViewer.ViewModels
                 return m_addItemsCommand;
             }
         }
-        #endregion
 
-        #region OpenFileDialog
         Livet.Commands.ViewModelCommand m_openFileDialogCommand;
         public ICommand OpenFileDialogCommand
         {
@@ -110,17 +108,54 @@ namespace WpfViewer.ViewModels
 
             AddItems(m.Response.Select(f => new Uri(f)));
         }
+
+        Livet.Commands.ViewModelCommand m_rewindCommand;
+        public ICommand RewindCommand
+        {
+            get
+            {
+                if (m_rewindCommand == null)
+                {
+                    m_rewindCommand = new Livet.Commands.ViewModelCommand(Scene.Rewind);
+                }
+                return m_rewindCommand;
+            }
+        }
+        Livet.Commands.ViewModelCommand m_startCommand;
+        public ICommand StartCommand
+        {
+            get
+            {
+                if (m_startCommand == null)
+                {
+                    m_startCommand = new Livet.Commands.ViewModelCommand(Scene.Start);
+                }
+                return m_startCommand;
+            }
+        }
+        Livet.Commands.ViewModelCommand m_stopCommand;
+        public ICommand StopCommand
+        {
+            get
+            {
+                if (m_stopCommand == null)
+                {
+                    m_stopCommand = new Livet.Commands.ViewModelCommand(Scene.Stop);
+                }
+                return m_stopCommand;
+            }
+        }
         #endregion
 
         #region Scene
-        SharpDXScene.Scene<NodeContent> m_scene;
-        public SharpDXScene.Scene<NodeContent> Scene
+        SharpDXScene.Scene m_scene;
+        public SharpDXScene.Scene Scene
         {
             get
             {
                 if (m_scene == null)
                 {
-                    m_scene = new SharpDXScene.Scene<NodeContent>();
+                    m_scene = new SharpDXScene.Scene();
                 }
                 return m_scene;
             }
@@ -128,7 +163,8 @@ namespace WpfViewer.ViewModels
 
         public void LoadPmd(Uri uri, Single scale=1.58f/20.0f)
         {
-            var root = new Node<NodeContent>(uri.ToString());
+            var root = new Node<NodeContent>();
+            root.Content.Name.Value = uri.ToString();
             var bytes = File.ReadAllBytes(uri.LocalPath);
             var model = MMIO.Mmd.PmdParse.Execute(bytes);
 
@@ -152,7 +188,8 @@ namespace WpfViewer.ViewModels
 
         public void LoadPmx(Uri uri, Single scale = 1.58f / 20.0f)
         {
-            var root = new Node<NodeContent>(uri.ToString());
+            var root = new Node<NodeContent>();
+            root.Content.Name.Value = uri.ToString();
             var bytes = File.ReadAllBytes(uri.LocalPath);
             var model = MMIO.Mmd.PmxParse.Execute(bytes);
 
@@ -189,7 +226,8 @@ namespace WpfViewer.ViewModels
 
         public void LoadBvhModel(Uri uri, Single scale, Axis flipAxis, bool yRotate)
         {
-            var root = NodeContent.CreateNode(uri.ToString());
+            var root = new Node<NodeContent>();
+            root.Content.Name.Value = uri.ToString();
             var text = File.ReadAllText(uri.LocalPath);
             var bvh = MMIO.Bvh.BvhParse.Execute(text, false);
 
@@ -203,7 +241,8 @@ namespace WpfViewer.ViewModels
             // 追加パラメーター
             var text = File.ReadAllText(uri.LocalPath);
             var bvh = MMIO.Bvh.BvhParse.Execute(text, false);
-            var node = new Node<NodeContent>("bvh");
+            var node = new Node<NodeContent>();
+            node.Content.Name.Value = "bvh";
             BuildBvh(bvh.Root, node, 1.0f, Axis.None, false);
             var maxY = node.Traverse().Max(x => x.Content.WorldPosition.Value.Y);
             var scale = 1.0f;
@@ -231,45 +270,6 @@ namespace WpfViewer.ViewModels
                     m_renderModel = new Models.RenderModel(Scene);
                 }
                 return m_renderModel;
-            }
-        }
-        #endregion
-
-        #region MotionCommand
-        Livet.Commands.ViewModelCommand m_rewindCommand;
-        public ICommand RewindCommand
-        {
-            get
-            {
-                if (m_rewindCommand == null)
-                {
-                    m_rewindCommand = new Livet.Commands.ViewModelCommand(Scene.Rewind);
-                }
-                return m_rewindCommand;
-            }
-        }
-        Livet.Commands.ViewModelCommand m_startCommand;
-        public ICommand StartCommand
-        {
-            get
-            {
-                if (m_startCommand == null)
-                {
-                    m_startCommand = new Livet.Commands.ViewModelCommand(Scene.Start);
-                }
-                return m_startCommand;
-            }
-        }
-        Livet.Commands.ViewModelCommand m_stopCommand;
-        public ICommand StopCommand
-        {
-            get
-            {
-                if (m_stopCommand == null)
-                {
-                    m_stopCommand = new Livet.Commands.ViewModelCommand(Scene.Stop);
-                }
-                return m_stopCommand;
             }
         }
         #endregion
@@ -414,25 +414,5 @@ namespace WpfViewer.ViewModels
                     break;
             }
         }
-
-        #region Messages
-        ObservableCollection<LogEventInfo> m_messages;
-        public ObservableCollection<LogEventInfo> Messages
-        {
-            get
-            {
-                if (m_messages == null)
-                {
-                    m_messages = new ObservableCollection<LogEventInfo>();
-                    ObservableMemoryTarget.Instance.LogObservable
-                        .ObserveOnDispatcher()
-                        .Subscribe(message => {
-                            m_messages.Add(message);
-                        });
-                }
-                return m_messages;
-            }
-        }
-        #endregion
     }
 }
