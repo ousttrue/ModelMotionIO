@@ -45,6 +45,7 @@ namespace SharpDXScene
         public Node(String name)
         {
             Name.Value = name;
+            m_content = Activator.CreateInstance<U>();
         }
 
         public Node(String name, U content)

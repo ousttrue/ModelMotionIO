@@ -113,14 +113,14 @@ namespace WpfViewer.ViewModels
         #endregion
 
         #region Scene
-        SharpDXScene.Scene<NodeValue> m_scene;
-        public SharpDXScene.Scene<NodeValue> Scene
+        SharpDXScene.Scene<NodeContent> m_scene;
+        public SharpDXScene.Scene<NodeContent> Scene
         {
             get
             {
                 if (m_scene == null)
                 {
-                    m_scene = new SharpDXScene.Scene<NodeValue>();
+                    m_scene = new SharpDXScene.Scene<NodeContent>();
                 }
                 return m_scene;
             }
@@ -128,12 +128,12 @@ namespace WpfViewer.ViewModels
 
         public void LoadPmd(Uri uri, Single scale=1.58f/20.0f)
         {
-            var root = new Node<NodeValue>(uri.ToString());
+            var root = new Node<NodeContent>(uri.ToString());
             var bytes = File.ReadAllBytes(uri.LocalPath);
             var model = MMIO.Mmd.PmdParse.Execute(bytes);
 
             var nodes = model.Bones
-                .Select(x => NodeValue.CreateNode(x.Name
+                .Select(x => NodeContent.CreateNode(x.Name
                 , x.Position.ToSharpDX(Axis.None) * scale))
                 .ToArray()
                 ;
@@ -152,12 +152,12 @@ namespace WpfViewer.ViewModels
 
         public void LoadPmx(Uri uri, Single scale = 1.58f / 20.0f)
         {
-            var root = new Node<NodeValue>(uri.ToString());
+            var root = new Node<NodeContent>(uri.ToString());
             var bytes = File.ReadAllBytes(uri.LocalPath);
             var model = MMIO.Mmd.PmxParse.Execute(bytes);
 
             var nodes = model.Bones
-                .Select(x => NodeValue.CreateNode(x.Name, x.Position.ToSharpDX(Axis.None) * scale))
+                .Select(x => NodeContent.CreateNode(x.Name, x.Position.ToSharpDX(Axis.None) * scale))
                 .ToArray()
                 ;
 
@@ -173,9 +173,9 @@ namespace WpfViewer.ViewModels
             Scene.AddModel(root);
         }
 
-        public Node<NodeValue> BuildBvh(MMIO.Bvh.Node bvh, Node<NodeValue> parent, Single scale, Axis flipAxis, bool yRotate)
+        public Node<NodeContent> BuildBvh(MMIO.Bvh.Node bvh, Node<NodeContent> parent, Single scale, Axis flipAxis, bool yRotate)
         {
-            var node = NodeValue.CreateNode(bvh.Name, SharpDX.Vector3.Zero, bvh.Offset.ToSharpDX(flipAxis) * scale);
+            var node = NodeContent.CreateNode(bvh.Name, SharpDX.Vector3.Zero, bvh.Offset.ToSharpDX(flipAxis) * scale);
             node.Content.WorldPosition.Value = parent.Content.WorldPosition.Value + node.Content.LocalPosition.Value;
             parent.Add(node);
 
@@ -189,7 +189,7 @@ namespace WpfViewer.ViewModels
 
         public void LoadBvhModel(Uri uri, Single scale, Axis flipAxis, bool yRotate)
         {
-            var root = NodeValue.CreateNode(uri.ToString());
+            var root = NodeContent.CreateNode(uri.ToString());
             var text = File.ReadAllText(uri.LocalPath);
             var bvh = MMIO.Bvh.BvhParse.Execute(text, false);
 
@@ -203,7 +203,7 @@ namespace WpfViewer.ViewModels
             // 追加パラメーター
             var text = File.ReadAllText(uri.LocalPath);
             var bvh = MMIO.Bvh.BvhParse.Execute(text, false);
-            var node = new Node<NodeValue>("bvh");
+            var node = new Node<NodeContent>("bvh");
             BuildBvh(bvh.Root, node, 1.0f, Axis.None, false);
             var maxY = node.Traverse().Max(x => x.Content.WorldPosition.Value.Y);
             var scale = 1.0f;

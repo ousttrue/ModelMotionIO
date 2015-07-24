@@ -15,29 +15,25 @@ namespace SharpDXScene
         Mesh,
     }
 
-    public class NodeValue
+    public class NodeContent
     {
-        public static Node<NodeValue> CreateNode(String name
+        public static Node<NodeContent> CreateNode(String name
             , SharpDX.Vector3 worldPosition
             , SharpDX.Vector3 localPosition
             , NodeType nodeType = NodeType.None
             )
         {
-            var node = new Node<NodeValue>(name, new NodeValue());
+            var node = new Node<NodeContent>(name, new NodeContent());
             node.Content.WorldPosition.Value = worldPosition;
             node.Content.LocalPosition.Value = localPosition;
             node.Content.AttributeType = nodeType;
             return node;
         }
-        public static Node<NodeValue> CreateNode(String name
+        public static Node<NodeContent> CreateNode(String name
             , SharpDX.Vector3 worldPosition
             )
         {
             return CreateNode(name, worldPosition, SharpDX.Vector3.Zero);
-        }
-        public static Node<NodeValue> CreateNode(String name)
-        {
-            return CreateNode(name, SharpDX.Vector3.Zero);
         }
 
         ReactiveProperty<SharpDX.Vector3> m_localPosition;
