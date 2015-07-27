@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace WpfViewer.Views
+namespace MMIO.Views
 {
     /// <summary>
     /// AnimationControl.xaml の相互作用ロジック

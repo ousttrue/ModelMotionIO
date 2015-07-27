@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interactivity;
 
-namespace WpfViewer.Views
+namespace MMIO.Views
 {
     public class FileDropBehavior : Behavior<FrameworkElement>
     {

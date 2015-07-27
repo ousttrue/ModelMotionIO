@@ -169,16 +169,16 @@ namespace SharpDXScene
             }
         }
 
-        ReactiveProperty<Motion> m_activeMotion;
-        public ReactiveProperty<Motion> ActiveMotion
+        ReactiveProperty<Node<Motion>> m_activeMotion;
+        public ReactiveProperty<Node<Motion>> ActiveMotion
         {
             get
             {
                 if (m_activeMotion == null)
                 {
-                    m_activeMotion = new ReactiveProperty<Motion>();
+                    m_activeMotion = new ReactiveProperty<Node<Motion>>();
                     CurrentTime
-                        .Select(x => ActiveMotion.Value != null ? ActiveMotion.Value.GetPose(x) : null)
+                        .Select(x => ActiveMotion.Value != null ? ActiveMotion.Value.Content.GetPose(x) : null)
                         .Subscribe(x => CurrentPose.Value = x)
                         ;
                 }

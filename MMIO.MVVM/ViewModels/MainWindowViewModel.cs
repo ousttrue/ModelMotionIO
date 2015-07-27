@@ -16,7 +16,7 @@ using System.Windows.Input;
 using Win32;
 
 
-namespace WpfViewer.ViewModels
+namespace MMIO.ViewModels
 {
     class MainWindowViewModel : ViewModelBase
     {

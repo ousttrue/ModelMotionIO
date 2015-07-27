@@ -1,9 +1,9 @@
-﻿<UserControl x:Class="WpfViewer.Views.AnimationControl"
+﻿<UserControl x:Class="MMIO.Views.AnimationControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:WpfViewer.Views"
+             xmlns:local="clr-namespace:MMIO.Views"
              xmlns:kf="clr-namespace:KeyFrameControl;assembly=KeyFrameControl"
              mc:Ignorable="d" 
              d:DesignHeight="480" d:DesignWidth="640">
@@ -15,17 +15,17 @@
             <Button Command="{Binding StopCommand}">Stop</Button>
         </StackPanel>
         
-        <TabControl ItemsSource="{Binding Scene.Motions}"
+        <TabControl ItemsSource="{Binding Scene.RootMotion.Children}"
                  SelectedItem="{Binding Scene.ActiveMotion.Value}"
                  >
             <TabControl.ItemTemplate>
                 <DataTemplate>
-                    <Label Content="{Binding Label}" />
+                    <Label Content="{Binding Content.Label}" />
                 </DataTemplate>
             </TabControl.ItemTemplate>
             <TabControl.ContentTemplate>
                 <DataTemplate>
-                    <kf:KeyFrameControl Timelines="{Binding .}" />
+                    <kf:KeyFrameControl Timelines="{Binding Content}" />
                 </DataTemplate>
             </TabControl.ContentTemplate>
         </TabControl>

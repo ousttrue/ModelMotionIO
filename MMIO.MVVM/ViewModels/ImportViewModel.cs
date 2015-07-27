@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Input;
 
-namespace WpfViewer.ViewModels
+namespace MMIO.ViewModels
 {
     class ImportViewModel : ViewModelBase
     {

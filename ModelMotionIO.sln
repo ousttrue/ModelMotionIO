@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22823.1
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMIO", "MMIO\MMIO.csproj", "{90580417-379D-4B97-AB4E-B180B8997B34}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeyFrameControl", "KeyFrameControl\KeyFrameControl.csproj", "{7C579E35-8A30-4D35-AAED-E902627A9050}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpDXScene", "SharpDXScene\SharpDXScene.csproj", "{5145A066-A9EA-4E8E-A606-5ED8DAF45613}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMIO.MVVM", "MMIO.MVVM\MMIO.MVVM.csproj", "{ACBA2D38-B03A-4D68-8486-857623943AE9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{5145A066-A9EA-4E8E-A606-5ED8DAF45613}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5145A066-A9EA-4E8E-A606-5ED8DAF45613}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5145A066-A9EA-4E8E-A606-5ED8DAF45613}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACBA2D38-B03A-4D68-8486-857623943AE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACBA2D38-B03A-4D68-8486-857623943AE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACBA2D38-B03A-4D68-8486-857623943AE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACBA2D38-B03A-4D68-8486-857623943AE9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

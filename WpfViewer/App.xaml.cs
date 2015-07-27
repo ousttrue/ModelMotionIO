@@ -19,7 +19,7 @@ namespace WpfViewer
         protected override void OnStartup(StartupEventArgs e)
         {
             NLog.Config.SimpleConfigurator.ConfigureForTargetLogging(
-                ViewModels.ObservableMemoryTarget.Instance, LogLevel.Trace);
+                MMIO.ViewModels.ObservableMemoryTarget.Instance, LogLevel.Trace);
         }
     }
 }

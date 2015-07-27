@@ -3,7 +3,7 @@ using System.Collections.Specialized;
 using System.Windows.Controls;
 using System.Windows.Interactivity;
 
-namespace WpfViewer.Views
+namespace MMIO.Views
 {
     class AutoScrollBehavior : Behavior<ListBox>
     {

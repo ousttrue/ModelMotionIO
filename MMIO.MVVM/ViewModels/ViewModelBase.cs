@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 using System.Reactive.Linq;
 using System.Windows;
     
-namespace WpfViewer.ViewModels
+namespace MMIO.ViewModels
 {
     class ViewModelBase: Livet.ViewModel
     {

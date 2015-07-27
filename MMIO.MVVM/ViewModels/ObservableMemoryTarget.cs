@@ -3,7 +3,7 @@ using NLog.Targets;
 using System;
 using System.Reactive.Subjects;
 
-namespace WpfViewer.ViewModels
+namespace MMIO.ViewModels
 {
     [Target("MemoryTarget")]
     public class ObservableMemoryTarget : TargetWithLayout

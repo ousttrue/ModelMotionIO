@@ -10,18 +10,24 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace WpfViewer.Views
+namespace MMIO.Views
 {
     /// <summary>
-    /// ImportWindow.xaml の相互作用ロジック
+    /// MainWindow.xaml の相互作用ロジック
     /// </summary>
-    public partial class ImportWindow : Window
+    public partial class MainWindow : Window
     {
-        public ImportWindow()
+        public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void ListBox_Selected(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

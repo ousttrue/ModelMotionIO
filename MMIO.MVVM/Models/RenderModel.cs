@@ -1,5 +1,4 @@
 ﻿using D3D11;
-using MMIO;
 using RenderingPipe;
 using RenderingPipe.Commands;
 using RenderingPipe.Resources;
@@ -13,7 +12,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.InteropServices;
 
-namespace WpfViewer.Models
+namespace MMIO.Models
 {
     public class Mesh
     {
