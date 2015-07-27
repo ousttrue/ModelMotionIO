@@ -155,17 +155,17 @@ namespace SharpDXScene
         #endregion
 
         #region Motion
-        ObservableCollection<Motion> m_motions;
-        public ObservableCollection<Motion> Motions
+        Node<Motion> m_rootMotion;
+        public Node<Motion> RootMotion
         {
             get
             {
-                if (m_motions == null)
+                if (m_rootMotion == null)
                 {
-                    m_motions = new ObservableCollection<Motion>();
-                    m_motions.Add(new Motion("none", 30));
+                    m_rootMotion = new Node<Motion>();
+                    m_rootMotion.Children.Add(new Node<Motion>(new Motion("none", 30)));
                 }
-                return m_motions;
+                return m_rootMotion;
             }
         }
 
@@ -222,7 +222,7 @@ namespace SharpDXScene
                     ))));
 
             motion.LastFrame = FrameToTimeSpan(vmd.BoneFrames.Max(x => x.Frame), 30);
-            Motions.Add(motion);
+            RootMotion.Children.Add(new Node<Motion>(motion));
         }
 
         static float ToRadians(float degree)
@@ -313,7 +313,7 @@ namespace SharpDXScene
                 motion.AddPose(pose);
             }
             motion.LastFrame = FrameToTimeSpan(bvh.Frames.Length, bvh.Fps);
-            Motions.Add(motion);
+            RootMotion.Children.Add(new Node<Motion>(motion));
         }
         #endregion
 
