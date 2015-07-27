@@ -125,7 +125,7 @@ namespace SharpDXScene
             {
                 if (m_keyframe == null)
                 {
-                    m_keyframe = new ReactiveProperty<Transform>();
+                    m_keyframe = new ReactiveProperty<Transform>(Transform.Identity);
                 }
                 return m_keyframe;
             }

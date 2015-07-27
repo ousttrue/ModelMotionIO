@@ -114,39 +114,28 @@ namespace SharpDXScene
 
             CurrentPose.Subscribe(x => {
 
-                if (x == null)
+                node.ForEach(Transform.Identity, (path, results) =>
                 {
-
-                }
-                else
-                {
-                    node.ForEach(Transform.Identity, (path, results) =>
+                    var it = path.GetEnumerator();
+                    it.MoveNext();
+                    var current = it.Current;
+                    var name = current.Content.Name.Value;
+                    if (x != null && x.Values.ContainsKey(name))
                     {
-                        var it = path.GetEnumerator();
-                        it.MoveNext();
-                        var current = it.Current;
-                        var name = current.Content.Name.Value;
-                        if (x != null && x.Values.ContainsKey(name))
-                        {
-                            var t = x.Values[name];
-                            current.Content.KeyFrame.Value = new Transform(t.Translation, t.Rotation);
-                        }
-                        else
-                        {
-                            current.Content.KeyFrame.Value = Transform.Identity;
-                        }
-
-                        current.Content.WorldTransform = current.Content.LocalTransform * results.First();
-
-                        return current.Content.WorldTransform;
-                    });
-                    foreach(var current in node.Traverse())
-                    {
+                        var t = x.Values[name];
+                        current.Content.KeyFrame.Value = new Transform(t.Translation, t.Rotation);
                     }
-                }
+                    else
+                    {
+                        current.Content.KeyFrame.Value = Transform.Identity;
+                    }
+
+                    current.Content.WorldTransform = current.Content.LocalTransform * results.First();
+
+                    return current.Content.WorldTransform;
+                });
                
                 node.Content.RaisePoseSet();
-
             });
         }
         #endregion

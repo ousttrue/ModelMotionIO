@@ -91,7 +91,7 @@ xmlns:avalonDock="http://schemas.xceed.com/wpf/xaml/avalondock"
                                     <TreeView.ItemTemplate>
                                         <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                                             <DockPanel>
-                                                <Label Content="{Binding Label}"/>
+                                                <Label Content="{Binding Content.Name.Value}"/>
                                             </DockPanel>
                                         </HierarchicalDataTemplate>
                                     </TreeView.ItemTemplate>
