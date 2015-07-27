@@ -38,6 +38,12 @@ namespace SharpDXScene
             return CreateNode(name, worldPosition, SharpDX.Vector3.Zero);
         }
 
+        public static MMIO.Node<NodeContent> CreateNode(String name
+            )
+        {
+            return CreateNode(name, SharpDX.Vector3.Zero, SharpDX.Vector3.Zero);
+        }
+
         ReactiveProperty<String> m_name;
         public ReactiveProperty<String> Name
         {
@@ -152,6 +158,12 @@ namespace SharpDXScene
             var tmp = PoseSet;
             if (tmp == null) return;
             tmp(this, EventArgs.Empty);
+        }
+
+        public SharpDX.Vector3 PreRotation
+        {
+            get;
+            set;
         }
     }
 }
